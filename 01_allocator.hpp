@@ -1,7 +1,9 @@
 #ifndef __ZHALLOC__
 #define __ZHALLOC__
 
+#pragma once
 
+#include <algorithm>
 #include <climits>	// for UINT_MAX
 #include <cstddef>	// for ptrdiff_t,size_t
 #include <cstdlib>	// for exit()
@@ -18,7 +20,7 @@ namespace zhang
 	{
 		set_new_handler(0);
 
-		auto tmp = _cove_type(::operator new((size_t)(size * sizeof(t))), t*);
+		auto tmp = _cove_type(::operator new(_cove_type(size * sizeof(t), size_t)), t*);
 
 		if (tmp == nullptr)
 		{

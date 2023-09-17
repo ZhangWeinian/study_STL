@@ -21,6 +21,9 @@
     <ClInclude Include="00_basicFile.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="02_sort.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp">

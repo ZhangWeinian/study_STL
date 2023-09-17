@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="00_basicFile.hpp" />
     <ClInclude Include="01_allocator.hpp" />
+    <ClInclude Include="02_sort.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp" />

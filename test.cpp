@@ -1,11 +1,12 @@
-#include <vector>
+#pragma once
 
-/* for myself fun */
-#include "01_allocator.hpp"
+#include "00_basicFile.hpp"
 
 int main(void)
 {
-	vector<int, zhang::allocator<int>> iv = { 0, 1, 2, 3, 4 };
+	vector<int> iv = { 0, 1, 2, 3, 4 };
+
+	_STD copy_backward(iv.begin(), iv.begin() + 2, iv.begin() + 3);
 
 	for (const auto& i: iv)
 	{
