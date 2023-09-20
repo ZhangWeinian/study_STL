@@ -6,7 +6,8 @@
 
 namespace zh
 {
-	using namespace zhang::algorithms;
-	using namespace zhang::iterator;
-	using namespace zhang::sequence_containers;
+	using namespace ::zhang::algorithms;
+	using namespace ::zhang::algorithms::namespace_pair;
+	using namespace ::zhang::iterator;
+	using namespace ::zhang::sequence_containers;
 } // namespace zh

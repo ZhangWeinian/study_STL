@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <climits>
 #include <iostream>
 #include <iterator>
@@ -8,11 +9,9 @@
 #include <version>
 
 
-/* myself function */
 #ifndef _STD
 	#define _STD ::std::
 #endif // !_STD
-
 
 
 using _STD cout;
@@ -20,8 +19,12 @@ using _STD cerr;
 using _STD endl;
 using _STD cin;
 
+using _STD boolalpha;
+
 using _STD vector;
 using _STD array;
+
+using _STD pair;
 
 
 #ifndef __myFun__

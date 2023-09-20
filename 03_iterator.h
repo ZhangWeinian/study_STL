@@ -119,12 +119,12 @@ namespace zhang::iterator
 		}
 
 		template <typename InputIterator>
-		inline typename iterator_traits<InputIterator>::difference_type __distance(InputIterator first,
-																				   InputIterator last)
+		inline typename iterator_traits<InputIterator>::difference_type distance(InputIterator first,
+																				 InputIterator last)
 		{
 			using category = typename iterator_traits<InputIterator>::iterator_category;
 
-			return __distance(first, last, category());
+			return namespace_iterator::__distance(first, last, category());
 		}
 
 		// 以下是整组 advance 函数
@@ -165,16 +165,22 @@ namespace zhang::iterator
 		template <typename InputIterator, typename Distance>
 		inline void advance(InputIterator& i, Distance n)
 		{
-			__advance(i, n, iterator_category(i));
+			namespace_iterator::__advance(i, n, iterator_category(i));
 		}
 	} // namespace namespace_iterator
 
 	// 对外接口
 	using namespace_iterator::advance;
+	using namespace_iterator::bidirectional_iterator_tag;
+	using namespace_iterator::distance;
 	using namespace_iterator::distance_type;
+	using namespace_iterator::forward_iterator_tag;
+	using namespace_iterator::input_iterator_tag;
 	using namespace_iterator::iterator;
 	using namespace_iterator::iterator_category;
 	using namespace_iterator::iterator_traits;
+	using namespace_iterator::output_inerator_tag;
+	using namespace_iterator::random_access_iterator_tag;
 	using namespace_iterator::value_type;
 
 } // namespace zhang::iterator
