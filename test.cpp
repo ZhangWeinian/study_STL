@@ -1,17 +1,23 @@
 #pragma once
 
-#include "00_basicFile.hpp"
+#include "mySTL.h"
 
 int main(void)
 {
-	vector<int> iv = { 0, 1, 2, 3, 4 };
+	vector<int> iv = { 1, 56, 42, 15, 59, 77, 4, 111, 6, 8, 2, 4 };
 
-	_STD copy_backward(iv.begin(), iv.begin() + 2, iv.begin() + 3);
+	_ZH sort(iv.begin(), iv.end());
 
-	for (const auto& i: iv)
-	{
-		cout << i << ' ';
-	}
+	_ZH for_each(iv.begin(),
+				 iv.end(),
+				 [&iv](const auto& i)
+				 {
+					 cout << i << ' ';
+					 if (i == iv.back())
+					 {
+						 cout << endl << "work over" << endl;
+					 }
+				 });
 
 	return 0;
 }

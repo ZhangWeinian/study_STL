@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="01_allocator.hpp">
+    <ClInclude Include="00_basicFile.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="00_basicFile.hpp">
+    <ClInclude Include="06_algorithms.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="02_sort.hpp">
+    <ClInclude Include="03_iterator.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -29,5 +29,11 @@
     <ClCompile Include="test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mySTL.h">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\.clang-format" />
   </ItemGroup>
 </Project>

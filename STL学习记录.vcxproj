@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,12 +128,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="00_basicFile.hpp" />
-    <ClInclude Include="01_allocator.hpp" />
-    <ClInclude Include="02_sort.hpp" />
+    <ClInclude Include="00_basicFile.h" />
+    <ClInclude Include="03_iterator.h" />
+    <ClInclude Include="06_algorithms.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="mySTL.h" />
     <ClCompile Include="test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\.clang-format" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
