@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="00_basicFile.h" />
     <ClInclude Include="03_iterator.h" />
+    <ClInclude Include="04_sequence_containers.h" />
     <ClInclude Include="06_algorithms.h" />
   </ItemGroup>
   <ItemGroup>

@@ -13,14 +13,6 @@
 	#define _STD ::std::
 #endif // !_STD
 
-#ifndef _ZH
-	#define _ZH ::zhang::
-#endif // !_ZH
-
-#ifndef _ITER
-	#define _ITER ::zhang::iterator::
-#endif // !_ITER
-
 
 
 using _STD cout;
