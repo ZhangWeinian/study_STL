@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="00_basicFile.h" />
     <ClInclude Include="03_iterator.h" />
+    <ClInclude Include="04_sequence_containers.h" />
     <ClInclude Include="06_algorithms.h" />
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\.clang-format" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

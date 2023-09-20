@@ -1,34 +1,39 @@
 #include "00_basicFile.h"
 
-// 此处实现若干 简单函数
-namespace zhang
+// 此处实现若干函数
+namespace zhang::algorithms
 {
-	/* function iter_swap */
-	template <typename ForwardIterator1, typename ForwardIterator2, typename T>
-	inline void __iter_swap(ForwardIterator1 a, ForwardIterator2 b, T*)
+	// 此处实现若干简单函数
+	namespace namespace_function
 	{
-		T tmp = *a;
-		*a	  = *b;
-		*b	  = tmp;
-	}
-
-	template <typename ForwardIterator1, typename ForwardIterator2>
-	inline void iter_swap(ForwardIterator1 a, ForwardIterator2 b)
-	{
-		__iter_swap(a, b, _ITER value_type(a));
-	}
-
-	/* function for_each */
-	template <typename InputIterator, typename Function>
-	Function for_each(InputIterator first, InputIterator last, Function f)
-	{
-		for (; first != last; ++first)
+		/* function iter_swap */
+		template <typename ForwardIterator1, typename ForwardIterator2, typename T>
+		inline void __swap(ForwardIterator1 a, ForwardIterator2 b, T*)
 		{
-			f(*first);
+			T tmp = *a;
+			*a	  = *b;
+			*b	  = tmp;
 		}
 
-		return f;
-	}
+		template <typename ForwardIterator1, typename ForwardIterator2>
+		inline void iter_swap(ForwardIterator1 a, ForwardIterator2 b)
+		{
+			__swap(a, b, ::zhang::iterator::value_type(a));
+		}
+
+		/* function for_each */
+		template <typename InputIterator, typename Function>
+		Function for_each(InputIterator first, InputIterator last, Function f)
+		{
+			for (; first != last; ++first)
+			{
+				f(*first);
+			}
+
+			return f;
+		}
+
+	} // namespace namespace_function
 
 	// 此处仅实现一个 sort
 	namespace namespace_sort
@@ -58,6 +63,7 @@ namespace zhang
 
 			if (*first > value)
 			{
+				// HACK: 以期实现自己的 copy_backward()
 				_STD copy_backward(first, last, last + 1);
 				*first = value;
 			}
@@ -78,7 +84,7 @@ namespace zhang
 			{
 				for (RandomAccessIterator i = first + 1; i != last; ++i)
 				{
-					__linear_insert(first, i, _ITER value_type(first));
+					__linear_insert(first, i, ::zhang::iterator::value_type(first));
 				}
 			}
 		}
@@ -94,17 +100,23 @@ namespace zhang
 		inline void
 			__partial_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last, T*)
 		{
-			/*make_heap(first, middle);
+			::zhang::sequence_containers::make_heap(first, middle);
 
-		for (RandomAccessIterator i = middle; i < last; ++i)
-		{
-			if (*first > *i)
+			for (RandomAccessIterator i = middle; i < last; ++i)
 			{
-				__pop_heap(first, middle, i, _cove_type(*i, T), distance_type(first));
-			}
+				if (*first > *i)
+				{
+					::zhang::sequence_containers::push_heap(first, middle);
 
-			sort_heap(first, middle);
-		}*/
+					/*::zhang::sequence_containers::push_heap(first,
+															middle,
+															i,
+															_cove_type(*i, T),
+															::zhang::iterator::distance_type(first));*/
+				}
+
+				::zhang::sequence_containers::sort_heap(first, middle);
+			}
 		}
 
 		/*-----------------------------------------------------------------------------------------*/
@@ -173,7 +185,7 @@ namespace zhang
 				}
 				else
 				{
-					iter_swap(first, last);
+					namespace_function::iter_swap(first, last);
 					++first;
 				}
 			}
@@ -197,13 +209,13 @@ namespace zhang
 		template <typename RandomAccessIterator> // sort 第二部分 辅助函数：调用 插入排序
 		inline void __ungurded_insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
 		{
-			__ungurded_insertion_sort_aux(first, last, _ITER value_type(first));
+			__ungurded_insertion_sort_aux(first, last, ::zhang::iterator::value_type(first));
 		}
 
 		template <typename RandomAccessIterator> // sort 第一部分 辅助函数：递归过深时，改用 “堆排序”
 		inline void partial_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last)
 		{
-			__partial_sort(first, middle, last, _ITER value_type(first));
+			__partial_sort(first, middle, last, ::zhang::iterator::value_type(first));
 		}
 
 		template <typename Size> // sort 第一部分 辅助函数：用于控制分割恶化情况
@@ -225,8 +237,7 @@ namespace zhang
 
 		// 如下两个函数，实行了 sort 的 “两步走” 战略
 
-		// sort -- 第二部分
-		// 排序，使 “几乎有序” 蜕变到 “完全有序”
+		// sort -- 第二部分：排序，使 “几乎有序” 蜕变到 “完全有序”
 		template <typename RandomAccessIterator>
 		inline void __final_insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
 		{
@@ -243,17 +254,16 @@ namespace zhang
 			}
 		}
 
-		// sort -- 第一部分
-		// 排序，使之 “几乎有序”
+		// sort -- 第一部分：排序，使之 “几乎有序”
 		template <typename RandomAccessIterator, typename T, typename Size>
 		void __introsort_loop(RandomAccessIterator first, RandomAccessIterator last, T*, Size depth_limt)
 		{
 			// “几乎有序” 的第一个判断标准：需要排序的元素个数足够少，否则视为 “非 ‘几乎有序’ ”
 			while (last - first > __stl_threshold)
 			{
-				if (depth_limt == 0)				 // 递归深度足够深
+				if (depth_limt == 0)								 // 递归深度足够深
 				{
-					partial_sort(first, last, last); // 此时调用 partial_sort()，实际上调用了 “堆排序”
+					namespace_sort::partial_sort(first, last, last); // 此时调用 partial_sort()，实际上调用了 “堆排序”
 
 					return;
 				}
@@ -267,7 +277,7 @@ namespace zhang
 										  _cove_type(__median(*first, *(last - 1), *(first + (last - first) / 2)), T));
 
 				// 对右半段 递归sort
-				__introsort_loop(cut, last, _ITER value_type(first), depth_limt);
+				__introsort_loop(cut, last, ::zhang::iterator::value_type(first), depth_limt);
 
 				last = cut;
 
@@ -278,15 +288,14 @@ namespace zhang
 		/*------------------------------------------------------------------------------------------------*/
 
 
-		// sort
-		// 开始排序。这是 sort 函数对外的唯一接口
+		// sort -- 开始排序：这是 sort 函数对外的唯一接口
 		template <typename RandomAccessIterator>
 		inline void sort(RandomAccessIterator first, RandomAccessIterator last)
 		{
 			if (first < last) // 真实的排序由以下两个函数完成
 			{
 				// 排序，使之 “几乎有序”
-				__introsort_loop(first, last, _ITER value_type(first), __lg(last - first) * 2);
+				__introsort_loop(first, last, ::zhang::iterator::value_type(first), __lg(last - first) * 2);
 
 				// 排序，使 “几乎有序” 蜕变到 “完全有序”
 				__final_insertion_sort(first, last);
@@ -294,6 +303,9 @@ namespace zhang
 		}
 	} // namespace namespace_sort
 
+	// 对外接口
+	using namespace_function::for_each;
+	using namespace_function::iter_swap;
 	using namespace_sort::sort;
 
-} // namespace zhang
+} // namespace zhang::algorithms

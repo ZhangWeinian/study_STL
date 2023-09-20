@@ -4,20 +4,11 @@
 
 int main(void)
 {
-	vector<int> iv = { 1, 56, 42, 15, 59, 77, 4, 111, 6, 8, 2, 4 };
+	vector<int> iv = { 1, 56, 42, 15, 59, 77, 4, 11, 1, 6, 8, 2, 4, 50, 102, 33, 92, 175, 422, 8, 4, 159, 754, 926 };
 
-	_ZH sort(iv.begin(), iv.end());
+	zh::sort(iv.begin(), iv.end());
 
-	_ZH for_each(iv.begin(),
-				 iv.end(),
-				 [&iv](const auto& i)
-				 {
-					 cout << i << ' ';
-					 if (i == iv.back())
-					 {
-						 cout << endl << "work over" << endl;
-					 }
-				 });
+	zh::for_each(iv.begin(), iv.end(), [](const auto& i) { cout << i << ' '; });
 
 	return 0;
 }
