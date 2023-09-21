@@ -1,11 +1,10 @@
 #pragma once
 
 #include <algorithm>
-#include <array>
 #include <climits>
 #include <iostream>
 #include <iterator>
-#include <vector>
+#include <memory>
 #include <version>
 
 
@@ -21,9 +20,6 @@ using _STD cin;
 
 using _STD boolalpha;
 
-using _STD vector;
-using _STD array;
-
 using _STD pair;
 
 
@@ -36,5 +32,12 @@ using _STD pair;
 #endif // !__myFun__
 
 
-// SGI STL 预定义全局变量
+
+// 以下全部都是 SGI STL 预定义全局变量
+// 1、
 inline constexpr auto __stl_threshold = 16;
+
+// 2、
+#ifndef __STL_TEMPLATE_NULL
+	#define __STL_TEMPLATE_MULL template <>
+#endif // !__STL_TEMPLATE_NULL
