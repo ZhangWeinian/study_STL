@@ -1,3 +1,5 @@
+#pragma once
+
 #include "00_basicFile.h"
 
 namespace zhang::sequence_containers

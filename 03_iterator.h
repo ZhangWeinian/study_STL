@@ -13,15 +13,15 @@ namespace zhang::iterator
 		{
 		};
 
-		struct forward_iterator_tag
+		struct forward_iterator_tag: input_iterator_tag
 		{
 		};
 
-		struct bidirectional_iterator_tag
+		struct bidirectional_iterator_tag: forward_iterator_tag
 		{
 		};
 
-		struct random_access_iterator_tag
+		struct random_access_iterator_tag: bidirectional_iterator_tag
 		{
 		};
 
@@ -127,6 +127,13 @@ namespace zhang::iterator
 			return namespace_iterator::__distance(first, last, category());
 		}
 
+		template <typename InputIterator,
+				  typename Distance> // 注意，这个函数书中未给出实现，但却有这样的用法，故在此处自定义实现
+		inline void distance(InputIterator first, InputIterator last, Distance& result)
+		{
+			result = _cove_type(distance(first, last), Distance);
+		}
+
 		// 以下是整组 advance 函数
 		template <typename InputIterator, typename Distance>
 		inline void __advance(InputIterator& i, Distance n, input_iterator_tag)
@@ -165,22 +172,185 @@ namespace zhang::iterator
 		template <typename InputIterator, typename Distance>
 		inline void advance(InputIterator& i, Distance n)
 		{
-			namespace_iterator::__advance(i, n, iterator_category(i));
+			__advance(i, n, iterator_category(i));
 		}
+
+		/*-----------------------------------------------------------------------------------------*/
+
+
+
+		// 以下是 SGI STL “私房菜” -- __type_traits
+
+		// 返回值
+		struct __true_type
+		{
+		};
+
+		struct __false_type
+		{
+		};
+
+		// __type_traits
+		template <typename type>
+		struct __type_traits
+		{
+			using this_dummy_member_must_be_first = __true_type;
+			/*
+			* 不要移除这个成员，它通知“有能力自动将 __type_traits 特化”的编译器，说：我们现在所看到的这个 __type_traits template 是特化的。
+			* 这是为了确保万一编译器也是用一个名为 __type_traits 而其实与此处定义并无关联的 template 时，所有事情都仍将继续运作
+			*/
+
+			/*
+			* 以下条件应该被遵守，因为编译器有可能自动为各型别产生专属的 __type_traits 特化版本：
+			*   -- 你可以重现排列以下成员的次序
+			*   -- 你可以移除以下任何成员
+			*   -- 不可以将以下成员重命名而没有改变编译器中的对应名称
+			*   -- 新加入的成员会被视为一般船员，除非你在编译器中加上适当支持
+			*/
+			using has_trivial_default_constructor = __false_type;
+			using has_trivial_copy_constructor	  = __false_type;
+			using has_trivial_assignment_operator = __false_type;
+			using has_trivial_destructor		  = __false_type;
+			using is_POD_type					  = __false_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<char>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<signed char>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<unsigned char>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<short>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<unsigned short>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<int>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<unsigned int>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<long>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<long long>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<unsigned long>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<float>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<double>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		__STL_TEMPLATE_MULL struct __type_traits<long double>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
+		template <typename T>
+		struct __type_traits<T*>
+		{
+			using has_trivial_default_constructor = __true_type;
+			using has_trivial_copy_constructor	  = __true_type;
+			using has_trivial_assignment_operator = __true_type;
+			using has_trivial_destructor		  = __true_type;
+			using is_POD_type					  = __true_type;
+		};
+
 	} // namespace namespace_iterator
 
 	// 对外接口
+	using namespace_iterator::__type_traits;
 	using namespace_iterator::advance;
-	using namespace_iterator::bidirectional_iterator_tag;
 	using namespace_iterator::distance;
 	using namespace_iterator::distance_type;
-	using namespace_iterator::forward_iterator_tag;
-	using namespace_iterator::input_iterator_tag;
 	using namespace_iterator::iterator;
 	using namespace_iterator::iterator_category;
 	using namespace_iterator::iterator_traits;
-	using namespace_iterator::output_inerator_tag;
-	using namespace_iterator::random_access_iterator_tag;
 	using namespace_iterator::value_type;
 
 } // namespace zhang::iterator
