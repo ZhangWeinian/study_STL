@@ -4,6 +4,19 @@
 
 namespace zhang::sequence_containers
 {
+	// 预定义一些用于 简写 和 标志识别 的宏
+#ifndef __ZH_NAMESPACE__
+
+	#ifndef _STD
+		#define _STD ::std::
+	#endif // !_STD
+
+	#define __ZH_NAMESPACE__ ::zhang::
+	#define __ZH_ITER__		 ::zhang::iterator::namespace_iterator::
+
+#endif // !__ZH_NAMESPACE__
+
+
 	/* heap 算法 */
 	namespace namespace_heap
 	{
@@ -35,7 +48,7 @@ namespace zhang::sequence_containers
 		template <typename RandomAccessIterator>
 		inline void push_heap(RandomAccessIterator first, RandomAccessIterator last)
 		{
-			__push_heap_aux(first, last, ::zhang::iterator::distance_type(first), ::zhang::iterator::value_type(first));
+			__push_heap_aux(first, last, __ZH_ITER__ distance_type(first), __ZH_ITER__ value_type(first));
 		}
 
 		// pop_heap
@@ -80,13 +93,13 @@ namespace zhang::sequence_containers
 		template <typename RandomAccessIterator, typename T>
 		inline void __pop_heap_aux(RandomAccessIterator first, RandomAccessIterator last, T*)
 		{
-			__pop_heap(first, last - 1, last - 1, _cove_type(*(last - 1), T), ::zhang::iterator::distance_type(first));
+			__pop_heap(first, last - 1, last - 1, _cove_type(*(last - 1), T), __ZH_ITER__ distance_type(first));
 		}
 
 		template <typename RandomAccessIterator>
 		inline void pop_heap(RandomAccessIterator first, RandomAccessIterator last)
 		{
-			__pop_heap_aux(first, last, ::zhang::iterator::value_type(first));
+			__pop_heap_aux(first, last, __ZH_ITER__ value_type(first));
 		}
 
 		// sort_heap
@@ -127,7 +140,7 @@ namespace zhang::sequence_containers
 		template <typename RandomAccessIterator>
 		inline void make_heap(RandomAccessIterator first, RandomAccessIterator last)
 		{
-			__make_heap(first, last, ::zhang::iterator::value_type(first), ::zhang::iterator::distance_type(first));
+			__make_heap(first, last, __ZH_ITER__ value_type(first), __ZH_ITER__ distance_type(first));
 		}
 
 	} // namespace namespace_heap
@@ -137,5 +150,11 @@ namespace zhang::sequence_containers
 	using namespace_heap::pop_heap;
 	using namespace_heap::push_heap;
 	using namespace_heap::sort_heap;
+
+
+#ifdef __ZH_NAMESPACE__
+	#undef __ZH_NAMESPACE__
+	#undef __ZH_ITER__
+#endif // __ZH_NAMESPACE__
 
 } // namespace zhang::sequence_containers

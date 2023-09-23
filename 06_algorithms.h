@@ -1,17 +1,19 @@
+#pragma once
+
 #include "00_basicFile.h"
 
 /*
 * 如果没有实现自定义的容器, 则:
 * 
-* 重要! 所有 "迭代器类型参数(例如 input_iterator_tag )" 都要使用命名空间 ::std:: 中定义的迭代器类型! 
-* 重要! 所有 "迭代器类型参数(例如 input_iterator_tag )" 都要使用命名空间 ::std:: 中定义的迭代器类型! 
-* 重要! 所有 "迭代器类型参数(例如 input_iterator_tag )" 都要使用命名空间 ::std:: 中定义的迭代器类型! 
+*	重要！所有 “迭代器类型参数（例如 input_iterator_tag ）” 都要使用命名空间 ::std:: 中定义的迭代器类型！ 
+*	重要！所有 “迭代器类型参数（例如 input_iterator_tag ）” 都要使用命名空间 ::std:: 中定义的迭代器类型！ 
+*	重要！所有 “迭代器类型参数（例如 input_iterator_tag ）” 都要使用命名空间 ::std:: 中定义的迭代器类型！ 
 * 
-*		原因如下: 
-*	目前使用的容器是 MSVC STL 中定义在命名空间 ::std:: 内的, 尚未自己实现. 这导致 __ZH_ITER__ 中萃取函数 iterator_category() 的返回值都是命名空间 ::std:: 中定义的迭代器类型 (因为萃取的就是 ::std:: 中的 iterator , 那么返回值当然也是 ::std:: 中定义的类型) . 如果使用自定义的迭代器类型, 则会有以下报错:
-*	"没有适当的转换函数, 使类型 'std::xxx_iterator_tag' 转换到类型 'zhang::iterator::namespace_iterator::xxx_iterator_tag' "
+*		原因如下： 
+*	目前使用的容器是 MSVC STL 中定义在命名空间 ::std:: 内的，尚未自己实现。这导致 __ZH_ITER__ 中萃取函数 iterator_category() 的返回值都是命名空间 ::std:: 中定义的迭代器类型（因为萃取的就是 ::std:: 中的 iterator , 那么返回值当然也是 ::std:: 中定义的类型）。如果使用自定义的迭代器类型，则会有以下报错:
+*	“没有适当的转换函数，使类型 ‘std::xxx_iterator_tag’ 转换到类型 ‘zhang::iterator::namespace_iterator::xxx_iterator_tag’ ”
 * 
-* 如果实现了自定义的容器, 那么该怎么写就怎么写
+* 如果实现了自定义的容器，那么该怎么写就怎么写
 */
 
 
@@ -19,20 +21,19 @@
 // 此处实现若干函数
 namespace zhang::algorithms
 {
-	// 关于迭代器类型参数 (各种 xxx_iterator_tag )
-#ifndef __ZH_VECTOR__
-	#define __ZH_ITER_TAG__ ::std::
-#else
-	#define __ZH_ITER_TAG__ ::zhang::iterator::namespace_iterator::
-#endif // !__ZH_VECTOR__
-
+	// 预定义一些用于 简写 和 标志识别 的宏
 #ifndef __ZH_NAMESPACE__
-	#define __ZH_NAMESPACE__ ::zhamg::
+
+	#ifndef _STD
+		#define _STD ::std::
+	#endif // !_STD
+
+	#define __ZH_NAMESPACE__ ::zhang::
 	#define __ZH_ITER__		 ::zhang::iterator::namespace_iterator::
 	#define __ZH_PAIR__		 ::zhang::without_book::namespace_pair::
 	#define __ZH_HEAP__		 ::zhang::sequence_containers::namespace_heap::
-#endif // !__ZH_NAMESPACE__
 
+#endif // !__ZH_NAMESPACE__
 
 
 	// 此处实现若干简单函数
@@ -99,6 +100,148 @@ namespace zhang::algorithms
 			return f;
 		}
 
+		/* function equal() */
+		template <typename InputIterator1, typename InputIterator2>
+		inline bool equal(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2)
+		{
+			for (; first1 != last1; ++first1, ++first2) // 如果序列 1 的元素数量多于序列 2 的元素数量, 那就糟糕了
+			{
+				if (*first1 != *first2)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		/* function fill() */
+		template <typename ForwardIterator, typename T>
+		inline void fill(ForwardIterator first, ForwardIterator last, const T& value)
+		{
+			for (; first != last; ++first)
+			{
+				*first = value;
+			}
+		}
+
+		/* function fill_n() */
+		template <typename OutputIterator, typename Size, typename T>
+		inline OutputIterator fill(OutputIterator first, Size n, const T& value)
+		{
+			for (; n > 0; --n, ++first)
+			{
+				*first = value;
+			}
+
+			return first;
+		}
+
+		/* function max() */
+		template <typename T>
+		inline const T& max(const T& a, const T& b)
+		{
+			return a < b ? b : a;
+		}
+
+		template <typename T, typename Compare>
+		inline const T& max(const T& a, const T& b, Compare comp)
+		{
+			return comp(a, b) ? b : a;
+		}
+
+		/* function max_element() */
+		template <typename ForwardIterator>
+		inline ForwardIterator max_element(ForwardIterator first, ForwardIterator last)
+		{
+			if (first == last)
+			{
+				return first;
+			}
+			else
+			{
+				ForwardIterator result = first;
+
+				while (++first != last)
+				{
+					if (*result < *first)
+					{
+						result = first;
+					}
+				}
+
+				return result;
+			}
+		}
+
+		template <typename ForwardIterator, typename Compare>
+		inline ForwardIterator max_element(ForwardIterator first, ForwardIterator last, Compare comp)
+		{
+			if (first == last)
+			{
+				return first;
+			}
+			else
+			{
+				ForwardIterator result = first;
+
+				while (++first != last)
+				{
+					if (comp(*result, *first))
+					{
+						result = first;
+					}
+				}
+
+				return result;
+			}
+		}
+
+		/* function min() */
+		template <typename T>
+		inline const T& min(const T& a, const T& b)
+		{
+			return b < a ? b : a;
+		}
+
+		template <typename T, typename Compare>
+		inline const T& min(const T& a, const T& b, Compare comp)
+		{
+			return comp(a, b) ? b : a;
+		}
+
+		/* function implace_merge() 辅助函数 */
+		template <typename BidirectionalIterator, typename T, typename Distance>
+		inline void __inplace_merge_aux(BidirectionalIterator first,
+										BidirectionalIterator middle,
+										BidirectionalIterator last,
+										T*,
+										Distance*)
+		{
+			Distance	len1 = 0; // 表示序列 1 长度
+			Distance	len2 = 0; // 表示序列 2 长度
+			__ZH_ITER__ distance(first, middle, len1);
+			__ZH_ITER__ distance(middle, last, len2);
+		}
+
+		/* function inplace_merge() */
+		template <typename BidirectionalIterator>
+		inline void inplace_merge(BidirectionalIterator first, BidirectionalIterator middle, BidirectionalIterator last)
+		{
+			if (first == middle || middle == last)
+			{
+				return;
+			}
+			else
+			{
+				__inplace_merge_aux(first,
+									middle,
+									last,
+									__ZH_ITER__ value_type(first),
+									__ZH_ITER__ distance_type(first));
+			}
+		}
+
 	} // namespace namespace_function
 
 	// 此处实现 lower_bound()、upper_bound()、equal_range()、binary_search()
@@ -110,7 +253,7 @@ namespace zhang::algorithms
 												  RandomAccessIterator last,
 												  const T&			   value,
 												  Distance*,
-												  __ZH_ITER_TAG__ random_access_iterator_tag)
+												  __ZH_ITER__ random_access_iterator_tag)
 		{
 			Distance			 len	= last - first;
 			Distance			 half	= len;
@@ -141,7 +284,7 @@ namespace zhang::algorithms
 											 ForwardIterator last,
 											 const T&		 value,
 											 Distance*,
-											 __ZH_ITER_TAG__ forward_iterator_tag)
+											 __ZH_ITER__ forward_iterator_tag)
 		{
 			Distance len  = 0;
 			Distance half = 0;
@@ -190,7 +333,7 @@ namespace zhang::algorithms
 												  RandomAccessIterator last,
 												  const T&			   value,
 												  Distance*,
-												  __ZH_ITER_TAG__ random_access_iterator_tag)
+												  __ZH_ITER__ random_access_iterator_tag)
 		{
 			Distance len  = last - first;
 			Distance half = len;
@@ -222,7 +365,7 @@ namespace zhang::algorithms
 											 ForwardIterator last,
 											 const T&		 value,
 											 Distance*,
-											 __ZH_ITER_TAG__ forward_iterator_tag)
+											 __ZH_ITER__ forward_iterator_tag)
 		{
 			Distance	len	 = 0;
 			Distance	half = 0;
@@ -271,7 +414,7 @@ namespace zhang::algorithms
 										 RandomAccessIterator last,
 										 const T&			  value,
 										 Distance*,
-										 __ZH_ITER_TAG__ random_access_iterator_tag)
+										 __ZH_ITER__ random_access_iterator_tag)
 		{
 			Distance len  = last - first;
 			Distance half = len;
@@ -313,7 +456,7 @@ namespace zhang::algorithms
 																				ForwardIterator last,
 																				const T&		value,
 																				Distance*,
-																				__ZH_ITER_TAG__ forward_iterator_tag)
+																				__ZH_ITER__ forward_iterator_tag)
 		{
 			Distance len  = 0;
 			Distance half = 0;
@@ -414,14 +557,14 @@ namespace zhang::algorithms
 			}
 			else
 			{
-				__unguarded_linear_insert(last, value);
+				namespace_sort::__unguarded_linear_insert(last, value);
 			}
 		}
 
 		template <typename RandomAccessIterator> // 插入排序 （这是排序的第一步）
 		inline void __insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
 		{
-			if (first >= last)
+			if (first == last)
 			{
 				return;
 			}
@@ -429,7 +572,7 @@ namespace zhang::algorithms
 			{
 				for (RandomAccessIterator i = first + 1; i != last; ++i)
 				{
-					__linear_insert(first, i, __ZH_ITER__ value_type(first));
+					namespace_sort::__linear_insert(first, i, __ZH_ITER__ value_type(first));
 				}
 			}
 		}
@@ -542,20 +685,20 @@ namespace zhang::algorithms
 		{
 			for (RandomAccessIterator i = first; i != last; ++i)
 			{
-				__unguarded_linear_insert(i, _cove_type(*i, T));
+				namespace_sort::__unguarded_linear_insert(i, _cove_type(*i, T));
 			}
 		}
 
 		template <typename RandomAccessIterator> // sort 第二部分 辅助函数：调用 插入排序
 		inline void __ungurded_insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
 		{
-			__ungurded_insertion_sort_aux(first, last, __ZH_ITER__ value_type(first));
+			namespace_sort::__ungurded_insertion_sort_aux(first, last, __ZH_ITER__ value_type(first));
 		}
 
 		template <typename RandomAccessIterator> // sort 第一部分 辅助函数：递归过深时，改用 “堆排序”
 		inline void partial_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last)
 		{
-			__partial_sort(first, middle, last, __ZH_ITER__ value_type(first));
+			namespace_sort::__partial_sort(first, middle, last, __ZH_ITER__ value_type(first));
 		}
 
 		template <typename Size> // sort 第一部分 辅助函数：用于控制分割恶化情况
@@ -577,31 +720,14 @@ namespace zhang::algorithms
 
 		// 如下两个函数，实行了 sort 的 “两步走” 战略
 
-		// sort -- 第二部分：排序，使 “几乎有序” 蜕变到 “完全有序”
-		template <typename RandomAccessIterator>
-		inline void __final_insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
-		{
-			// 待排序元素个数是否足够多？
-			if (last - first > __stl_threshold)					  // 是
-			{
-				__insertion_sort(first, first + __stl_threshold); // 对前若干个元素 插入排序
-				__ungurded_insertion_sort(first + __stl_threshold,
-										  last); // 对剩余元素(剩余元素数量一定少于前面的元素数量) 插入排序(无边界检查)
-			}
-			else								 // 否
-			{
-				__insertion_sort(first, last); // 对这些元素 插入排序
-			}
-		}
-
 		// sort -- 第一部分：排序，使之 “几乎有序”
 		template <typename RandomAccessIterator, typename T, typename Size>
-		void __introsort_loop(RandomAccessIterator first, RandomAccessIterator last, T*, Size depth_limt)
+		void __introsort_loop(RandomAccessIterator first, RandomAccessIterator last, T*, Size depth_limit)
 		{
 			// “几乎有序” 的判断标准：需要排序的元素个数足够少，否则视为 “非 ‘几乎有序’ ”
 			while (last - first > __stl_threshold)
 			{
-				if (depth_limt == 0) // 递归深度足够深
+				if (depth_limit == 0) // 递归深度足够深
 				{
 					namespace_sort::partial_sort(first,
 												 last,
@@ -610,20 +736,38 @@ namespace zhang::algorithms
 					return;
 				}
 
-				--depth_limt;
+				--depth_limit;
 
 				// “非 ‘几乎有序’ ” 时，首先调用 快排 -- 分割
-				RandomAccessIterator cut =
-					__unguraded_partition(first,
-										  last,
-										  _cove_type(__median(*first, *(last - 1), *(first + (last - first) / 2)), T));
+				RandomAccessIterator cut = namespace_sort::__unguraded_partition(
+					first,
+					last,
+					_cove_type(__median(*first, *(last - 1), *(first + (last - first) / 2)), T));
 
 				// 对右半段 递归sort
-				__introsort_loop(cut, last, __ZH_ITER__ value_type(first), depth_limt);
+				namespace_sort::__introsort_loop(cut, last, __ZH_ITER__ value_type(first), depth_limit);
 
 				last = cut;
 
 				// 至此，回到 while 循环，准备对左半段 递归sort
+			}
+		}
+
+		// sort -- 第二部分：排序，使 “几乎有序” 蜕变到 “完全有序”
+		template <typename RandomAccessIterator>
+		inline void __final_insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
+		{
+			// 待排序元素个数是否足够多？
+			if (last - first > __stl_threshold)									  // 是
+			{
+				namespace_sort::__insertion_sort(first, first + __stl_threshold); // 对前若干个元素 插入排序
+				namespace_sort::__ungurded_insertion_sort(
+					first + __stl_threshold,
+					last); // 对剩余元素(剩余元素数量一定少于前面的元素数量) 插入排序(无边界检查)
+			}
+			else		   // 否
+			{
+				namespace_sort::__insertion_sort(first, last); // 对这些元素 插入排序
 			}
 		}
 
@@ -638,10 +782,10 @@ namespace zhang::algorithms
 			if (first < last) // 真实的排序由以下两个函数完成
 			{
 				// 排序，使之 “几乎有序”
-				__introsort_loop(first, last, __ZH_ITER__ value_type(first), __lg(last - first) * 2);
+				namespace_sort::__introsort_loop(first, last, __ZH_ITER__ value_type(first), __lg(last - first) * 2);
 
 				// 排序，使 “几乎有序” 蜕变到 “完全有序”
-				__final_insertion_sort(first, last);
+				namespace_sort::__final_insertion_sort(first, last);
 			}
 		}
 
@@ -655,7 +799,7 @@ namespace zhang::algorithms
 			template <typename RandomAccessIterator> // 插入排序 （这是排序的第一步）
 			inline void insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
 			{
-				::zhang::algorithms::namespace_sort::__insertion_sort(first, last);
+				namespace_sort::__insertion_sort(first, last);
 			}
 		} // namespace insertion_sort
 
@@ -685,8 +829,8 @@ namespace zhang::algorithms
 
 				BidirectionalIterator mid = first + n / 2;
 
-				merge_sort(first, mid);
-				merge_sort(mid, last);
+				merge_sort::merge_sort(first, mid);
+				merge_sort::merge_sort(mid, last);
 
 				// HACK: 以期实现自己的 inplace_merge() ，同时，此前提到插入排序的缺点之一 “借助额外内存” ，就体现在此函数中
 				_STD inplace_merge(first, mid, last);
@@ -713,12 +857,12 @@ namespace zhang::algorithms
 
 					if ((cut - last) >= (last - cut))
 					{
-						__quick_sort(cut, last, __ZH_ITER__ value_type(last));
+						quick_sort::__quick_sort(cut, last, __ZH_ITER__ value_type(last));
 						last = cut;
 					}
 					else
 					{
-						__quick_sort(first, cut, __ZH_ITER__ value_type(first));
+						quick_sort::__quick_sort(first, cut, __ZH_ITER__ value_type(first));
 						first = cut;
 					}
 				}
@@ -731,10 +875,21 @@ namespace zhang::algorithms
 				{
 					return;
 				}
-				__quick_sort(first, last, __ZH_ITER__ value_type(first));
+				quick_sort::__quick_sort(first, last, __ZH_ITER__ value_type(first));
 			}
 
 		} // namespace quick_sort
+
+		// 此处封装 堆排序
+		namespace heap_sort
+		{
+			template <typename RandomAccessIterator>
+			inline void
+				heap_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last = middle)
+			{
+				namespace_sort::partial_sort(first, middle, last);
+			}
+		} // namespace heap_sort
 
 	}	  // namespace namespace_sort
 
@@ -746,7 +901,7 @@ namespace zhang::algorithms
 		inline OutputIterator
 			__copy_d(RandomAccessIterator first, RandomAccessIterator last, OutputIterator result, Distance*)
 		{
-			for (Distance i = last - first; i > 0; --i, ++result, ++first) // 以 n 决定循环的次数 -- 速度快
+			for (Distance i = last - first; i > 0; --i, ++result, ++first) // 以 i 决定循环的次数 -- 速度快
 			{
 				*result = *first;
 			}
@@ -764,7 +919,7 @@ namespace zhang::algorithms
 		template <typename T> // 以下版本适用于 “指针所指之对象，具备 trivial assignment operator ”
 		inline T* __copy_t(const T* first, const T* last, T* result, __ZH_ITER__ __true_type)
 		{
-			memmove(result, first, sizeof(T) * (last - first));
+			__C_FUNCTION__ memmove(result, first, sizeof(T) * (last - first));
 
 			return result + (last - first);
 		}
@@ -772,7 +927,7 @@ namespace zhang::algorithms
 		template <typename T> // 以下版本适用于 “指针所指之对象，具备 non-trivial assignment operator ”
 		inline T* __copy_t(const T* first, const T* last, T* result, __ZH_ITER__ __false_type)
 		{
-			return __copy_d(first, last, result, _cove_type(0, ptrdiff_t*));
+			return namespace_copy::__copy_d(first, last, result, _cove_type(0, ptrdiff_t*));
 		}
 
 		/*-----------------------------------------------------------------------------------------*/
@@ -784,7 +939,7 @@ namespace zhang::algorithms
 		/* function __copy() -- 辅助函数 */
 		template <typename InputIterator, typename OutputIterator> // InputIterator 版本
 		inline OutputIterator
-			__copy(InputIterator first, InputIterator last, OutputIterator result, __ZH_ITER_TAG__ input_iterator_tag)
+			__copy(InputIterator first, InputIterator last, OutputIterator result, __ZH_ITER__ input_iterator_tag)
 		{
 			for (; first != last; ++result, ++first) // 以迭代器相同与否，决定循环是否继续 -- 速度慢
 			{
@@ -796,10 +951,10 @@ namespace zhang::algorithms
 		inline OutputIterator __copy(RandomAccessIterator first,
 									 RandomAccessIterator last,
 									 OutputIterator		  result,
-									 __ZH_ITER_TAG__	  random_access_iterator_tag)
+									 __ZH_ITER__		  random_access_iterator_tag)
 		{
 			// 又划分出一个函数，为的是其他地方也能用到
-			return __copy_d(first, last, result, __ZH_ITER__ distance_type(first));
+			return namespace_copy::__copy_d(first, last, result, __ZH_ITER__ distance_type(first));
 		}
 
 		/*-----------------------------------------------------------------------------------------*/
@@ -814,7 +969,7 @@ namespace zhang::algorithms
 		{
 			OutputIterator operator()(InputIterator first, InputIterator last, OutputIterator result)
 			{
-				return __copy(
+				return namespace_copy::__copy(
 					first,
 					last,
 					result,
@@ -829,7 +984,7 @@ namespace zhang::algorithms
 			T* operator()(T* first, T* last, T* result)
 			{
 				using t = typename __ZH_ITER__ __type_traits<T>::has_trivial_assignment_operator;
-				return __copy_t(first, last, result, t());
+				return namespace_copy::__copy_t(first, last, result, t());
 			}
 		};
 
@@ -839,7 +994,7 @@ namespace zhang::algorithms
 			T* operator()(const T* first, const T* last, T* result)
 			{
 				using t = typename __ZH_ITER__ __type_traits<T>::has_trivial_assignment_operator;
-				return __copy_t(first, last, result, t());
+				return namespace_copy::__copy_t(first, last, result, t());
 			}
 		};
 
@@ -854,7 +1009,7 @@ namespace zhang::algorithms
 						  const char* last,
 						  char* result) // 针对原生指针(可视为一种特殊的迭代器) const char* ，机型内存直接拷贝操作
 		{
-			memmove(result, first, last - first);
+			__C_FUNCTION__ memmove(result, first, last - first);
 			return result + (last - first);
 		}
 
@@ -862,9 +1017,9 @@ namespace zhang::algorithms
 		inline wchar_t*
 			copy(const wchar_t* first,
 				 const wchar_t* last,
-				 wchar_t* result) // 针对原生指针(可视为一种特殊的迭代器) const wchar_t* ，机型内存直接拷贝操作
+				 wchar_t* result) // 针对原生指针（可视为一种特殊的迭代器）const wchar_t* ，执行内存直接拷贝操作
 		{
-			memmove(result, first, sizeof(wchar_t) * (last - first));
+			__C_FUNCTION__ memmove(result, first, sizeof(wchar_t) * (last - first));
 			return result + (last - first);
 		}
 
@@ -872,7 +1027,7 @@ namespace zhang::algorithms
 		template <typename InputIterator, typename OutputIterator> // 完全泛化版本
 		inline OutputIterator copy(InputIterator first, InputIterator last, OutputIterator result)
 		{
-			return __copy_dispatch<InputIterator, OutputIterator>()(first, last, result);
+			return namespace_copy::__copy_dispatch<InputIterator, OutputIterator>()(first, last, result);
 		}
 
 	} // namespace namespace_copy
@@ -897,17 +1052,23 @@ namespace zhang::algorithms
 
 	using namespace_copy::copy;							  // 标准库 copy()
 
+	using namespace_function::equal;					  // 标准库 equal()
+	using namespace_function::fill;						  // 标准库 fill()
 	using namespace_function::find;						  // 标准库 find()
 	using namespace_function::find_if;					  // 标准库 find_if()
 	using namespace_function::for_each;					  // 标准库 for_each()
+	using namespace_function::inplace_merge;			  // 标准库 inplace_merge()
 	using namespace_function::iter_swap;				  // 标准库 iter_swap()
+	using namespace_function::max;						  // 标准库 mac()
+	using namespace_function::max_element;				  // 标准库 max_element()
+	using namespace_function::min;						  // 标准库 min()
 	using namespace_function::swap;						  // 标准库 swap()
 
 	using namespace_sort::sort;							  // 标准库 sort() 排序
+	using namespace_sort::heap_sort::heap_sort;			  // 标准库形式的 堆排序
 	using namespace_sort::insertion_sort::insertion_sort; // 标准库形式的 插入排序
 	using namespace_sort::merge_sort::merge_sort;		  // 标准库形式的 归并排序
 	using namespace_sort::quick_sort::quick_sort;		  // 标准库形式的 快速排序
-
 
 
 #ifdef __ZH_NAMESPACE__
