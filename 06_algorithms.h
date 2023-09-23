@@ -19,18 +19,27 @@
 // 此处实现若干函数
 namespace zhang::algorithms
 {
-	// 关于迭代器类型参数 (各种 xxx_iterator_tag )
-#ifndef __ZH_VECTOR__
-	#define __ZH_ITER_TAG__ ::std::
-#else
-	#define __ZH_ITER_TAG__ ::zhang::iterator::namespace_iterator::
-#endif // !__ZH_VECTOR__
-
+	// 预定义一些用于简写和标志识别的宏
 #ifndef __ZH_NAMESPACE__
+
+	// 关于迭代器类型参数 (各种 xxx_iterator_tag )
+	#ifndef __ZH_VECTOR__
+		#define __ZH_ITER_TAG__ ::std::
+	#else
+		#define __ZH_ITER_TAG__ ::zhang::iterator::namespace_iterator::
+	#endif // !__ZH_VECTOR__
+
+	// 关于 ::std::
+	#ifndef _STD
+		#define _STD ::std::
+	#endif // !_STD
+
+	// 其他
 	#define __ZH_NAMESPACE__ ::zhamg::
 	#define __ZH_ITER__		 ::zhang::iterator::namespace_iterator::
 	#define __ZH_PAIR__		 ::zhang::without_book::namespace_pair::
 	#define __ZH_HEAP__		 ::zhang::sequence_containers::namespace_heap::
+
 #endif // !__ZH_NAMESPACE__
 
 
@@ -378,7 +387,12 @@ namespace zhang::algorithms
 			return i != last && !(value < *i);
 		}
 
-	} // namespace namespace_binary_search
+		// 离开此命名空间，取消定义此宏，避免在它处产生干扰
+#ifdef __ZH_ITERATOR__
+	#undef __ZH_ITERATOR__
+#endif // __ZH_ITERATOR__
+
+	}  // namespace namespace_binary_search
 
 	// 此处实现 sort()、quick_sort()、insertion_sort()、merge_sort()
 	namespace namespace_sort
@@ -915,6 +929,7 @@ namespace zhang::algorithms
 	#undef __ZH_ITER__
 	#undef __ZH_PAIR__
 	#undef __ZH_HEAP__
+	#undef __ZH_ITER_TAG__
 #endif // __ZH_NAMESPACE__
 
 } // namespace zhang::algorithms
