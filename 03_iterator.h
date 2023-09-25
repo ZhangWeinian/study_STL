@@ -6,7 +6,7 @@ namespace zhang::iterator
 	{
 		// 五种迭代器类型
 
-#ifndef __use_myself_allocator__
+#ifndef __USE_ZH_TAG__
 
 		using contiguous_iterator_tag	 = _STD	   contiguous_iterator_tag; // from MSVC STL
 		using input_iterator_tag		 = _STD			input_iterator_tag;

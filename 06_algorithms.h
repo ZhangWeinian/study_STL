@@ -320,11 +320,11 @@ namespace zhang::algorithms
 		template <typename ForwardIterator, typename T>
 		inline ForwardIterator upper_bound(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			return __upper_bound(first,
-								 last,
-								 value,
-								 __ZH_ITER__ distance_type(first),
-								 __ZH_ITER__ iterator_category(first));
+			return namespace_binary_search::__upper_bound(first,
+														  last,
+														  value,
+														  __ZH_ITER__ distance_type(first),
+														  __ZH_ITER__ iterator_category(first));
 		}
 
 		/* function lower_bound() -- 辅助函数 */
@@ -400,11 +400,11 @@ namespace zhang::algorithms
 		template <typename ForwardIterator, typename T>
 		inline ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			return __lower_bound(first,
-								 last,
-								 value,
-								 __ZH_ITER__ distance_type(first),
-								 __ZH_ITER__ iterator_category(first));
+			return namespace_binary_search::__lower_bound(first,
+														  last,
+														  value,
+														  __ZH_ITER__ distance_type(first),
+														  __ZH_ITER__ iterator_category(first));
 		}
 
 		/* function equal_range() -- 辅助函数 */
@@ -433,14 +433,14 @@ namespace zhang::algorithms
 					first  = middle + 1; // 将区间缩小（移至后半段），以提高效率
 					len	  -= (half + 1);
 				}
-				else if (*middle > value)					   // 如果 中央元素 > 指定值
+				else if (*middle > value) // 如果 中央元素 > 指定值
 				{
-					len = half;								   // 将区间缩小（移至前半段），以提高效率
+					len = half;			  // 将区间缩小（移至前半段），以提高效率
 				}
-				else										   // 如果 中央元素 == 指定值
+				else					  // 如果 中央元素 == 指定值
 				{
-					left  = lower_bound(first, middle, value); // 在前半段寻找 lower_bound
-					right = upper_bound(++middle, first + len, value); // 在后半段寻找 lower_bound
+					left  = namespace_binary_search::lower_bound(first, middle, value);			// 在前半段寻找
+					right = namespace_binary_search::upper_bound(++middle, first + len, value); // 在后半段寻找
 
 					return __ZH_PAIR__ pair<RandomAccessIterator, RandomAccessIterator>(left, right);
 				}
@@ -486,11 +486,11 @@ namespace zhang::algorithms
 				}
 				else
 				{
-					left = lower_bound(first, middle, value);
+					left = namespace_binary_search::lower_bound(first, middle, value);
 
 					__ZH_ITER__ advance(first, len);
 
-					right = upper_bound(++middle, first, value);
+					right = namespace_binary_search::upper_bound(++middle, first, value);
 
 					return __ZH_PAIR__ pair<ForwardIterator, ForwardIterator>(left, right);
 				}
@@ -504,7 +504,7 @@ namespace zhang::algorithms
 		inline __ZH_PAIR__ pair<ForwardIterator, ForwardIterator>
 						   equal_range(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			return __equal_range(
+			return namespace_binary_search::__equal_range(
 				first,
 				last,
 				value,
@@ -516,7 +516,7 @@ namespace zhang::algorithms
 		template <typename ForwardIterator, typename T>
 		inline bool binary_search(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			ForwardIterator i = lower_bound(first, last, value);
+			ForwardIterator i = namespace_binary_search::lower_bound(first, last, value);
 
 			return i != last && !(value < *i);
 		}
@@ -819,8 +819,8 @@ namespace zhang::algorithms
 			template <typename BidirectionalIterator>
 			inline void merge_sort(BidirectionalIterator first, BidirectionalIterator last)
 			{
-				typename __ZH_ITER__ iterator_traits<BidirectionalIterator>::difference_type n =
-					__ZH_ITER__																 distance(first, last);
+				using difference_type = typename __ZH_ITER__ iterator_traits<BidirectionalIterator>::difference_type;
+				difference_type n	  = __ZH_ITER__ distance(first, last);
 
 				if (n == 0 || n == 1)
 				{
