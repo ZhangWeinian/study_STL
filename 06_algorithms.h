@@ -320,11 +320,11 @@ namespace zhang::algorithms
 		template <typename ForwardIterator, typename T>
 		inline ForwardIterator upper_bound(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			return __upper_bound(first,
-								 last,
-								 value,
-								 __ZH_ITER__ distance_type(first),
-								 __ZH_ITER__ iterator_category(first));
+			return namespace_binary_search::__upper_bound(first,
+														  last,
+														  value,
+														  __ZH_ITER__ distance_type(first),
+														  __ZH_ITER__ iterator_category(first));
 		}
 
 		/* function lower_bound() -- 辅助函数 */
@@ -400,11 +400,11 @@ namespace zhang::algorithms
 		template <typename ForwardIterator, typename T>
 		inline ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			return __lower_bound(first,
-								 last,
-								 value,
-								 __ZH_ITER__ distance_type(first),
-								 __ZH_ITER__ iterator_category(first));
+			return namespace_binary_search::__lower_bound(first,
+														  last,
+														  value,
+														  __ZH_ITER__ distance_type(first),
+														  __ZH_ITER__ iterator_category(first));
 		}
 
 		/* function equal_range() -- 辅助函数 */
@@ -433,14 +433,14 @@ namespace zhang::algorithms
 					first  = middle + 1; // 将区间缩小（移至后半段），以提高效率
 					len	  -= (half + 1);
 				}
-				else if (*middle > value)					   // 如果 中央元素 > 指定值
+				else if (*middle > value) // 如果 中央元素 > 指定值
 				{
-					len = half;								   // 将区间缩小（移至前半段），以提高效率
+					len = half;			  // 将区间缩小（移至前半段），以提高效率
 				}
-				else										   // 如果 中央元素 == 指定值
+				else					  // 如果 中央元素 == 指定值
 				{
-					left  = lower_bound(first, middle, value); // 在前半段寻找 lower_bound
-					right = upper_bound(++middle, first + len, value); // 在后半段寻找 lower_bound
+					left  = namespace_binary_search::lower_bound(first, middle, value);			// 在前半段寻找
+					right = namespace_binary_search::upper_bound(++middle, first + len, value); // 在后半段寻找
 
 					return __ZH_PAIR__ pair<RandomAccessIterator, RandomAccessIterator>(left, right);
 				}
@@ -486,11 +486,11 @@ namespace zhang::algorithms
 				}
 				else
 				{
-					left = lower_bound(first, middle, value);
+					left = namespace_binary_search::lower_bound(first, middle, value);
 
 					__ZH_ITER__ advance(first, len);
 
-					right = upper_bound(++middle, first, value);
+					right = namespace_binary_search::upper_bound(++middle, first, value);
 
 					return __ZH_PAIR__ pair<ForwardIterator, ForwardIterator>(left, right);
 				}
@@ -504,7 +504,7 @@ namespace zhang::algorithms
 		inline __ZH_PAIR__ pair<ForwardIterator, ForwardIterator>
 						   equal_range(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			return __equal_range(
+			return namespace_binary_search::__equal_range(
 				first,
 				last,
 				value,
@@ -516,7 +516,7 @@ namespace zhang::algorithms
 		template <typename ForwardIterator, typename T>
 		inline bool binary_search(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			ForwardIterator i = lower_bound(first, last, value);
+			ForwardIterator i = namespace_binary_search::lower_bound(first, last, value);
 
 			return i != last && !(value < *i);
 		}
@@ -586,7 +586,7 @@ namespace zhang::algorithms
 		template <typename RandomAccessIterator, // 堆排序
 				  typename T> // 排序，使 [first, middle) 中的元素不减有序，[middle,last) 中的元素不做有序保障
 		inline void
-			__partial_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last, T*)
+			__heap_sort_aux(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last, T*)
 		{
 			__ZH_HEAP__ make_heap(first, middle);
 
@@ -677,7 +677,7 @@ namespace zhang::algorithms
 
 
 
-		// 如下若干函数，直接服务于 sort
+		// 如下若干函数，服务于 “两步走” 战略的各个函数
 
 		template <typename RandomAccessIterator,
 				  typename T> //  sort 第二部分 辅助函数：调用 无边界检查的 插入排序
@@ -696,9 +696,9 @@ namespace zhang::algorithms
 		}
 
 		template <typename RandomAccessIterator> // sort 第一部分 辅助函数：递归过深时，改用 “堆排序”
-		inline void partial_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last)
+		inline void __heap_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last)
 		{
-			namespace_sort::__partial_sort(first, middle, last, __ZH_ITER__ value_type(first));
+			namespace_sort::__heap_sort_aux(first, middle, last, __ZH_ITER__ value_type(first));
 		}
 
 		template <typename Size> // sort 第一部分 辅助函数：用于控制分割恶化情况
@@ -718,7 +718,7 @@ namespace zhang::algorithms
 
 
 
-		// 如下两个函数，实行了 sort 的 “两步走” 战略
+		// 如下两个函数，实现了 sort 的 “两步走” 战略
 
 		// sort -- 第一部分：排序，使之 “几乎有序”
 		template <typename RandomAccessIterator, typename T, typename Size>
@@ -729,9 +729,8 @@ namespace zhang::algorithms
 			{
 				if (depth_limit == 0) // 递归深度足够深
 				{
-					namespace_sort::partial_sort(first,
-												 last,
-												 last); // 此时调用 partial_sort()，实际上调用了一个 “堆排序”
+					namespace_sort::__heap_sort(first, last,
+												last); // 此时调用 __heap_sort()，实际上调用了一个 “堆排序”
 
 					return;
 				}
@@ -747,9 +746,8 @@ namespace zhang::algorithms
 				// 对右半段 递归sort
 				namespace_sort::__introsort_loop(cut, last, __ZH_ITER__ value_type(first), depth_limit);
 
-				last = cut;
-
 				// 至此，回到 while 循环，准备对左半段 递归sort
+				last = cut;
 			}
 		}
 
@@ -819,8 +817,8 @@ namespace zhang::algorithms
 			template <typename BidirectionalIterator>
 			inline void merge_sort(BidirectionalIterator first, BidirectionalIterator last)
 			{
-				typename __ZH_ITER__ iterator_traits<BidirectionalIterator>::difference_type n =
-					__ZH_ITER__																 distance(first, last);
+				using difference_type = typename __ZH_ITER__ iterator_traits<BidirectionalIterator>::difference_type;
+				difference_type n	  = __ZH_ITER__ distance(first, last);
 
 				if (n == 0 || n == 1)
 				{
@@ -887,7 +885,7 @@ namespace zhang::algorithms
 			inline void
 				heap_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last = middle)
 			{
-				namespace_sort::partial_sort(first, middle, last);
+				namespace_sort::__heap_sort(first, middle, last);
 			}
 		} // namespace heap_sort
 
