@@ -2,11 +2,11 @@
 
 #include "mySTL.h"
 
-#include <array>
+#include <string>
 #include <vector>
 
+using _STD string;
 using _STD vector;
-using _STD array;
 
 int main(void)
 {
@@ -18,6 +18,8 @@ int main(void)
 	auto [begin, end] = zh::make_pair(iv.begin(), iv.end());
 
 	zh::for_each(begin, end, [](const auto& i) { print(i); });
+
+	string str = "hnucioew";
 
 	return 0;
 }

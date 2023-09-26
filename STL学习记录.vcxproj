@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,7 +131,6 @@
   <ItemGroup>
     <ClInclude Include="00_basicFile.h" />
     <ClInclude Include="01_without_book.h" />
-    <ClInclude Include="02_allocator.h" />
     <ClInclude Include="03_iterator.h" />
     <ClInclude Include="04_sequence_containers.h" />
     <ClInclude Include="06_algorithms.h" />

@@ -127,7 +127,7 @@ namespace zhang::algorithms
 
 		/* function fill_n() */
 		template <typename OutputIterator, typename Size, typename T>
-		inline OutputIterator fill(OutputIterator first, Size n, const T& value)
+		inline OutputIterator fill_n(OutputIterator first, Size n, const T& value)
 		{
 			for (; n > 0; --n, ++first)
 			{
@@ -1052,6 +1052,7 @@ namespace zhang::algorithms
 
 	using namespace_function::equal;					  // 标准库 equal()
 	using namespace_function::fill;						  // 标准库 fill()
+	using namespace_function::fill_n;					  // 标准库 fill_n()
 	using namespace_function::find;						  // 标准库 find()
 	using namespace_function::find_if;					  // 标准库 find_if()
 	using namespace_function::for_each;					  // 标准库 for_each()
