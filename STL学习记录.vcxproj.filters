@@ -30,6 +30,12 @@
     <ClInclude Include="01_without_book.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="msvcSTL.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="07_functor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp">

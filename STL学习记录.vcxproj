@@ -134,6 +134,8 @@
     <ClInclude Include="03_iterator.h" />
     <ClInclude Include="04_sequence_containers.h" />
     <ClInclude Include="06_algorithms.h" />
+    <ClInclude Include="07_functor.h" />
+    <ClInclude Include="msvcSTL.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mySTL.h" />
