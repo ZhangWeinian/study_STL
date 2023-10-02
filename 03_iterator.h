@@ -8,7 +8,7 @@ namespace zhang::iterator
 
 #ifndef __USE_ZH_TAG__
 
-		using contiguous_iterator_tag	 = _STD	   contiguous_iterator_tag; // from MSVC STL
+		using contiguous_iterator_tag	 = _STD	   contiguous_iterator_tag;
 		using input_iterator_tag		 = _STD			input_iterator_tag;
 		using output_iterator_tag		 = _STD		   output_iterator_tag;
 		using forward_iterator_tag		 = _STD		  forward_iterator_tag;
@@ -185,7 +185,7 @@ namespace zhang::iterator
 		template <typename InputIterator, typename Distance>
 		inline void advance(InputIterator& i, Distance n)
 		{
-			__advance(i, n, iterator_category(i));
+			namespace_iterator::__advance(i, n, iterator_category(i));
 		}
 
 		/*-----------------------------------------------------------------------------------------*/
@@ -209,16 +209,19 @@ namespace zhang::iterator
 		{
 			using this_dummy_member_must_be_first = __true_type;
 			/*
-			* 不要移除这个成员，它通知“有能力自动将 __type_traits 特化”的编译器，说：我们现在所看到的这个 __type_traits template 是特化的。
-			* 这是为了确保万一编译器也是用一个名为 __type_traits 而其实与此处定义并无关联的 template 时，所有事情都仍将继续运作
-			*/
+			 * 不要移除这个成员，它通知“有能力自动将 __type_traits
+			 * 特化”的编译器，说：我们现在所看到的这个 __type_traits template 是特化的。
+			 * 这是为了确保万一编译器也是用一个名为 __type_traits
+			 * 而其实与此处定义并无关联的 template 时，所有事情都仍将继续运作
+			 */
 
 			/*
-			* 以下条件应该被遵守，因为编译器有可能自动为各型别产生专属的 __type_traits 特化版本：
-			*   -- 你可以重现排列以下成员的次序
-			*   -- 你可以移除以下任何成员
-			*   -- 不可以将以下成员重命名而没有改变编译器中的对应名称
-			*   -- 新加入的成员会被视为一般船员，除非你在编译器中加上适当支持
+			   * 以下条件应该被遵守，因为编译器有可能自动为各型别产生专属的 __type_traits
+			   * 特化版本：
+			   *   -- 你可以重现排列以下成员的次序
+			   *   -- 你可以移除以下任何成员
+			   *   -- 不可以将以下成员重命名而没有改变编译器中的对应名称
+			   *   -- 新加入的成员会被视为一般船员，除非你在编译器中加上适当支持
 			*/
 			using has_trivial_default_constructor = __false_type;
 			using has_trivial_copy_constructor	  = __false_type;
@@ -353,7 +356,6 @@ namespace zhang::iterator
 			using has_trivial_destructor		  = __true_type;
 			using is_POD_type					  = __true_type;
 		};
-
 	} // namespace namespace_iterator
 
 	// 对外接口
@@ -367,5 +369,4 @@ namespace zhang::iterator
 	using namespace_iterator::iterator_category;
 	using namespace_iterator::iterator_traits;
 	using namespace_iterator::value_type;
-
 } // namespace zhang::iterator

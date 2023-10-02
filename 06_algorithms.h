@@ -4,15 +4,15 @@
 
 /*
 * 如果没有实现自定义的容器, 则:
-* 
-*	重要！所有 “迭代器类型参数（例如 input_iterator_tag ）” 都要使用命名空间 ::std:: 中定义的迭代器类型！ 
-*	重要！所有 “迭代器类型参数（例如 input_iterator_tag ）” 都要使用命名空间 ::std:: 中定义的迭代器类型！ 
-*	重要！所有 “迭代器类型参数（例如 input_iterator_tag ）” 都要使用命名空间 ::std:: 中定义的迭代器类型！ 
-* 
-*		原因如下： 
+*
+*	重要！所有 “迭代器类型参数（例如 input_iterator_tag ）” 都要使用命名空间 ::std:: 中定义的迭代器类型！
+*	重要！所有 “迭代器类型参数（例如 input_iterator_tag ）” 都要使用命名空间 ::std:: 中定义的迭代器类型！
+*	重要！所有 “迭代器类型参数（例如 input_iterator_tag ）” 都要使用命名空间 ::std:: 中定义的迭代器类型！
+*
+*		原因如下：
 *	目前使用的容器是 MSVC STL 中定义在命名空间 ::std:: 内的，尚未自己实现。这导致 __ZH_ITER__ 中萃取函数 iterator_category() 的返回值都是命名空间 ::std:: 中定义的迭代器类型（因为萃取的就是 ::std:: 中的 iterator , 那么返回值当然也是 ::std:: 中定义的类型）。如果使用自定义的迭代器类型，则会有以下报错:
 *	“没有适当的转换函数，使类型 ‘std::xxx_iterator_tag’ 转换到类型 ‘zhang::iterator::namespace_iterator::xxx_iterator_tag’ ”
-* 
+*
 * 如果实现了自定义的容器，那么该怎么写就怎么写
 */
 
@@ -35,6 +35,143 @@ namespace zhang::algorithms
 
 #endif // !__ZH_NAMESPACE__
 
+	// 此处实现 copy()
+	namespace namespace_copy
+	{
+		/* function __copy_d() -- 辅助函数 */
+		template <typename RandomAccessIterator, typename OutputIterator, typename Distance>
+		inline OutputIterator
+			__copy_d(RandomAccessIterator first, RandomAccessIterator last, OutputIterator result, Distance*)
+		{
+			for (Distance i = last - first; i > 0; --i, ++result, ++first) // 以 i 决定循环的次数 -- 速度快
+			{
+				*result = *first;
+			}
+
+			return result;
+		}
+
+		/*-----------------------------------------------------------------------------------------*/
+
+
+
+		// 如下两个函数服务于仿函数 __copy_dispatch() 的两个 偏特化版本
+
+		/* function __copy_t() -- 辅助函数 */
+		template <typename T> // 以下版本适用于 “指针所指之对象，具备 trivial assignment operator ”
+		inline T* __copy_t(const T* first, const T* last, T* result, __ZH_ITER__ __true_type)
+		{
+			__C_FUNCTION__ memmove(result, first, sizeof(T) * (last - first));
+
+			return result + (last - first);
+		}
+
+		template <typename T> // 以下版本适用于 “指针所指之对象，具备 non-trivial assignment operator ”
+		inline T* __copy_t(const T* first, const T* last, T* result, __ZH_ITER__ __false_type)
+		{
+			return namespace_copy::__copy_d(first, last, result, _cove_type(0, ptrdiff_t*));
+		}
+
+		/*-----------------------------------------------------------------------------------------*/
+
+
+
+		// 如下两个函数服务于仿函数 __copy_dispatch() 的 完全泛化版本
+
+		/* function __copy() -- 辅助函数 */
+		template <typename InputIterator, typename OutputIterator> // InputIterator 版本
+		inline OutputIterator
+			__copy(InputIterator first, InputIterator last, OutputIterator result, __ZH_ITER__ input_iterator_tag)
+		{
+			for (; first != last; ++result, ++first) // 以迭代器相同与否，决定循环是否继续 -- 速度慢
+			{
+				*result = *first;					 // assignment operator
+			}
+		}
+
+		template <typename RandomAccessIterator, typename OutputIterator> // RandomAccessIterator 版本
+		inline OutputIterator __copy(RandomAccessIterator first,
+									 RandomAccessIterator last,
+									 OutputIterator		  result,
+									 __ZH_ITER__		  random_access_iterator_tag)
+		{
+			// 又划分出一个函数，为的是其他地方也能用到
+			return namespace_copy::__copy_d(first, last, result, __ZH_ITER__ distance_type(first));
+		}
+
+		/*-----------------------------------------------------------------------------------------*/
+
+
+
+		// 此仿函数直接服务于 copy()，它分为一个 完全泛化版本 和两个 偏特化版本
+
+		/* function copy() -- 辅助函数 */
+		template <typename InputIterator, typename OutputIterator> // 完全泛化版本
+		struct __copy_dispatch
+		{
+			OutputIterator operator()(InputIterator first, InputIterator last, OutputIterator result)
+			{
+				return namespace_copy::__copy(
+					first,
+					last,
+					result,
+					__ZH_ITER__ iterator_category(
+						first)); // 此处兵分两路：根据迭代器种类的不同，调用不同的 __copy() ，为的是不同种类的迭代器所使用的循环条件不同，有快慢之分
+			}
+		};
+
+		template <typename T> // 偏特化版本1：两个参数都是 T* 指针形式
+		struct __copy_dispatch<T*, T*>
+		{
+			T* operator()(T* first, T* last, T* result)
+			{
+				using t = typename __ZH_ITER__ __type_traits<T>::has_trivial_assignment_operator;
+				return namespace_copy::__copy_t(first, last, result, t());
+			}
+		};
+
+		template <typename T> // 偏特化版本2：第一个参数是 const T* 指针形式，第二个参数是 T* 指针形式
+		struct __copy_dispatch<const T*, T*>
+		{
+			T* operator()(const T* first, const T* last, T* result)
+			{
+				using t = typename __ZH_ITER__ __type_traits<T>::has_trivial_assignment_operator;
+				return namespace_copy::__copy_t(first, last, result, t());
+			}
+		};
+
+		/*-----------------------------------------------------------------------------------------*/
+
+
+
+		// 以下三个函数是 copy() 的对外接口
+
+		/* function copy() 重载1 */
+		inline char* copy(const char* first,
+						  const char* last,
+						  char* result) // 针对原生指针(可视为一种特殊的迭代器) const char* ，机型内存直接拷贝操作
+		{
+			__C_FUNCTION__ memmove(result, first, last - first);
+			return result + (last - first);
+		}
+
+		/* function copy() 重载2 */
+		inline wchar_t*
+			copy(const wchar_t* first,
+				 const wchar_t* last,
+				 wchar_t* result) // 针对原生指针（可视为一种特殊的迭代器）const wchar_t* ，执行内存直接拷贝操作
+		{
+			__C_FUNCTION__ memmove(result, first, sizeof(wchar_t) * (last - first));
+			return result + (last - first);
+		}
+
+		/* function copy() */
+		template <typename InputIterator, typename OutputIterator> // 完全泛化版本
+		inline OutputIterator copy(InputIterator first, InputIterator last, OutputIterator result)
+		{
+			return namespace_copy::__copy_dispatch<InputIterator, OutputIterator>()(first, last, result);
+		}
+	} // namespace namespace_copy
 
 	// 此处实现若干简单函数
 	namespace namespace_function
@@ -85,7 +222,7 @@ namespace zhang::algorithms
 		template <typename ForwardIterator1, typename ForwardIterator2>
 		inline void iter_swap(ForwardIterator1 a, ForwardIterator2 b)
 		{
-			__swap(a, b, __ZH_ITER__ value_type(a));
+			namespace_function::__swap(a, b, __ZH_ITER__ value_type(a));
 		}
 
 		/* function for_each() */
@@ -210,6 +347,61 @@ namespace zhang::algorithms
 			return comp(a, b) ? b : a;
 		}
 
+		/* function merge() */
+		template <typename InputIterator1, typename InputIterator2, typename OutputIterator>
+		inline OutputIterator merge(InputIterator1 first1,
+									InputIterator1 last1,
+									InputIterator2 first2,
+									InputIterator2 last2,
+									OutputIterator result)
+		{
+			while ((first1 != last1) && (first2 != last2)) // 若两个序列都未完成，则继续
+			{
+				if (*first2 < *first1)					   // 若序列 2 的元素比较小
+				{
+					*result = *first2;					   // 则记录序列 2 的元素
+					++first2;							   // 同时序列 1 前进 1 位
+				}
+				else									   // 反之同理
+				{
+					*result = *first1;
+					++first1;
+				}
+
+				++result;
+			}
+
+			// 最后剩余元素拷贝到目的端。（以下两个序列一定至少有一个为空）
+			return namespace_copy::copy(first2, last2, namespace_copy::copy(first1, last1, result));
+		}
+
+		template <typename InputIterator1, typename InputIterator2, typename OutputIterator, typename Compare>
+		inline OutputIterator merge(InputIterator1 first1,
+									InputIterator1 last1,
+									InputIterator2 first2,
+									InputIterator2 last2,
+									OutputIterator result,
+									Compare		   comp)
+		{
+			while ((first1 != last1) && (first2 != last2))
+			{
+				if (comp(*first2, *first1))
+				{
+					*result = *first2;
+					++first2;
+				}
+				else
+				{
+					*result = *first1;
+					++first1;
+				}
+
+				++result;
+			}
+
+			return namespace_copy::copy(first2, last2, namespace_copy::copy(first1, last1, result));
+		}
+
 		/* function implace_merge() 辅助函数 */
 		template <typename BidirectionalIterator, typename T, typename Distance>
 		inline void __inplace_merge_aux(BidirectionalIterator first,
@@ -219,8 +411,9 @@ namespace zhang::algorithms
 										Distance*)
 		{
 			Distance	len1 = 0; // 表示序列 1 长度
-			Distance	len2 = 0; // 表示序列 2 长度
 			__ZH_ITER__ distance(first, middle, len1);
+
+			Distance	len2 = 0; // 表示序列 2 长度
 			__ZH_ITER__ distance(middle, last, len2);
 		}
 
@@ -228,20 +421,19 @@ namespace zhang::algorithms
 		template <typename BidirectionalIterator>
 		inline void inplace_merge(BidirectionalIterator first, BidirectionalIterator middle, BidirectionalIterator last)
 		{
-			if (first == middle || middle == last)
+			if (first == middle || middle == last) // 只要有一个区间为空，则什么也不做
 			{
 				return;
 			}
 			else
 			{
-				__inplace_merge_aux(first,
-									middle,
-									last,
-									__ZH_ITER__ value_type(first),
-									__ZH_ITER__ distance_type(first));
+				namespace_function::__inplace_merge_aux(first,
+														middle,
+														last,
+														__ZH_ITER__ value_type(first),
+														__ZH_ITER__ distance_type(first));
 			}
 		}
-
 	} // namespace namespace_function
 
 	// 此处实现 lower_bound()、upper_bound()、equal_range()、binary_search()
@@ -520,7 +712,6 @@ namespace zhang::algorithms
 
 			return i != last && !(value < *i);
 		}
-
 	} // namespace namespace_binary_search
 
 	// 此处实现 sort()、quick_sort()、insertion_sort()、merge_sort()
@@ -833,7 +1024,6 @@ namespace zhang::algorithms
 				// HACK: 以期实现自己的 inplace_merge() ，同时，此前提到插入排序的缺点之一 “借助额外内存” ，就体现在此函数中
 				_STD inplace_merge(first, mid, last);
 			}
-
 		} // namespace merge_sort
 
 		/*-----------------------------------------------------------------------------------------------*/
@@ -853,7 +1043,7 @@ namespace zhang::algorithms
 
 					RandomAccessIterator cut = namespace_sort::__unguraded_partition(first, last, pivot);
 
-					if ((cut - last) >= (last - cut))
+					if ((last - cut) < (cut - first))
 					{
 						quick_sort::__quick_sort(cut, last, __ZH_ITER__ value_type(last));
 						last = cut;
@@ -873,9 +1063,9 @@ namespace zhang::algorithms
 				{
 					return;
 				}
+
 				quick_sort::__quick_sort(first, last, __ZH_ITER__ value_type(first));
 			}
-
 		} // namespace quick_sort
 
 		// 此处封装 堆排序
@@ -888,147 +1078,7 @@ namespace zhang::algorithms
 				namespace_sort::__heap_sort(first, middle, last);
 			}
 		} // namespace heap_sort
-
 	}	  // namespace namespace_sort
-
-	// 此处实现 copy()
-	namespace namespace_copy
-	{
-		/* function __copy_d() -- 辅助函数 */
-		template <typename RandomAccessIterator, typename OutputIterator, typename Distance>
-		inline OutputIterator
-			__copy_d(RandomAccessIterator first, RandomAccessIterator last, OutputIterator result, Distance*)
-		{
-			for (Distance i = last - first; i > 0; --i, ++result, ++first) // 以 i 决定循环的次数 -- 速度快
-			{
-				*result = *first;
-			}
-
-			return result;
-		}
-
-		/*-----------------------------------------------------------------------------------------*/
-
-
-
-		// 如下两个函数服务于仿函数 __copy_dispatch() 的两个 偏特化版本
-
-		/* function __copy_t() -- 辅助函数 */
-		template <typename T> // 以下版本适用于 “指针所指之对象，具备 trivial assignment operator ”
-		inline T* __copy_t(const T* first, const T* last, T* result, __ZH_ITER__ __true_type)
-		{
-			__C_FUNCTION__ memmove(result, first, sizeof(T) * (last - first));
-
-			return result + (last - first);
-		}
-
-		template <typename T> // 以下版本适用于 “指针所指之对象，具备 non-trivial assignment operator ”
-		inline T* __copy_t(const T* first, const T* last, T* result, __ZH_ITER__ __false_type)
-		{
-			return namespace_copy::__copy_d(first, last, result, _cove_type(0, ptrdiff_t*));
-		}
-
-		/*-----------------------------------------------------------------------------------------*/
-
-
-
-		// 如下两个函数服务于仿函数 __copy_dispatch() 的 完全泛化版本
-
-		/* function __copy() -- 辅助函数 */
-		template <typename InputIterator, typename OutputIterator> // InputIterator 版本
-		inline OutputIterator
-			__copy(InputIterator first, InputIterator last, OutputIterator result, __ZH_ITER__ input_iterator_tag)
-		{
-			for (; first != last; ++result, ++first) // 以迭代器相同与否，决定循环是否继续 -- 速度慢
-			{
-				*result = *first;					 // assignment operator
-			}
-		}
-
-		template <typename RandomAccessIterator, typename OutputIterator> // RandomAccessIterator 版本
-		inline OutputIterator __copy(RandomAccessIterator first,
-									 RandomAccessIterator last,
-									 OutputIterator		  result,
-									 __ZH_ITER__		  random_access_iterator_tag)
-		{
-			// 又划分出一个函数，为的是其他地方也能用到
-			return namespace_copy::__copy_d(first, last, result, __ZH_ITER__ distance_type(first));
-		}
-
-		/*-----------------------------------------------------------------------------------------*/
-
-
-
-		// 此仿函数直接服务于 copy()，它分为一个 完全泛化版本 和两个 偏特化版本
-
-		/* function copy() -- 辅助函数 */
-		template <typename InputIterator, typename OutputIterator> // 完全泛化版本
-		struct __copy_dispatch
-		{
-			OutputIterator operator()(InputIterator first, InputIterator last, OutputIterator result)
-			{
-				return namespace_copy::__copy(
-					first,
-					last,
-					result,
-					__ZH_ITER__ iterator_category(
-						first)); // 此处兵分两路：根据迭代器种类的不同，调用不同的 __copy() ，为的是不同种类的迭代器所使用的循环条件不同，有快慢之分
-			}
-		};
-
-		template <typename T> // 偏特化版本1：两个参数都是 T* 指针形式
-		struct __copy_dispatch<T*, T*>
-		{
-			T* operator()(T* first, T* last, T* result)
-			{
-				using t = typename __ZH_ITER__ __type_traits<T>::has_trivial_assignment_operator;
-				return namespace_copy::__copy_t(first, last, result, t());
-			}
-		};
-
-		template <typename T> // 偏特化版本2：第一个参数是 const T* 指针形式，第二个参数是 T* 指针形式
-		struct __copy_dispatch<const T*, T*>
-		{
-			T* operator()(const T* first, const T* last, T* result)
-			{
-				using t = typename __ZH_ITER__ __type_traits<T>::has_trivial_assignment_operator;
-				return namespace_copy::__copy_t(first, last, result, t());
-			}
-		};
-
-		/*-----------------------------------------------------------------------------------------*/
-
-
-
-		// 以下三个函数是 copy() 的对外接口
-
-		/* function copy() 重载1 */
-		inline char* copy(const char* first,
-						  const char* last,
-						  char* result) // 针对原生指针(可视为一种特殊的迭代器) const char* ，机型内存直接拷贝操作
-		{
-			__C_FUNCTION__ memmove(result, first, last - first);
-			return result + (last - first);
-		}
-
-		/* function copy() 重载2 */
-		inline wchar_t*
-			copy(const wchar_t* first,
-				 const wchar_t* last,
-				 wchar_t* result) // 针对原生指针（可视为一种特殊的迭代器）const wchar_t* ，执行内存直接拷贝操作
-		{
-			__C_FUNCTION__ memmove(result, first, sizeof(wchar_t) * (last - first));
-			return result + (last - first);
-		}
-
-		/* function copy() */
-		template <typename InputIterator, typename OutputIterator> // 完全泛化版本
-		inline OutputIterator copy(InputIterator first, InputIterator last, OutputIterator result)
-		{
-			return namespace_copy::__copy_dispatch<InputIterator, OutputIterator>()(first, last, result);
-		}
-
-	} // namespace namespace_copy
 
 	/*-----------------------------------------------------------------------------------------*/
 
@@ -1036,17 +1086,10 @@ namespace zhang::algorithms
 
 	/* 统一的对外接口 */
 
-	using namespace_binary_search::
-		binary_search; // 二分查找：是否存在元素，其等于指定元素 -- 存在：返回 true ；不存在：返回 false
-
-	using namespace_binary_search::
-		equal_range; // 二分查找：是否存在区间，其中的每一个元素等于指定元素 -- 存在：返回满足条件的最大子区间 ；不存在：返回“假定这个元素存在时，最应该出现的位置”
-
-	using namespace_binary_search::
-		lower_bound; // 二分查找：是否存在元素，其等于指定元素 -- 存在：返回其中第一个元素 ；不存在：返回空区间
-
-	using namespace_binary_search::
-		upper_bound; // 二分查找：是否存在元素，其等于指定元素 -- 存在：返回其中第一个元素 ；不存在：返回“在不破坏顺序的情况下，可插入指定元素的最后一个位置”
+	using namespace_binary_search::binary_search;		  // 标准库 binary_search()
+	using namespace_binary_search::equal_range;			  // 标准库 equal_range()
+	using namespace_binary_search::lower_bound;			  // 标准库 lower_bound()
+	using namespace_binary_search::upper_bound;			  // 标准库 upper_bound()
 
 	using namespace_copy::copy;							  // 标准库 copy()
 
@@ -1060,10 +1103,12 @@ namespace zhang::algorithms
 	using namespace_function::iter_swap;				  // 标准库 iter_swap()
 	using namespace_function::max;						  // 标准库 mac()
 	using namespace_function::max_element;				  // 标准库 max_element()
+	using namespace_function::merge;					  // 标准库 merge()
 	using namespace_function::min;						  // 标准库 min()
 	using namespace_function::swap;						  // 标准库 swap()
 
-	using namespace_sort::sort;							  // 标准库 sort() 排序
+	using namespace_sort::sort;							  // 标准库 sort()
+
 	using namespace_sort::heap_sort::heap_sort;			  // 标准库形式的 堆排序
 	using namespace_sort::insertion_sort::insertion_sort; // 标准库形式的 插入排序
 	using namespace_sort::merge_sort::merge_sort;		  // 标准库形式的 归并排序
@@ -1076,5 +1121,4 @@ namespace zhang::algorithms
 	#undef __ZH_PAIR__
 	#undef __ZH_HEAP__
 #endif // __ZH_NAMESPACE__
-
 } // namespace zhang::algorithms
