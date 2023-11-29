@@ -52,31 +52,7 @@ namespace zhang::without_book
 		{
 			return pair<FirstType, SecondType>(value1, value2);
 		}
-
-
 	} // namespace namespace_pair
-
-	// 此处实现一些函数
-	namespace namespace_function
-	{
-		template <typename InputIterator, typename T, typename Distance>
-		class temporary_buffer
-		{
-		public:
-
-			temporary_buffer(InputIterator, T, Distance n)
-			{
-				if (n != 0)
-				{
-					buf_begin = _cove_type(malloc(sizeof(T) * n), InputIterator);
-				}
-			}
-
-		private:
-
-			InputIterator buf_begin;
-		};
-	} // namespace namespace_function
 
 	// 对外接口
 	using namespace_pair::make_pair;
@@ -87,5 +63,4 @@ namespace zhang::without_book
 	#undef __ZH_NAMESPACE__
 	#undef __ZH_ITER__
 #endif // __ZH_NAMESPACE__
-
 } // namespace zhang::without_book
