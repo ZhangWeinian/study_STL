@@ -13,6 +13,11 @@
 	#define _STD ::std::
 #endif // !_STD
 
+#ifndef _move
+	#define _move(cont) ::std::move(cont)
+#endif // !_move
+
+
 
 using _STD cout;
 using _STD cerr;

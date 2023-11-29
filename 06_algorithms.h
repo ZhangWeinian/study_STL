@@ -180,7 +180,7 @@ namespace zhang::algorithms
 		template <typename InputIterator, typename T>
 		InputIterator find(InputIterator first, InputIterator last, const T& value)
 		{
-			while (first != last && *first != value)
+			while ((first != last) && (*first != value))
 			{
 				++first;
 			}
@@ -192,7 +192,7 @@ namespace zhang::algorithms
 		template <typename InputIterator, typename Predicate>
 		InputIterator find_if(InputIterator first, InputIterator last, Predicate pred)
 		{
-			while (first != last && !(pred(*first)))
+			while ((first != last) && !(pred(*first)))
 			{
 				++first;
 			}
@@ -202,11 +202,31 @@ namespace zhang::algorithms
 
 		/* function swap() */
 		template <typename T>
-		inline void swap(T& a, T& b) noexcept
+		inline void __swap_impl(T& a, T& b, _STD integral_constant<bool, true>) noexcept
 		{
-			T tmp = a;
-			a	  = b;
-			b	  = tmp;
+			T tmp(_move(a));
+			a = _move(b);
+			b = _move(tmp);
+		}
+
+		template <typename T>
+		inline void __swap_impl(T& a, T& b, _STD integral_constant<bool, false>)
+		{
+			T tmp(a);
+			a = b;
+			b = tmp;
+		}
+
+		template <typename T>
+		inline void swap(T& a, T& b) noexcept(noexcept(namespace_function::__swap_impl(
+			a,
+			b,
+			_STD integral_constant<bool, ((noexcept(T(_move(a)))) && (noexcept(a.operator=(_move(b)))))>())))
+		{
+			namespace_function::__swap_impl(
+				a,
+				b,
+				_STD integral_constant<bool, ((noexcept(T(_move(a)))) && (noexcept(a.operator=(_move(b)))))>());
 		}
 
 		/* function iter_swap() -- 辅助函数 */
@@ -415,13 +435,15 @@ namespace zhang::algorithms
 
 			Distance	len2 = 0; // 表示序列 2 长度
 			__ZH_ITER__ distance(middle, last, len2);
+
+			// HACK: 未完成的工作 inplace_merge()
 		}
 
 		/* function inplace_merge() */
 		template <typename BidirectionalIterator>
 		inline void inplace_merge(BidirectionalIterator first, BidirectionalIterator middle, BidirectionalIterator last)
 		{
-			if (first == middle || middle == last) // 只要有一个区间为空，则什么也不做
+			if ((first == middle) || (middle == last)) // 只要有一个区间为空，则什么也不做
 			{
 				return;
 			}
@@ -672,7 +694,7 @@ namespace zhang::algorithms
 					++first;
 					len -= (half + 1);
 				}
-				else if (*middle > value)
+				else if (value < *middle)
 				{
 					len = half;
 				}
@@ -710,7 +732,7 @@ namespace zhang::algorithms
 		{
 			ForwardIterator i = namespace_binary_search::lower_bound(first, last, value);
 
-			return i != last && !(value < *i);
+			return (i != last) && !(value < *i);
 		}
 	} // namespace namespace_binary_search
 
@@ -841,18 +863,18 @@ namespace zhang::algorithms
 
 			while (true)
 			{
-				while (pivot > *first)
+				while (*first < pivot)
 				{
 					++first;
 				}
 
 				--last;
-				while (*last > pivot)
+				while (pivot < *last)
 				{
 					--last;
 				}
 
-				if (!(last > first))
+				if (!(first < last))
 				{
 					return first;
 				}
@@ -916,7 +938,7 @@ namespace zhang::algorithms
 		void __introsort_loop(RandomAccessIterator first, RandomAccessIterator last, T*, Size depth_limit)
 		{
 			// “几乎有序” 的判断标准：需要排序的元素个数足够少，否则视为 “非 ‘几乎有序’ ”
-			while (last - first > __stl_threshold)
+			while ((last - first) > __stl_threshold)
 			{
 				if (depth_limit == 0) // 递归深度足够深
 				{
@@ -947,7 +969,7 @@ namespace zhang::algorithms
 		inline void __final_insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
 		{
 			// 待排序元素个数是否足够多？
-			if (last - first > __stl_threshold)									  // 是
+			if ((last - first) > __stl_threshold)								  // 是
 			{
 				namespace_sort::__insertion_sort(first, first + __stl_threshold); // 对前若干个元素 插入排序
 				namespace_sort::__ungurded_insertion_sort(
@@ -971,7 +993,10 @@ namespace zhang::algorithms
 			if (first < last) // 真实的排序由以下两个函数完成
 			{
 				// 排序，使之 “几乎有序”
-				namespace_sort::__introsort_loop(first, last, __ZH_ITER__ value_type(first), __lg(last - first) * 2);
+				namespace_sort::__introsort_loop(first,
+												 last,
+												 __ZH_ITER__ value_type(first),
+												 namespace_sort::__lg(last - first) * 2);
 
 				// 排序，使 “几乎有序” 蜕变到 “完全有序”
 				namespace_sort::__final_insertion_sort(first, last);
@@ -1011,12 +1036,12 @@ namespace zhang::algorithms
 				using difference_type = typename __ZH_ITER__ iterator_traits<BidirectionalIterator>::difference_type;
 				difference_type n	  = __ZH_ITER__ distance(first, last);
 
-				if (n == 0 || n == 1)
+				if ((n == 0) || (n == 1))
 				{
 					return;
 				}
 
-				BidirectionalIterator mid = first + n / 2;
+				BidirectionalIterator mid = first + (n / 2);
 
 				merge_sort::merge_sort(first, mid);
 				merge_sort::merge_sort(mid, last);
@@ -1036,7 +1061,7 @@ namespace zhang::algorithms
 			template <typename RandomAccessIterator, typename T>
 			inline void __quick_sort(RandomAccessIterator first, RandomAccessIterator last, T*)
 			{
-				while (last - first > 1)
+				while ((last - first) > 1)
 				{
 					auto pivot =
 						_cove_type(namespace_sort::__median(*first, *(last - 1), *(first + (last - first) / 2)), T);
@@ -1059,7 +1084,7 @@ namespace zhang::algorithms
 			template <typename RandomAccessIterator>
 			inline void quick_sort(RandomAccessIterator first, RandomAccessIterator last)
 			{
-				if (first >= last)
+				if (!((last - first) > 1))
 				{
 					return;
 				}

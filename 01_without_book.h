@@ -39,13 +39,13 @@ namespace zhang::without_book
 			explicit pair(const pair<U1, U2>& value): first(value.first), second(value.second)
 			{
 			}
-		};
 
-		template <typename FirstType, typename SecondType>
-		inline bool operator==(const pair<FirstType, SecondType>& value1, const pair<FirstType, SecondType>& value2)
-		{
-			return value1.first == value2.first && value1.second == value2.second;
-		}
+			template <typename FirstType, typename SecondType>
+			inline bool operator==(const pair<FirstType, SecondType>& value) const
+			{
+				return (value.first == this->first) && (value.second == this->second);
+			}
+		};
 
 		template <typename FirstType, typename SecondType>
 		inline pair<FirstType, SecondType> make_pair(const FirstType& value1, const SecondType& value2)

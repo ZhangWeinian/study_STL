@@ -144,7 +144,7 @@ namespace zhang::iterator
 				  typename Distance> // 注意，这个函数书中未给出实现，但却有这样的用法，故在此处自定义实现
 		inline void distance(InputIterator first, InputIterator last, Distance& result)
 		{
-			result = _cove_type(distance(first, last), Distance);
+			result = _cove_type(namespace_iterator::distance(first, last), Distance);
 		}
 
 		// 以下是整组 advance 函数
@@ -185,7 +185,7 @@ namespace zhang::iterator
 		template <typename InputIterator, typename Distance>
 		inline void advance(InputIterator& i, Distance n)
 		{
-			namespace_iterator::__advance(i, n, iterator_category(i));
+			namespace_iterator::__advance(i, n, namespace_iterator::iterator_category(i));
 		}
 
 		/*-----------------------------------------------------------------------------------------*/
