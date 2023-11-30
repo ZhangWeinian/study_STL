@@ -19,12 +19,11 @@
 
 
 
+using _STD boolalpha;
 using _STD cout;
 using _STD cerr;
-using _STD endl;
 using _STD cin;
-
-using _STD boolalpha;
+using _STD endl;
 
 
 #define _cove_type(cont, type)		   static_cast<type>(cont)
