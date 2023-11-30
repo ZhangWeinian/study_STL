@@ -1,13 +1,36 @@
 #pragma once
 
+#include <string_view>
+#include <type_traits>
+
 #include <algorithm>
 #include <climits>
+#include <cstdio>
+#include <format>
+#include <functional>
 #include <iostream>
 #include <iterator> // for MSVC STL _STD xxx_iterator_tag
 #include <memory>
 #include <new>
+#include <string>
+#include <vector>
 #include <version>
 
+#if !(__cplusplus < 202002L)
+
+	#ifndef __cpp20
+		#define __cpp20 202002L
+	#endif // !__cpp20
+
+#endif
+
+#if !(_MSVC_LANG < 202002L)
+
+	#ifndef __cpp20
+		#define __cpp20 202002L
+	#endif // !__cpp20
+
+#endif
 
 #ifndef _STD
 	#define _STD ::std::
@@ -16,15 +39,6 @@
 #ifndef _move
 	#define _move(cont) ::std::move(cont)
 #endif // !_move
-
-
-
-using _STD boolalpha;
-using _STD cout;
-using _STD cerr;
-using _STD cin;
-using _STD endl;
-
 
 #define _cove_type(cont, type)		   static_cast<type>(cont)
 #define _init_type(initCont, initType) _cove_type(initCont, initType)

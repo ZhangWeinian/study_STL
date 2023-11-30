@@ -202,31 +202,11 @@ namespace zhang::algorithms
 
 		/* function swap() */
 		template <typename T>
-		inline void __swap_impl(T& a, T& b, _STD integral_constant<bool, true>) noexcept
+		inline void swap(T& a, T& b) noexcept
 		{
-			T tmp(_move(a));
-			a = _move(b);
-			b = _move(tmp);
-		}
-
-		template <typename T>
-		inline void __swap_impl(T& a, T& b, _STD integral_constant<bool, false>)
-		{
-			T tmp(a);
-			a = b;
-			b = tmp;
-		}
-
-		template <typename T>
-		inline void swap(T& a, T& b) noexcept(noexcept(namespace_function::__swap_impl(
-			a,
-			b,
-			_STD integral_constant<bool, ((noexcept(T(_move(a)))) && (noexcept(a.operator=(_move(b)))))>())))
-		{
-			namespace_function::__swap_impl(
-				a,
-				b,
-				_STD integral_constant<bool, ((noexcept(T(_move(a)))) && (noexcept(a.operator=(_move(b)))))>());
+			T tmp = a;
+			a	  = b;
+			b	  = tmp;
 		}
 
 		/* function iter_swap() -- 辅助函数 */
@@ -739,269 +719,272 @@ namespace zhang::algorithms
 	// 此处实现 sort()、quick_sort()、insertion_sort()、merge_sort()
 	namespace namespace_sort
 	{
-		// 如下三个函数实现了完整的 插入排序
-
-		template <typename RandomAccessIterator, typename T> // 插入排序--辅助函数 2 （这是排序的第三步）
-		inline void __unguarded_linear_insert(RandomAccessIterator last, T value)
+		namespace std_sort
 		{
-			RandomAccessIterator next = last;
-			--next;
+			// 如下三个函数实现了完整的 插入排序
 
-			while (*next > value)
+			template <typename RandomAccessIterator, typename T> // 插入排序--辅助函数 2 （这是排序的第三步）
+			inline void __unguarded_linear_insert(RandomAccessIterator last, T value)
 			{
-				*last = *next;
-				last  = next;
+				RandomAccessIterator next = last;
 				--next;
-			}
 
-			*last = value;
-		}
-
-		template <typename RandomAccessIterator, typename T> // 插入排序--辅助函数 1 （这是排序的第二步）
-		inline void __linear_insert(RandomAccessIterator first, RandomAccessIterator last, T*)
-		{
-			T value = *last;
-
-			if (*first > value)
-			{
-				// HACK: 以期实现自己的 copy_backward()
-				_STD copy_backward(first, last, last + 1);
-				*first = value;
-			}
-			else
-			{
-				namespace_sort::__unguarded_linear_insert(last, value);
-			}
-		}
-
-		template <typename RandomAccessIterator> // 插入排序 （这是排序的第一步）
-		inline void __insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
-		{
-			if (first == last)
-			{
-				return;
-			}
-			else
-			{
-				for (RandomAccessIterator i = first + 1; i != last; ++i)
+				while (*next > value)
 				{
-					namespace_sort::__linear_insert(first, i, __ZH_ITER__ value_type(first));
+					*last = *next;
+					last  = next;
+					--next;
 				}
+
+				*last = value;
 			}
-		}
 
-		/*-----------------------------------------------------------------------------------------*/
-
-
-
-		// 如下函数调用了 堆排序
-
-		template <typename RandomAccessIterator, // 堆排序
-				  typename T> // 排序，使 [first, middle) 中的元素不减有序，[middle,last) 中的元素不做有序保障
-		inline void
-			__heap_sort_aux(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last, T*)
-		{
-			__ZH_HEAP__ make_heap(first, middle);
-
-			for (RandomAccessIterator i = middle; i < last; ++i)
+			template <typename RandomAccessIterator, typename T> // 插入排序--辅助函数 1 （这是排序的第二步）
+			inline void __linear_insert(RandomAccessIterator first, RandomAccessIterator last, T*)
 			{
-				if (*first > *i)
+				T value = *last;
+
+				if (*first > value)
 				{
-					__ZH_HEAP__ __pop_heap(first, middle, i, _cove_type(*i, T), __ZH_ITER__ distance_type(first));
+					// HACK: 以期实现自己的 copy_backward()
+					_STD copy_backward(first, last, last + 1);
+					*first = value;
+				}
+				else
+				{
+					std_sort::__unguarded_linear_insert(last, value);
 				}
 			}
 
-			__ZH_HEAP__ sort_heap(first, middle);
-		}
-
-		/*-----------------------------------------------------------------------------------------*/
-
-
-
-		// 如下两个函数，实现了 快排 的两大核心功能
-
-		template <typename T> // 快速排序 -- 返回三点中值
-		inline const T& __median(const T& a, const T& b, const T& c)
-		{
-			if (a < b)
+			template <typename RandomAccessIterator> // 插入排序 （这是排序的第一步）
+			inline void __insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
 			{
-				if (b < c)
+				if (first == last)
 				{
-					return b;
+					return;
+				}
+				else
+				{
+					for (RandomAccessIterator i = first + 1; i != last; ++i)
+					{
+						std_sort::__linear_insert(first, i, __ZH_ITER__ value_type(first));
+					}
+				}
+			}
+
+			/*-----------------------------------------------------------------------------------------*/
+
+
+
+			// 如下函数调用了 堆排序
+
+			template <typename RandomAccessIterator, // 堆排序
+					  typename T> // 排序，使 [first, middle) 中的元素不减有序，[middle,last) 中的元素不做有序保障
+			inline void
+				__heap_sort_aux(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last, T*)
+			{
+				__ZH_HEAP__ make_heap(first, middle);
+
+				for (RandomAccessIterator i = middle; i < last; ++i)
+				{
+					if (*first > *i)
+					{
+						__ZH_HEAP__ __pop_heap(first, middle, i, _cove_type(*i, T), __ZH_ITER__ distance_type(first));
+					}
+				}
+
+				__ZH_HEAP__ sort_heap(first, middle);
+			}
+
+			/*-----------------------------------------------------------------------------------------*/
+
+
+
+			// 如下两个函数，实现了 快排 的两大核心功能
+
+			template <typename T> // 快速排序 -- 返回三点中值
+			inline const T& __median(const T& a, const T& b, const T& c)
+			{
+				if (a < b)
+				{
+					if (b < c)
+					{
+						return b;
+					}
+					else if (a < c)
+					{
+						return c;
+					}
+					else
+					{
+						return a;
+					}
 				}
 				else if (a < c)
+				{
+					return a;
+				}
+				else if (b < c)
 				{
 					return c;
 				}
 				else
 				{
-					return a;
+					return b;
 				}
 			}
-			else if (a < c)
-			{
-				return a;
-			}
-			else if (b < c)
-			{
-				return c;
-			}
-			else
-			{
-				return b;
-			}
-		}
 
-		template <typename RandomAccessIterator, typename T> // 快速排序 -- 分割
-		RandomAccessIterator __unguraded_partition(RandomAccessIterator first, RandomAccessIterator last, T pivot)
-		{
-			// 分割的结果最终是：以 piovt 为节点，有如下事实
-			// a、节点 pivot 处于正确的位置
-			// b、节点 pivot 左边的元素均小于等于 pivot
-			// c、节点 pivot 右边的节点均大于等于 pivot
-			// d、返回节点 pivot 右边的第一个位置
-
-			while (true)
+			template <typename RandomAccessIterator, typename T> // 快速排序 -- 分割
+			RandomAccessIterator __unguraded_partition(RandomAccessIterator first, RandomAccessIterator last, T pivot)
 			{
-				while (*first < pivot)
+				// 分割的结果最终是：以 piovt 为节点，有如下事实
+				// a、节点 pivot 处于正确的位置
+				// b、节点 pivot 左边的元素均小于等于 pivot
+				// c、节点 pivot 右边的节点均大于等于 pivot
+				// d、返回节点 pivot 右边的第一个位置
+
+				while (true)
 				{
-					++first;
-				}
+					while (*first < pivot)
+					{
+						++first;
+					}
 
-				--last;
-				while (pivot < *last)
-				{
 					--last;
-				}
+					while (pivot < *last)
+					{
+						--last;
+					}
 
-				if (!(first < last))
+					if (!(first < last))
+					{
+						return first;
+					}
+					else
+					{
+						namespace_function::iter_swap(first, last);
+						++first;
+					}
+				}
+			}
+
+			/*-----------------------------------------------------------------------------------------*/
+
+
+
+			// 如下若干函数，服务于 “两步走” 战略的各个函数
+
+			template <typename RandomAccessIterator,
+					  typename T> //  sort 第二部分 辅助函数：调用 无边界检查的 插入排序
+			inline void __ungurded_insertion_sort_aux(RandomAccessIterator first, RandomAccessIterator last, T*)
+			{
+				for (RandomAccessIterator i = first; i != last; ++i)
 				{
-					return first;
+					std_sort::__unguarded_linear_insert(i, _cove_type(*i, T));
 				}
-				else
+			}
+
+			template <typename RandomAccessIterator> // sort 第二部分 辅助函数：调用 插入排序
+			inline void __ungurded_insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
+			{
+				std_sort::__ungurded_insertion_sort_aux(first, last, __ZH_ITER__ value_type(first));
+			}
+
+			template <typename RandomAccessIterator> // sort 第一部分 辅助函数：递归过深时，改用 “堆排序”
+			inline void __heap_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last)
+			{
+				std_sort::__heap_sort_aux(first, middle, last, __ZH_ITER__ value_type(first));
+			}
+
+			template <typename Size> // sort 第一部分 辅助函数：用于控制分割恶化情况
+			inline Size __lg(Size n) // 找出 2^k <= n 的最大值 k
+			{
+				auto ans = _init_type(0, Size);
+
+				for (; n > 1; n >>= 1)
 				{
-					namespace_function::iter_swap(first, last);
-					++first;
+					++ans;
 				}
-			}
-		}
 
-		/*-----------------------------------------------------------------------------------------*/
-
-
-
-		// 如下若干函数，服务于 “两步走” 战略的各个函数
-
-		template <typename RandomAccessIterator,
-				  typename T> //  sort 第二部分 辅助函数：调用 无边界检查的 插入排序
-		inline void __ungurded_insertion_sort_aux(RandomAccessIterator first, RandomAccessIterator last, T*)
-		{
-			for (RandomAccessIterator i = first; i != last; ++i)
-			{
-				namespace_sort::__unguarded_linear_insert(i, _cove_type(*i, T));
-			}
-		}
-
-		template <typename RandomAccessIterator> // sort 第二部分 辅助函数：调用 插入排序
-		inline void __ungurded_insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
-		{
-			namespace_sort::__ungurded_insertion_sort_aux(first, last, __ZH_ITER__ value_type(first));
-		}
-
-		template <typename RandomAccessIterator> // sort 第一部分 辅助函数：递归过深时，改用 “堆排序”
-		inline void __heap_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last)
-		{
-			namespace_sort::__heap_sort_aux(first, middle, last, __ZH_ITER__ value_type(first));
-		}
-
-		template <typename Size> // sort 第一部分 辅助函数：用于控制分割恶化情况
-		inline Size __lg(Size n) // 找出 2^k <= n 的最大值 k
-		{
-			auto ans = _init_type(0, Size);
-
-			for (; n > 1; n >>= 1)
-			{
-				++ans;
+				return ans;
 			}
 
-			return ans;
-		}
-
-		/*------------------------------------------------------------------------------------------------*/
+			/*------------------------------------------------------------------------------------------------*/
 
 
 
-		// 如下两个函数，实现了 sort 的 “两步走” 战略
+			// 如下两个函数，实现了 sort 的 “两步走” 战略
 
-		// sort -- 第一部分：排序，使之 “几乎有序”
-		template <typename RandomAccessIterator, typename T, typename Size>
-		void __introsort_loop(RandomAccessIterator first, RandomAccessIterator last, T*, Size depth_limit)
-		{
-			// “几乎有序” 的判断标准：需要排序的元素个数足够少，否则视为 “非 ‘几乎有序’ ”
-			while ((last - first) > __stl_threshold)
+			// sort -- 第一部分：排序，使之 “几乎有序”
+			template <typename RandomAccessIterator, typename T, typename Size>
+			void __introsort_loop(RandomAccessIterator first, RandomAccessIterator last, T*, Size depth_limit)
 			{
-				if (depth_limit == 0) // 递归深度足够深
+				// “几乎有序” 的判断标准：需要排序的元素个数足够少，否则视为 “非 ‘几乎有序’ ”
+				while ((last - first) > __stl_threshold)
 				{
-					namespace_sort::__heap_sort(first, last,
-												last); // 此时调用 __heap_sort()，实际上调用了一个 “堆排序”
+					if (depth_limit == 0) // 递归深度足够深
+					{
+						std_sort::__heap_sort(first, last,
+											  last); // 此时调用 __heap_sort()，实际上调用了一个 “堆排序”
 
-					return;
+						return;
+					}
+
+					--depth_limit;
+
+					// “非 ‘几乎有序’ ” 时，首先调用 快排 -- 分割
+					RandomAccessIterator cut = std_sort::__unguraded_partition(
+						first,
+						last,
+						_cove_type(std_sort::__median(*first, *(last - 1), *(first + (last - first) / 2)), T));
+
+					// 对右半段 递归sort
+					std_sort::__introsort_loop(cut, last, __ZH_ITER__ value_type(first), depth_limit);
+
+					// 至此，回到 while 循环，准备对左半段 递归sort
+					last = cut;
 				}
-
-				--depth_limit;
-
-				// “非 ‘几乎有序’ ” 时，首先调用 快排 -- 分割
-				RandomAccessIterator cut = namespace_sort::__unguraded_partition(
-					first,
-					last,
-					_cove_type(__median(*first, *(last - 1), *(first + (last - first) / 2)), T));
-
-				// 对右半段 递归sort
-				namespace_sort::__introsort_loop(cut, last, __ZH_ITER__ value_type(first), depth_limit);
-
-				// 至此，回到 while 循环，准备对左半段 递归sort
-				last = cut;
 			}
-		}
 
-		// sort -- 第二部分：排序，使 “几乎有序” 蜕变到 “完全有序”
-		template <typename RandomAccessIterator>
-		inline void __final_insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
-		{
-			// 待排序元素个数是否足够多？
-			if ((last - first) > __stl_threshold)								  // 是
+			// sort -- 第二部分：排序，使 “几乎有序” 蜕变到 “完全有序”
+			template <typename RandomAccessIterator>
+			inline void __final_insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
 			{
-				namespace_sort::__insertion_sort(first, first + __stl_threshold); // 对前若干个元素 插入排序
-				namespace_sort::__ungurded_insertion_sort(
-					first + __stl_threshold,
-					last); // 对剩余元素(剩余元素数量一定少于前面的元素数量) 插入排序(无边界检查)
+				// 待排序元素个数是否足够多？
+				if ((last - first) > __stl_threshold)							// 是
+				{
+					std_sort::__insertion_sort(first, first + __stl_threshold); // 对前若干个元素 插入排序
+					std_sort::__ungurded_insertion_sort(
+						first + __stl_threshold,
+						last); // 对剩余元素(剩余元素数量一定少于前面的元素数量) 插入排序(无边界检查)
+				}
+				else										 // 否
+				{
+					std_sort::__insertion_sort(first, last); // 对这些元素 插入排序
+				}
 			}
-			else		   // 否
+
+			/*------------------------------------------------------------------------------------------------*/
+
+
+
+			// sort -- SGI STL 标准函数
+			template <typename RandomAccessIterator>
+			inline void sort(RandomAccessIterator first, RandomAccessIterator last)
 			{
-				namespace_sort::__insertion_sort(first, last); // 对这些元素 插入排序
+				if (first < last) // 真实的排序由以下两个函数完成
+				{
+					// 排序，使之 “几乎有序”
+					std_sort::__introsort_loop(first,
+											   last,
+											   __ZH_ITER__ value_type(first),
+											   std_sort::__lg(last - first) * 2);
+
+					// 排序，使 “几乎有序” 蜕变到 “完全有序”
+					std_sort::__final_insertion_sort(first, last);
+				}
 			}
-		}
-
-		/*------------------------------------------------------------------------------------------------*/
-
-
-
-		// sort -- SGI STL 标准函数
-		template <typename RandomAccessIterator>
-		inline void sort(RandomAccessIterator first, RandomAccessIterator last)
-		{
-			if (first < last) // 真实的排序由以下两个函数完成
-			{
-				// 排序，使之 “几乎有序”
-				namespace_sort::__introsort_loop(first,
-												 last,
-												 __ZH_ITER__ value_type(first),
-												 namespace_sort::__lg(last - first) * 2);
-
-				// 排序，使 “几乎有序” 蜕变到 “完全有序”
-				namespace_sort::__final_insertion_sort(first, last);
-			}
-		}
+		} // namespace std_sort
 
 		/*-----------------------------------------------------------------------------------------------*/
 
@@ -1013,7 +996,7 @@ namespace zhang::algorithms
 			template <typename RandomAccessIterator> // 插入排序 （这是排序的第一步）
 			inline void insertion_sort(RandomAccessIterator first, RandomAccessIterator last)
 			{
-				namespace_sort::__insertion_sort(first, last);
+				namespace_sort::std_sort::__insertion_sort(first, last);
 			}
 		} // namespace insertion_sort
 
@@ -1063,10 +1046,11 @@ namespace zhang::algorithms
 			{
 				while ((last - first) > 1)
 				{
-					auto pivot =
-						_cove_type(namespace_sort::__median(*first, *(last - 1), *(first + (last - first) / 2)), T);
+					auto pivot = _cove_type(
+						namespace_sort::std_sort::__median(*first, *(last - 1), *(first + (last - first) / 2)),
+						T);
 
-					RandomAccessIterator cut = namespace_sort::__unguraded_partition(first, last, pivot);
+					RandomAccessIterator cut = namespace_sort::std_sort::__unguraded_partition(first, last, pivot);
 
 					if ((last - cut) < (cut - first))
 					{
@@ -1100,7 +1084,7 @@ namespace zhang::algorithms
 			inline void
 				heap_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last = middle)
 			{
-				namespace_sort::__heap_sort(first, middle, last);
+				namespace_sort::std_sort::__heap_sort(first, middle, last);
 			}
 		} // namespace heap_sort
 	}	  // namespace namespace_sort
@@ -1132,12 +1116,11 @@ namespace zhang::algorithms
 	using namespace_function::min;						  // 标准库 min()
 	using namespace_function::swap;						  // 标准库 swap()
 
-	using namespace_sort::sort;							  // 标准库 sort()
-
 	using namespace_sort::heap_sort::heap_sort;			  // 标准库形式的 堆排序
 	using namespace_sort::insertion_sort::insertion_sort; // 标准库形式的 插入排序
 	using namespace_sort::merge_sort::merge_sort;		  // 标准库形式的 归并排序
 	using namespace_sort::quick_sort::quick_sort;		  // 标准库形式的 快速排序
+	using namespace_sort::std_sort::sort;				  // 标准库 sort()
 
 
 #ifdef __ZH_NAMESPACE__

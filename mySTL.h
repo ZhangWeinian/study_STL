@@ -6,13 +6,11 @@
 #include "06_algorithms.h"
 #include "07_functor.h"
 
-namespace zh
+namespace zwn
 {
-	// 使用预定义的统一对外接口
 	using namespace ::zhang::algorithms;
 	using namespace ::zhang::without_book;
 	using namespace ::zhang::iterator;
 	using namespace ::zhang::sequence_containers;
 	using namespace ::zhang::functor;
-
-} // namespace zh
+} // namespace zwn
