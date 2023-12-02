@@ -40,6 +40,15 @@
 	#define _move(cont) ::std::move(cont)
 #endif // !_move
 
+#ifndef _begin
+	#define _begin(cont) ::std::begin(cont)
+#endif // !_begin
+
+#ifndef _end
+	#define _end(cont) ::std::end(cont)
+#endif // !_end
+
+
 #define _cove_type(cont, type)		   static_cast<type>(cont)
 #define _init_type(initCont, initType) _cove_type(initCont, initType)
 

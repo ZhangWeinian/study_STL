@@ -416,7 +416,7 @@ namespace zhang::algorithms
 			Distance	len2 = 0; // 表示序列 2 长度
 			__ZH_ITER__ distance(middle, last, len2);
 
-			// HACK: 未完成的工作 inplace_merge()
+			// TODO: 未完成的工作 inplace_merge()
 		}
 
 		/* function inplace_merge() */
@@ -746,7 +746,7 @@ namespace zhang::algorithms
 
 				if (*first > value)
 				{
-					// HACK: 以期实现自己的 copy_backward()
+					// TODO: 以期实现自己的 copy_backward()
 					_STD copy_backward(first, last, last + 1);
 					*first = value;
 				}
@@ -1029,7 +1029,7 @@ namespace zhang::algorithms
 				merge_sort::merge_sort(first, mid);
 				merge_sort::merge_sort(mid, last);
 
-				// HACK: 以期实现自己的 inplace_merge() ，同时，此前提到插入排序的缺点之一 “借助额外内存” ，就体现在此函数中
+				// TODO: 以期实现自己的 inplace_merge() ，同时，此前提到插入排序的缺点之一 “借助额外内存” ，就体现在此函数中
 				_STD inplace_merge(first, mid, last);
 			}
 		} // namespace merge_sort

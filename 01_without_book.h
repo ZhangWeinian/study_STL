@@ -62,38 +62,67 @@ namespace zhang::without_book
 
 #ifdef __cpp20
 
-	// 此处实现 print() （此函数不属于 STL ，只是基于 C++20 标准封装的 format() ）
+	// 此处实现 print() （此函数不属于 STL ，只是基于 C++20 标准封装的 fputs() ）
 	namespace namespace_print
 	{
-		inline void print(const char* msg, const char* arg)
-		{
-			_STD string fmt_msg { ::std::move(::std::vformat(msg, ::std::make_format_args(arg))) };
+		template <typename T>
+		concept __is_iterator = requires(T p) {
+			_STD input_iterator<T>;
+			typename T::difference_type;
+			++p;
+		};
 
-			fputs(fmt_msg.c_str(), stdout);
+		template <typename T>
+		concept __is_c_array = _STD is_array_v<T>;
+
+		template <typename T>
+		concept __is_containers = requires(T p) {
+			typename T::value_type;
+			p.begin();
+			p.end();
+			++(p.begin());
+		};
+
+		template <typename T>
+		concept __basic_msg_type = !(_STD is_compound_v<T>) || requires(T msg) { _STD string(msg); } ||
+								   requires(T msg) { _STD string_view(msg); } || requires(T msg) {
+									   {
+										   msg
+									   } -> _STD same_as<_STD string>;
+								   } || requires(T msg) {
+									   {
+										   msg
+									   } -> _STD same_as<_STD string_view>;
+								   };
+
+		// 1、针对 C 风格数组 的特化
+		template <typename T, typename Size_t = size_t>
+			requires(__is_c_array<T>)
+		inline void print(const T& first, const Size_t& count, const Size_t max_distance = 15) noexcept
+		{
+			_STD string msg {};
+			Size_t		__basic_count { 0 };
+
+			for (Size_t __basic_distance { 1 }; __basic_count + 1 != count; ++__basic_count, ++__basic_distance)
+			{
+				_STD format_to(_STD back_inserter(msg), "{}\t", *(first + __basic_count));
+
+				if (__basic_distance % max_distance == 0)
+				{
+					msg += '\n';
+				}
+			}
+			_STD format_to(_STD back_inserter(msg), "{}\t", *(first + __basic_count));
+
+			_STD cout << _STD vformat(msg, _move(_STD make_format_args()));
 		}
 
-		inline void print(const char* msg)
-		{
-			fputs(msg, stdout);
-		}
-
-		inline void print(const _STD string& msg)
-		{
-			fputs(msg.c_str(), stdout);
-		}
-
-		template <typename... Args>
-		inline void print(const ::std::string_view msg, Args&&... args) noexcept
-		{
-			_STD string fmt_msg { ::std::move(::std::vformat(msg, ::std::make_format_args(args...))) };
-
-			fputs(fmt_msg.c_str(), stdout);
-		}
-
+		// 2、针对 迭代器 的特化
 		template <typename InputIterator>
+			requires(__is_iterator<InputIterator>)
 		inline void print(InputIterator first,
 						  InputIterator last,
-						  typename _STD iterator_traits<InputIterator>::difference_type max_distance = 1)
+						  typename _STD iterator_traits<InputIterator>::difference_type max_distance = 1) noexcept
 		{
 			using difference_type = typename _STD iterator_traits<InputIterator>::difference_type;
 			using value_type	  = typename _STD	   iterator_traits<InputIterator>::value_type;
@@ -101,7 +130,7 @@ namespace zhang::without_book
 			_STD string				  msg {};
 			constexpr difference_type max_count = 1024 * 100;
 
-			if constexpr ((_STD is_integral<value_type>::value) || (_STD is_floating_point<value_type>::value))
+			if constexpr (_STD is_arithmetic_v<value_type>)
 			{
 				if (max_distance == 1)
 				{
@@ -122,41 +151,43 @@ namespace zhang::without_book
 			}
 			else
 			{
-				for (difference_type __basic_distance { 1 }; (first != last) && (msg.size() < max_count);
-					 ++first, ++__basic_distance)
+				for (; (first != last) && (msg.size() < max_count); ++first)
 				{
 					_STD format_to(_STD back_inserter(msg), "{}\n", *first);
 				}
 			}
 
-			fputs(msg.c_str(), stdout);
+			_STD cout << _STD vformat(msg, _move(_STD make_format_args()));
 		}
 
-		template <typename T>
-		inline void print(const _STD vector<T, _STD allocator<T>>& nums,
-						  typename _STD vector<T, _STD allocator<T>>::difference_type max_distance = 1)
+		// 3、针对 容器 的特化
+		template <typename T, typename Difference_type = size_t>
+			requires(__is_containers<T>)
+		inline void print(const T& cont, Difference_type max_distance = 1) noexcept
 		{
-			namespace_print::print(nums.begin(), nums.end(), max_distance);
+			namespace_print::print(_begin(cont), _end(cont), max_distance);
 		}
 
-		template <typename T1, typename T2>
-		inline void print(const T1* first, const T2& count, const T2 max_distance = 15)
+		// 4、一般泛化
+		template <typename T, typename... Args>
+			requires(__basic_msg_type<T>)
+		inline void print(const T& msg, Args&&... args) noexcept
 		{
-			_STD string msg {};
-			T2			__basic_count { 0 };
-
-			for (T2 __basic_distance { 1 }; __basic_count + 1 != count; ++__basic_count, ++__basic_distance)
+			if constexpr (!(_STD is_compound_v<T>))
 			{
-				_STD format_to(_STD back_inserter(msg), "{}\t", *(first + __basic_count));
-
-				if (__basic_distance % max_distance == 0)
-				{
-					msg += '\n';
-				}
+				_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}", msg);
 			}
-			_STD format_to(_STD back_inserter(msg), "{}\t", *(first + __basic_count));
+			else
+			{
+				::std::string fmt_msg { _move(::std::vformat(msg, ::std::make_format_args(args...))) };
+				fputs(fmt_msg.c_str(), stdout);
+			}
+		}
 
-			fputs(msg.c_str(), stdout);
+		// 输出空行
+		inline void print(void) noexcept
+		{
+			_STD cout << _STD endl;
 		}
 
 #endif // __cpp20

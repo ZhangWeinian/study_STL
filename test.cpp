@@ -9,7 +9,7 @@ using _STD cerr;
 using _STD cin;
 using _STD endl;
 
-using namespace zwn;
+using namespace zh;
 namespace ranges = ::std::ranges;
 
 int main(void)
@@ -30,28 +30,51 @@ int main(void)
 
 
 	// 1、自定义 插入排序
-	// zwn::insertion_sort(nums.begin(), nums.end());
+	// zh::insertion_sort(nums.begin(), nums.end());
 
 	// 2、自定义 快速排序
-	// zwn::quick_sort(nums.begin(), nums.end());
+	// zh::quick_sort(nums.begin(), nums.end());
 
 	// 3、自定义 推排序
-	// zwn::heap_sort(nums.begin(), nums.end());
+	// zh::heap_sort(nums.begin(), nums.end());
 
 	// 4、自定义 标准库排序
-	// zwn::sort(nums.begin(), nums.end());
+	// zh::sort(nums.begin(), nums.end());
 
 	// 5、自定义 归并排序
-	// zwn::merge_sort(nums.begin(), nums.end());
+	// zh::merge_sort(nums.begin(), nums.end());
 
 	// 6、标准库排序
-	ranges::sort(nums, ranges::greater());				 // C++20 及以后
-	std::sort(nums.begin(), nums.end(), std::greater()); // C++20 之前
+	// ranges::sort(nums, ranges::greater());				 // C++20 及以后
+	// std::sort(nums.begin(), nums.end(), std::greater()); // C++20 之前
 
-	zwn::print(nums);
+	_STD vector<int> test = { 1, 2, 3 };
+
+	zh::print("{}", typeid("123456").name());
+	zh::print();
+
+	zh::print(1);
+	zh::print();
+
+	zh::print(test);
+	zh::print();
+
+	zh::print("hello");
+	zh::print();
+
+	zh::print(test.begin(), test.end());
+	zh::print();
+
+	int arr[3] = { 1, 2, 3 };
+	zh::print(arr, 3);
+	zh::print();
+
+	const char* str = "123455";
+	zh::print(str);
+	zh::print();
 
 	// 7、自定义 二分查找
-	// const auto [begin, end] = zwn::equal_range(nums.begin(), nums.end(), 10);
+	// const auto [begin, end] = zh::equal_range(nums.begin(), nums.end(), 10);
 
 	return 0;
 }
