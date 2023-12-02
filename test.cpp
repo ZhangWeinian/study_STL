@@ -44,11 +44,10 @@ int main(void)
 	// 5、自定义 归并排序
 	// zwn::merge_sort(nums.begin(), nums.end());
 
-	// 6.1、标准库排序
-	// std::sort(nums.begin(), nums.end(), std::greater());
+	// 6、标准库排序
+	ranges::sort(nums, ranges::greater());				 // C++20 及以后
+	std::sort(nums.begin(), nums.end(), std::greater()); // C++20 之前
 
-	// 6.2、标准库排序（ C++20 ）
-	// ranges::sort(nums, std::greater());
 	zwn::print(nums);
 
 	// 7、自定义 二分查找
