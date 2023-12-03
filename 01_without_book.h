@@ -62,7 +62,7 @@ namespace zhang::without_book
 
 #ifdef __cpp20
 
-	// 此处实现 print() （此函数不属于 STL ，只是基于 C++20 标准封装的 fputs() ）
+	// 此处实现 print() （此函数不属于 STL ，只是基于 C++20 标准封装的 多功能输出函数 print() ）
 	namespace namespace_print
 	{
 		template <typename T>
