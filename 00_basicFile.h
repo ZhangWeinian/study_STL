@@ -16,25 +16,35 @@
 #include <vector>
 #include <version>
 
+
+
 #if !(__cplusplus < 202002L)
 
-	#ifndef __cpp20
-		#define __cpp20 202002L
-	#endif // !__cpp20
+	#ifndef __HASCXX20
+		#define __HASCXX20 202002L
+	#endif // !__HASCXX20
 
 #endif
 
 #if !(_MSVC_LANG < 202002L)
 
-	#ifndef __cpp20
-		#define __cpp20 202002L
-	#endif // !__cpp20
+	#ifndef __HASCXX20
+		#define __HASCXX20 202002L
+	#endif // !__HASCXX20
 
 #endif
+
+
 
 #ifndef _STD
 	#define _STD ::std::
 #endif // !_STD
+
+#ifndef _NODISCARD
+	#define _NODISCARD [[nodiscard]]
+#endif // !_NODISCARD
+
+
 
 #ifndef _move
 	#define _move(cont) ::std::move(cont)

@@ -30,51 +30,43 @@ int main(void)
 
 
 	// 1、自定义 插入排序
-	// zh::insertion_sort(nums.begin(), nums.end());
+	/*zh::insertion_sort(nums);
+	zh::print(nums);*/
 
 	// 2、自定义 快速排序
-	// zh::quick_sort(nums.begin(), nums.end());
+	/*zh::quick_sort(nums);
+	zh::print(nums);*/
 
 	// 3、自定义 推排序
-	// zh::heap_sort(nums.begin(), nums.end());
+	/*zh::heap_sort(nums.begin(), nums.end());
+	zh::print(nums);*/
 
 	// 4、自定义 标准库排序
-	// zh::sort(nums.begin(), nums.end());
+	/*zh::sort(nums, _STD greater());
+	zh::print(nums);*/
 
 	// 5、自定义 归并排序
-	// zh::merge_sort(nums.begin(), nums.end());
+	/*zh::merge_sort(nums, _STD greater());
+	zh::print(nums);*/
 
 	// 6、标准库排序
-	// ranges::sort(nums, ranges::greater());				 // C++20 及以后
-	// std::sort(nums.begin(), nums.end(), std::greater()); // C++20 之前
-
-	_STD vector<int> test = { 1, 2, 3 };
-
-	zh::print("{}", typeid("123456").name());
-	zh::print();
-
-	zh::print(1);
-	zh::print();
-
-	zh::print(test);
-	zh::print();
-
-	zh::print("hello");
-	zh::print();
-
-	zh::print(test.begin(), test.end());
-	zh::print();
-
-	int arr[3] = { 1, 2, 3 };
-	zh::print(arr, 3);
-	zh::print();
-
-	const char* str = "123455";
-	zh::print(str);
-	zh::print();
+	/*ranges::sort(nums);*/
+	/*zh::print(nums);*/
 
 	// 7、自定义 二分查找
-	// const auto [begin, end] = zh::equal_range(nums.begin(), nums.end(), 10);
+	/*const auto& [my_begin, my_end]	 = zh::equal_range(nums, 10);
+	const auto& [stl_begin, stl_end] = ranges::equal_range(nums, 10);
+
+	zh::println("zh::equal_range() 起始位置是\t{}、\t长度是{}\nstd::equal_range() 起始位置是\t{}、\t长度是{}",
+				my_begin - nums.begin(),
+				my_end - my_begin,
+				stl_begin - nums.begin(),
+				stl_end - stl_begin);*/
+
+	int arr[3] = { 1, 2, 3 };
+	zh::println(arr, 3);
+
+	zh::print(arr, arr + 3);
 
 	return 0;
 }
