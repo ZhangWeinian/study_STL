@@ -40,9 +40,9 @@ namespace zhang::sequence_containers
 		inline void __push_heap_aux(RandomAccessIterator first, RandomAccessIterator last, Distance*, T*)
 		{
 			namespace_heap::__push_heap(first,
-										_cove_type((last - first) - 1, Distance),
-										_init_type(0, Distance),
-										_cove_type(*(last - 1), T));
+										__cove_type((last - first) - 1, Distance),
+										__init_type(0, Distance),
+										__cove_type(*(last - 1), T));
 		}
 
 		template <typename RandomAccessIterator>
@@ -90,7 +90,7 @@ namespace zhang::sequence_containers
 		{
 			*result = *first;
 
-			namespace_heap::__adjust_heap(first, _init_type(0, Distance), _cove_type(last - first, Distance), value);
+			namespace_heap::__adjust_heap(first, __init_type(0, Distance), __cove_type(last - first, Distance), value);
 		}
 
 		template <typename RandomAccessIterator, typename T>
@@ -99,7 +99,7 @@ namespace zhang::sequence_containers
 			namespace_heap::__pop_heap(first,
 									   last - 1,
 									   last - 1,
-									   _cove_type(*(last - 1), T),
+									   __cove_type(*(last - 1), T),
 									   __ZH_ITER__ distance_type(first));
 		}
 
@@ -133,7 +133,7 @@ namespace zhang::sequence_containers
 
 			while (true)
 			{
-				namespace_heap::__adjust_heap(first, parent, len, _cove_type(*(first + parent), T));
+				namespace_heap::__adjust_heap(first, parent, len, __cove_type(*(first + parent), T));
 
 				if (parent == 0)
 				{

@@ -20,29 +20,29 @@
 
 #if !(__cplusplus < 202002L)
 
-	#ifndef __HASCPP20
-		#define __HASCPP20 202002L
-	#endif // !__HASCPP20
+	#ifndef __HAS_CPP20
+		#define __HAS_CPP20 202002L
+	#endif // !__HAS_CPP20
 
 #elif !(__cplusplus < 201703L)
 
-	#ifndef __HASCPP17
-		#define __HASCPP17
-	#endif // !__HASCPP17
+	#ifndef __HAS_CPP17
+		#define __HAS_CPP17
+	#endif // !__HAS_CPP17
 
 #endif
 
 #if !(_MSVC_LANG < 202002L)
 
-	#ifndef __HASCPP20
-		#define __HASCPP20 202002L
-	#endif // !__HASCPP20
+	#ifndef __HAS_CPP20
+		#define __HAS_CPP20 202002L
+	#endif // !__HAS_CPP20
 
 #elif !(_MSVC_LANG < 201703L)
 
-	#ifndef __HASCPP17
-		#define __HASCPP17
-	#endif // !__HASCPP17
+	#ifndef __HAS_CPP17
+		#define __HAS_CPP17
+	#endif // !__HAS_CPP17
 
 #endif
 
@@ -62,21 +62,21 @@
 
 
 
-#ifndef _move
-	#define _move(cont) ::std::move(cont)
-#endif // !_move
+#ifndef __move
+	#define __move(cont) ::std::move(cont)
+#endif // !__move
 
-#ifndef _begin
-	#define _begin(cont) ::std::begin(cont)
-#endif // !_begin
+#ifndef __begin_for_container
+	#define __begin_for_container(cont) ::std::begin(cont)
+#endif // !__begin_for_container
 
-#ifndef _end
-	#define _end(cont) ::std::end(cont)
-#endif // !_end
+#ifndef __end_for_container
+	#define __end_for_container(cont) ::std::end(cont)
+#endif // !__end_for_container
 
 
-#define _cove_type(cont, type)		   static_cast<type>(cont)
-#define _init_type(initCont, initType) _cove_type(initCont, initType)
+#define __cove_type(cont, type)			static_cast<type>(cont)
+#define __init_type(initCont, initType) __cove_type(initCont, initType)
 
 
 // 以下全部都是 SGI STL 预定义全局变量

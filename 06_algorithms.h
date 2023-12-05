@@ -35,13 +35,13 @@ namespace zhang::algorithms
 
 #endif // !__ZH_NAMESPACE__
 
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 
 	template <typename T>
 	concept __is_iterator = requires(T p) { *p; };
 
 	template <typename T>
-	concept __is_containers = requires(T p) {
+	concept __is_container = requires(T p) {
 		typename T::value_type;
 		p.begin();
 		p.end();
@@ -78,15 +78,17 @@ namespace zhang::algorithms
 		// TODO:
 	#endif
 
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 	// 此处实现 copy()
 	namespace namespace_copy
 	{
-		/* function __copy_d() -- 辅助函数 */
+		/* function __copy_with_random_access_iter() -- 辅助函数 */
 		template <typename RandomAccessIterator, typename OutputIterator, typename Distance>
-		inline OutputIterator
-			__copy_d(RandomAccessIterator first, RandomAccessIterator last, OutputIterator result, Distance*)
+		inline OutputIterator __copy_with_random_access_iter(RandomAccessIterator first,
+															 RandomAccessIterator last,
+															 OutputIterator		  result,
+															 Distance*)
 		{
 			for (Distance i = last - first; i > 0; --i, ++result, ++first) // 以 i 决定循环的次数 -- 速度快
 			{
@@ -102,9 +104,9 @@ namespace zhang::algorithms
 
 		// 如下两个函数服务于仿函数 __copy_dispatch() 的两个 偏特化版本
 
-		/* function __copy_t() -- 辅助函数 */
+		/* function __copy_with_two_pointer() -- 辅助函数 */
 		template <typename T> // 以下版本适用于 “指针所指之对象，具备 trivial assignment operator ”
-		inline T* __copy_t(const T* first, const T* last, T* result, __ZH_ITER__ __true_type)
+		inline T* __copy_with_two_pointer(const T* first, const T* last, T* result, __ZH_ITER__ __true_type)
 		{
 			__C_FUNCTION__ memmove(result, first, sizeof(T) * (last - first));
 
@@ -112,9 +114,9 @@ namespace zhang::algorithms
 		}
 
 		template <typename T> // 以下版本适用于 “指针所指之对象，具备 non-trivial assignment operator ”
-		inline T* __copy_t(const T* first, const T* last, T* result, __ZH_ITER__ __false_type)
+		inline T* __copy_with_two_pointer(const T* first, const T* last, T* result, __ZH_ITER__ __false_type)
 		{
-			return namespace_copy::__copy_d(first, last, result, _cove_type(0, ptrdiff_t*));
+			return namespace_copy::__copy_with_random_access_iter(first, last, result, __cove_type(0, ptrdiff_t*));
 		}
 
 		/*-----------------------------------------------------------------------------------------*/
@@ -123,10 +125,12 @@ namespace zhang::algorithms
 
 		// 如下两个函数服务于仿函数 __copy_dispatch() 的 完全泛化版本
 
-		/* function __copy() -- 辅助函数 */
+		/* function __copy_difference_with_iter_tag() -- 辅助函数 */
 		template <typename InputIterator, typename OutputIterator> // InputIterator 版本
-		inline OutputIterator
-			__copy(InputIterator first, InputIterator last, OutputIterator result, __ZH_ITER__ input_iterator_tag)
+		inline OutputIterator __copy_difference_with_iter_tag(InputIterator	 first,
+															  InputIterator	 last,
+															  OutputIterator result,
+															  __ZH_ITER__	 input_iterator_tag)
 		{
 			for (; first != last; ++result, ++first) // 以迭代器相同与否，决定循环是否继续 -- 速度慢
 			{
@@ -134,15 +138,18 @@ namespace zhang::algorithms
 			}
 		}
 
-		/* function __copy() -- 辅助函数 */
+		/* function __copy_difference_with_iter_tag() -- 辅助函数 */
 		template <typename RandomAccessIterator, typename OutputIterator> // RandomAccessIterator 版本
-		inline OutputIterator __copy(RandomAccessIterator first,
-									 RandomAccessIterator last,
-									 OutputIterator		  result,
-									 __ZH_ITER__		  random_access_iterator_tag)
+		inline OutputIterator __copy_difference_with_iter_tag(RandomAccessIterator first,
+															  RandomAccessIterator last,
+															  OutputIterator	   result,
+															  __ZH_ITER__		   random_access_iterator_tag)
 		{
 			// 又划分出一个函数，为的是其他地方也能用到
-			return namespace_copy::__copy_d(first, last, result, __ZH_ITER__ distance_type(first));
+			return namespace_copy::__copy_with_random_access_iter(first,
+																  last,
+																  result,
+																  __ZH_ITER__ distance_type(first));
 		}
 
 		/*-----------------------------------------------------------------------------------------*/
@@ -157,12 +164,12 @@ namespace zhang::algorithms
 		{
 			OutputIterator operator()(InputIterator first, InputIterator last, OutputIterator result)
 			{
-				return namespace_copy::__copy(
+				return namespace_copy::__copy_difference_with_iter_tag(
 					first,
 					last,
 					result,
 					__ZH_ITER__ iterator_category(
-						first)); // 此处兵分两路：根据迭代器种类的不同，调用不同的 __copy() ，为的是不同种类的迭代器所使用的循环条件不同，有快慢之分
+						first)); // 此处兵分两路：根据迭代器种类的不同，调用不同的 __copy_difference_with_iter_tag() ，为的是不同种类的迭代器所使用的循环条件不同，有快慢之分
 			}
 		};
 
@@ -173,7 +180,7 @@ namespace zhang::algorithms
 			T* operator()(T* first, T* last, T* result)
 			{
 				using t = typename __ZH_ITER__ __type_traits<T>::has_trivial_assignment_operator;
-				return namespace_copy::__copy_t(first, last, result, t());
+				return namespace_copy::__copy_with_two_pointer(first, last, result, t());
 			}
 		};
 
@@ -184,7 +191,7 @@ namespace zhang::algorithms
 			T* operator()(const T* first, const T* last, T* result)
 			{
 				using t = typename __ZH_ITER__ __type_traits<T>::has_trivial_assignment_operator;
-				return namespace_copy::__copy_t(first, last, result, t());
+				return namespace_copy::__copy_with_two_pointer(first, last, result, t());
 			}
 		};
 
@@ -217,9 +224,9 @@ namespace zhang::algorithms
 
 		/* function copy() 一般泛型 */
 		template <typename InputIterator, typename OutputIterator> // 完全泛化版本
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<InputIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline OutputIterator copy(InputIterator first, InputIterator last, OutputIterator result)
 		{
 			return namespace_copy::__copy_dispatch<InputIterator, OutputIterator>()(first, last, result);
@@ -231,9 +238,9 @@ namespace zhang::algorithms
 	{
 		/* function find() 标准版 */
 		template <typename InputIterator, typename T>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<InputIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		_NODISCARD inline InputIterator find(InputIterator first, InputIterator last, const T& value) noexcept
 		{
 			while ((first != last) && (*first != value))
@@ -245,26 +252,26 @@ namespace zhang::algorithms
 		}
 
 		/* function find() for 容器 强化版 */
-#ifdef __HASCPP20
-		template <typename Containers, typename T>
-			requires(algorithms::__is_containers<Containers>)
-		_NODISCARD inline auto find(const Containers& con, const T& value) noexcept
+#ifdef __HAS_CPP20
+		template <typename Container, typename T>
+			requires(algorithms::__is_container<Container>)
+		_NODISCARD inline auto find(const Container& con, const T& value) noexcept
 		{
-			return namespace_function::find(_begin(con), _end(con), value);
+			return namespace_function::find(__begin_for_container(con), __end_for_container(con), value);
 		}
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 
 		/* function find_if() 标准版 */
 		template <typename InputIterator, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<InputIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		_NODISCARD inline InputIterator find_if(InputIterator first, InputIterator last, Function fun) noexcept
 		{
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			fun = algorithms::__check_fun(fun);
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 			while ((first != last) && !(fun(*first)))
 			{
@@ -275,14 +282,14 @@ namespace zhang::algorithms
 		}
 
 		/* function find_if() for 容器 强化版 */
-#ifdef __HASCPP20
-		template <typename Containers, typename Function>
-			requires(algorithms::__is_containers<Containers>)
-		_NODISCARD inline auto find_if(const Containers& con, Function fun) noexcept
+#ifdef __HAS_CPP20
+		template <typename Container, typename Function>
+			requires(algorithms::__is_container<Container>)
+		_NODISCARD inline auto find_if(const Container& con, Function fun) noexcept
 		{
-			return namespace_function::find_if(_begin(con), _end(con), fun);
+			return namespace_function::find_if(__begin_for_container(con), __end_for_container(con), fun);
 		}
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 		/* function swap() 标准版 */
 		template <typename T>
@@ -304,9 +311,9 @@ namespace zhang::algorithms
 
 		/* function iter_swap() 标准版 */
 		template <typename ForwardIterator1, typename ForwardIterator2>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator1> && algorithms::__is_iterator<ForwardIterator2>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline void iter_swap(ForwardIterator1 a, ForwardIterator2 b) noexcept
 		{
 			namespace_function::__iter_swap(a, b, __ZH_ITER__ value_type(a));
@@ -314,14 +321,14 @@ namespace zhang::algorithms
 
 		/* function for_each() 标准版 */
 		template <typename InputIterator, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<InputIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline Function for_each(InputIterator first, InputIterator last, Function fun) noexcept
 		{
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			fun = algorithms::__check_fun(fun);
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 			for (; first != last; ++first)
 			{
@@ -332,26 +339,26 @@ namespace zhang::algorithms
 		}
 
 		/* function for_each() for 容器 强化版 */
-#ifdef __HASCPP20
-		template <typename Containers, typename Function>
-			requires(algorithms::__is_containers<Containers>)
-		inline Function for_each(const Containers& con, Function fun) noexcept
+#ifdef __HAS_CPP20
+		template <typename Container, typename Function>
+			requires(algorithms::__is_container<Container>)
+		inline Function for_each(const Container& con, Function fun) noexcept
 		{
-			return namespace_function::for_each(_begin(con), _end(con), fun);
+			return namespace_function::for_each(__begin_for_container(con), __end_for_container(con), fun);
 		}
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 		/* function equal() for 仿函数 强化版 */
 		template <typename InputIterator1, typename InputIterator2, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<InputIterator1> && algorithms::__is_iterator<InputIterator2>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		_NODISCARD inline bool
 			equal(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2, Function fun) noexcept
 		{
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			fun = algorithms::__check_fun(fun);
-#endif													// __HASCPP20
+#endif													// __HAS_CPP20
 
 			for (; first1 != last1; ++first1, ++first2) // 如果序列 1 的元素数量多于序列 2 的元素数量, 那就糟糕了
 			{
@@ -366,40 +373,46 @@ namespace zhang::algorithms
 
 		/* function equal() 标准版 */
 		template <typename InputIterator1, typename InputIterator2>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<InputIterator1> && algorithms::__is_iterator<InputIterator2>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		_NODISCARD inline bool equal(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2) noexcept
 		{
 			return namespace_function::equal(first1, last1, first2, _STD not_equal_to<> {});
 		}
 
 		/* function equal() for 容器、仿函数 强化版 */
-#ifdef __HASCPP20
-		template <typename Containers, typename T, typename Function>
-			requires(algorithms::__is_containers<Containers> && algorithms::__is_containers<T>)
-		_NODISCARD inline bool equal(const Containers& con1, const T& con2, Function fun) noexcept
+#ifdef __HAS_CPP20
+		template <typename Container, typename T, typename Function>
+			requires(algorithms::__is_container<Container> && algorithms::__is_container<T>)
+		_NODISCARD inline bool equal(const Container& con1, const T& con2, Function fun) noexcept
 		{
-			return namespace_function::equal(_begin(con1), _end(con1), _begin(con2), fun);
+			return namespace_function::equal(__begin_for_container(con1),
+											 __end_for_container(con1),
+											 __begin_for_container(con2),
+											 fun);
 		}
-#endif	// __HASCPP20
+#endif	// __HAS_CPP20
 
 		/* function equal() for 容器 强化版 */
-#ifdef __HASCPP20
-		template <typename Containers, typename T>
-			requires(algorithms::__is_containers<Containers> && algorithms::__is_containers<T>)
-		_NODISCARD inline bool equal(const Containers& con1, const T& con2) noexcept
+#ifdef __HAS_CPP20
+		template <typename Container, typename T>
+			requires(algorithms::__is_container<Container> && algorithms::__is_container<T>)
+		_NODISCARD inline bool equal(const Container& con1, const T& con2) noexcept
 		{
-			return namespace_function::equal(_begin(con1), _end(con1), _begin(con2), _STD not_equal_to<> {});
+			return namespace_function::equal(__begin_for_container(con1),
+											 __end_for_container(con1),
+											 __begin_for_container(con2),
+											 _STD not_equal_to<> {});
 		}
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 
 		/* function fill() 标准版 */
 		template <typename ForwardIterator, typename T>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline void fill(ForwardIterator first, ForwardIterator last, const T& value) noexcept
 		{
 			for (; first != last; ++first)
@@ -409,20 +422,20 @@ namespace zhang::algorithms
 		}
 
 		/* function fill() for 容器 强化版 */
-#ifdef __HASCPP20
-		template <typename Containers, typename T>
-			requires(algorithms::__is_containers<Containers>)
-		inline void fill(Containers& con, const T& value) noexcept
+#ifdef __HAS_CPP20
+		template <typename Container, typename T>
+			requires(algorithms::__is_container<Container>)
+		inline void fill(Container& con, const T& value) noexcept
 		{
-			namespace_function::fill(_begin(con), _end(con), value);
+			namespace_function::fill(__begin_for_container(con), __end_for_container(con), value);
 		}
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 		/* function fill_n() 标准版 */
 		template <typename OutputIterator, typename Size, typename T>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<OutputIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline OutputIterator fill_n(OutputIterator first, Size n, const T& value)
 		{
 			for (; n > 0; --n, ++first)
@@ -437,9 +450,9 @@ namespace zhang::algorithms
 		template <typename T, typename Function>
 		inline const T& max(const T& a, const T& b, Function fun) noexcept
 		{
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			fun = algorithms::__check_fun(fun);
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 			return fun(a, b) ? b : a;
 		}
@@ -453,14 +466,14 @@ namespace zhang::algorithms
 
 		/* function max_element() for 仿函数 强化版 */
 		template <typename ForwardIterator, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline ForwardIterator max_element(ForwardIterator first, ForwardIterator last, Function fun) noexcept
 		{
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			fun = algorithms::__check_fun(fun);
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 			if (first == last)
 			{
@@ -481,9 +494,9 @@ namespace zhang::algorithms
 
 		/* function max_element() 标准版 */
 		template <typename ForwardIterator>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline ForwardIterator max_element(ForwardIterator first, ForwardIterator last) noexcept
 		{
 			return namespace_function::max_element(first, last, _STD less<> {});
@@ -493,9 +506,9 @@ namespace zhang::algorithms
 		template <typename T, typename Function>
 		inline const T& min(const T& a, const T& b, Function fun) noexcept
 		{
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			fun = algorithms::__check_fun(fun);
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 			return fun(a, b) ? b : a;
 		}
@@ -509,10 +522,10 @@ namespace zhang::algorithms
 
 		/* function merge() for 仿函数 强化版 */
 		template <typename InputIterator1, typename InputIterator2, typename OutputIterator, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<InputIterator1> && algorithms::__is_iterator<InputIterator2> &&
 					 algorithms::__is_iterator<OutputIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline OutputIterator merge(InputIterator1 first1,
 									InputIterator1 last1,
 									InputIterator2 first2,
@@ -520,9 +533,9 @@ namespace zhang::algorithms
 									OutputIterator result,
 									Function	   fun) noexcept
 		{
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			fun = algorithms::__check_fun(fun);
-#endif													   // __HASCPP20
+#endif													   // __HAS_CPP20
 
 			while ((first1 != last1) && (first2 != last2)) // 若两个序列都未完成，则继续
 			{
@@ -546,10 +559,10 @@ namespace zhang::algorithms
 
 		/* function merge() 标准版 */
 		template <typename InputIterator1, typename InputIterator2, typename OutputIterator>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<InputIterator1> && algorithms::__is_iterator<InputIterator2> &&
 					 algorithms::__is_iterator<OutputIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline OutputIterator merge(InputIterator1 first1,
 									InputIterator1 last1,
 									InputIterator2 first2,
@@ -642,7 +655,7 @@ namespace zhang::algorithms
 
 		/* upper_bound() for 仿函数 强化版 */
 		template <typename ForwardIterator, typename T, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
 #endif
 		inline ForwardIterator upper_bound(ForwardIterator first, ForwardIterator last, const T& value, Function fun)
@@ -657,7 +670,7 @@ namespace zhang::algorithms
 
 		/* upper_bound() 标准版 */
 		template <typename ForwardIterator, typename T>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
 #endif
 		inline ForwardIterator upper_bound(ForwardIterator first, ForwardIterator last, const T& value)
@@ -757,7 +770,7 @@ namespace zhang::algorithms
 
 		/* function lower_bound() for 仿函数 强化版 */
 		template <typename ForwardIterator, typename T, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
 #endif
 		inline ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T& value, Function fun)
@@ -773,7 +786,7 @@ namespace zhang::algorithms
 
 		/* function lower_bound() */
 		template <typename ForwardIterator, typename T>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
 #endif
 		inline ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T& value)
@@ -896,7 +909,7 @@ namespace zhang::algorithms
 
 		/* function equal_range() for 仿函数 强化版 */
 		template <typename ForwardIterator, typename T, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
 #endif
 		inline __ZH_PAIR__ pair<ForwardIterator, ForwardIterator>
@@ -914,7 +927,7 @@ namespace zhang::algorithms
 
 		/* function equal_range() 标准版 */
 		template <typename ForwardIterator, typename T>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
 #endif
 		inline __ZH_PAIR__ pair<ForwardIterator, ForwardIterator>
@@ -930,33 +943,39 @@ namespace zhang::algorithms
 		}
 
 		/* function equal_range() for 容器、仿函数 强化版 */
-#ifdef __HASCPP20
-		template <typename Containers, typename T, typename Function>
-			requires(algorithms::__is_containers<Containers>)
-		inline auto equal_range(const Containers& con, const T& value, Function fun)
+#ifdef __HAS_CPP20
+		template <typename Container, typename T, typename Function>
+			requires(algorithms::__is_container<Container>)
+		inline auto equal_range(const Container& con, const T& value, Function fun)
 		{
-			return namespace_binary_search::equal_range(_begin(con), _end(con), value, fun);
+			return namespace_binary_search::equal_range(__begin_for_container(con),
+														__end_for_container(con),
+														value,
+														fun);
 		}
-#endif	// __HASCPP20
+#endif	// __HAS_CPP20
 
 		/* function equal_range() for 容器 强化版 */
-#ifdef __HASCPP20
-		template <typename Containers, typename T>
-			requires(algorithms::__is_containers<Containers>)
-		inline auto equal_range(const Containers& con, const T& value)
+#ifdef __HAS_CPP20
+		template <typename Container, typename T>
+			requires(algorithms::__is_container<Container>)
+		inline auto equal_range(const Container& con, const T& value)
 		{
-			return namespace_binary_search::equal_range(_begin(con), _end(con), value, _STD less<> {});
+			return namespace_binary_search::equal_range(__begin_for_container(con),
+														__end_for_container(con),
+														value,
+														_STD less<> {});
 		}
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 		/*-----------------------------------------------------------------------------------------------*/
 
 
 		/* function binary_search() for 仿函数 强化版 */
 		template <typename ForwardIterator, typename T, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline bool binary_search(ForwardIterator first, ForwardIterator last, const T& value, Function fun)
 		{
 			ForwardIterator i = namespace_binary_search::lower_bound(first, last, value, fun);
@@ -967,33 +986,39 @@ namespace zhang::algorithms
 
 		/* function binary_search() 标准版 */
 		template <typename ForwardIterator, typename T>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 			requires(algorithms::__is_iterator<ForwardIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 		inline bool binary_search(ForwardIterator first, ForwardIterator last, const T& value)
 		{
 			return namespace_binary_search::binary_search(first, last, value, _STD less<> {});
 		}
 
 		/* function binary_search() for 容器、仿函数 强化版 */
-#ifdef __HASCPP20
-		template <typename Containers, typename T, typename Function>
-			requires(algorithms::__is_containers<Containers>)
-		inline bool binary_search(const Containers& con, const T& value, Function fun)
+#ifdef __HAS_CPP20
+		template <typename Container, typename T, typename Function>
+			requires(algorithms::__is_container<Container>)
+		inline bool binary_search(const Container& con, const T& value, Function fun)
 		{
-			return namespace_binary_search::binary_search(_begin(con), _end(con), value, fun);
+			return namespace_binary_search::binary_search(__begin_for_container(con),
+														  __end_for_container(con),
+														  value,
+														  fun);
 		}
-#endif	// __HASCPP20
+#endif	// __HAS_CPP20
 
 		/* function binary_search() for 容器 强化版 */
-#ifdef __HASCPP20
-		template <typename Containers, typename T>
-			requires(algorithms::__is_containers<Containers>)
-		inline bool binary_search(const Containers& con, const T& value)
+#ifdef __HAS_CPP20
+		template <typename Container, typename T>
+			requires(algorithms::__is_container<Container>)
+		inline bool binary_search(const Container& con, const T& value)
 		{
-			return namespace_binary_search::binary_search(_begin(con), _end(con), value, _STD less<> {});
+			return namespace_binary_search::binary_search(__begin_for_container(con),
+														  __end_for_container(con),
+														  value,
+														  _STD less<> {});
 		}
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 	}  // namespace namespace_binary_search
 
 	// 此处实现 sort()、quick_sort()、insertion_sort()、merge_sort()
@@ -1085,7 +1110,7 @@ namespace zhang::algorithms
 				{
 					if (fun(*i, *first))
 					{
-						__ZH_HEAP__ __pop_heap(first, middle, i, _cove_type(*i, T), __ZH_ITER__ distance_type(first));
+						__ZH_HEAP__ __pop_heap(first, middle, i, __cove_type(*i, T), __ZH_ITER__ distance_type(first));
 					}
 				}
 
@@ -1184,7 +1209,7 @@ namespace zhang::algorithms
 			{
 				for (RandomAccessIterator i = first; i != last; ++i)
 				{
-					std_sort::__unguarded_linear_insert(i, _cove_type(*i, T), algorithms::__check_fun(fun));
+					std_sort::__unguarded_linear_insert(i, __cove_type(*i, T), algorithms::__check_fun(fun));
 				}
 			}
 
@@ -1212,7 +1237,7 @@ namespace zhang::algorithms
 			template <typename Size>		  // sort 第一部分 辅助函数：用于控制分割恶化情况
 			inline Size __lg(Size n) noexcept // 找出 2^k <= n 的最大值 k
 			{
-				auto ans = _init_type(0, Size);
+				auto ans = __init_type(0, Size);
 
 				for (; n > 1; n >>= 1)
 				{
@@ -1252,13 +1277,11 @@ namespace zhang::algorithms
 					--depth_limit;
 
 					// “非 ‘几乎有序’ ” 时，首先调用 快排 -- 分割
-					RandomAccessIterator cut = std_sort::__unguraded_partition(
-						first,
-						last,
-						_cove_type(
-							std_sort::__median(*first, *(last - 1), *(first + (last - first) / 2), _STD less<> {}),
-							T),
-						algorithms::__check_fun(fun));
+					auto pivot = __cove_type(
+						std_sort::__median(*first, *(last - 1), *(first + (last - first) / 2), _STD less<> {}),
+						T);
+					RandomAccessIterator cut =
+						std_sort::__unguraded_partition(first, last, pivot, algorithms::__check_fun(fun));
 
 					// 对右半段 递归sort
 					std_sort::__introsort_loop(cut, last, __ZH_ITER__ value_type(first), depth_limit, fun);
@@ -1294,9 +1317,9 @@ namespace zhang::algorithms
 
 			// sort() for 仿函数 强化版
 			template <typename RandomAccessIterator, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(algorithms::__is_iterator<RandomAccessIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void sort(RandomAccessIterator first, RandomAccessIterator last, Function fun) noexcept
 			{
 				if (first < last) // 真实的排序由以下两个函数完成
@@ -1315,33 +1338,33 @@ namespace zhang::algorithms
 
 			// sort() 标准版
 			template <typename RandomAccessIterator>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(algorithms::__is_iterator<RandomAccessIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void sort(RandomAccessIterator first, RandomAccessIterator last) noexcept
 			{
 				std_sort::sort(first, last, _STD less<> {});
 			}
 
 			// sort() for 容器、仿函数 强化版
-#ifdef __HASCPP20
-			template <typename Containers, typename Function>
-				requires(__is_containers<Containers>)
-			inline void sort(Containers& con, Function fun) noexcept
+#ifdef __HAS_CPP20
+			template <typename Container, typename Function>
+				requires(__is_container<Container>)
+			inline void sort(Container& con, Function fun) noexcept
 			{
-				std_sort::sort(_begin(con), _end(con), fun);
+				std_sort::sort(__begin_for_container(con), __end_for_container(con), fun);
 			}
-#endif		// __HASCPP20
+#endif		// __HAS_CPP20
 
 			// sort() for 容器 强化版
-#ifdef __HASCPP20
-			template <typename Containers>
-				requires(__is_containers<Containers>)
-			inline void sort(Containers& con) noexcept
+#ifdef __HAS_CPP20
+			template <typename Container>
+				requires(__is_container<Container>)
+			inline void sort(Container& con) noexcept
 			{
-				std_sort::sort(_begin(con), _end(con), _STD less<> {});
+				std_sort::sort(__begin_for_container(con), __end_for_container(con), _STD less<> {});
 			}
-#endif	  // __HASCPP20
+#endif	  // __HAS_CPP20
 		} // namespace std_sort
 
 		/*-----------------------------------------------------------------------------------------------*/
@@ -1353,9 +1376,9 @@ namespace zhang::algorithms
 		{
 			// insertion_sort() for 仿函数 强化版
 			template <typename RandomAccessIterator, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(algorithms::__is_iterator<RandomAccessIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void insertion_sort(RandomAccessIterator first, RandomAccessIterator last, Function fun) noexcept
 			{
 				namespace_sort::std_sort::__insertion_sort(first, last, fun);
@@ -1363,33 +1386,33 @@ namespace zhang::algorithms
 
 			// insertion_sort() 标准版
 			template <typename RandomAccessIterator>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(algorithms::__is_iterator<RandomAccessIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void insertion_sort(RandomAccessIterator first, RandomAccessIterator last) noexcept
 			{
 				namespace_sort::insertion_sort(first, last, _STD less<> {});
 			}
 
 			// insertion_sort()	for 容器、仿函数 强化版
-#ifdef __HASCPP20
-			template <typename Containers, typename Function>
-				requires(__is_containers<Containers>)
-			inline void insertion_sort(Containers& con, Function fun) noexcept
+#ifdef __HAS_CPP20
+			template <typename Container, typename Function>
+				requires(__is_container<Container>)
+			inline void insertion_sort(Container& con, Function fun) noexcept
 			{
-				insertion_sort::insertion_sort(_begin(con), _end(con), fun);
+				insertion_sort::insertion_sort(__begin_for_container(con), __end_for_container(con), fun);
 			}
-#endif		// __HASCPP20
+#endif		// __HAS_CPP20
 
 			// insertion_sort() for 容器 强化版
-#ifdef __HASCPP20
-			template <typename Containers>
-				requires(__is_containers<Containers>)
-			inline void insertion_sort(Containers& con) noexcept
+#ifdef __HAS_CPP20
+			template <typename Container>
+				requires(__is_container<Container>)
+			inline void insertion_sort(Container& con) noexcept
 			{
-				insertion_sort::insertion_sort(_begin(con), _end(con), _STD less<> {});
+				insertion_sort::insertion_sort(__begin_for_container(con), __end_for_container(con), _STD less<> {});
 			}
-#endif	  // __HASCPP20
+#endif	  // __HAS_CPP20
 		} // namespace insertion_sort
 
 		/*-----------------------------------------------------------------------------------------------*/
@@ -1407,9 +1430,9 @@ namespace zhang::algorithms
 
 			// merge_sort() for 仿函数 强化版
 			template <typename BidirectionalIterator, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(__is_iterator<BidirectionalIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void merge_sort(BidirectionalIterator first, BidirectionalIterator last, Function fun) noexcept
 			{
 				using difference_type = typename __ZH_ITER__ iterator_traits<BidirectionalIterator>::difference_type;
@@ -1431,33 +1454,33 @@ namespace zhang::algorithms
 
 			// merge_sort() 标准版
 			template <typename BidirectionalIterator>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(__is_iterator<BidirectionalIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void merge_sort(BidirectionalIterator first, BidirectionalIterator last) noexcept
 			{
 				merge_sort::merge_sort(first, last, _STD less<> {});
 			}
 
 			// merge_sort() for 容器、仿函数 强化版
-#ifdef __HASCPP20
-			template <typename Containers, typename Function>
-				requires(__is_containers<Containers>)
-			inline void merge_sort(Containers& con, Function fun) noexcept
+#ifdef __HAS_CPP20
+			template <typename Container, typename Function>
+				requires(__is_container<Container>)
+			inline void merge_sort(Container& con, Function fun) noexcept
 			{
-				merge_sort::merge_sort(_begin(con), _end(con), fun);
+				merge_sort::merge_sort(__begin_for_container(con), __end_for_container(con), fun);
 			}
-#endif		// __HASCPP20
+#endif		// __HAS_CPP20
 
 			// merge_sort() for 容器 强化版
-#ifdef __HASCPP20
-			template <typename Containers>
-				requires(__is_containers<Containers>)
-			inline void merge_sort(Containers& con) noexcept
+#ifdef __HAS_CPP20
+			template <typename Container>
+				requires(__is_container<Container>)
+			inline void merge_sort(Container& con) noexcept
 			{
-				merge_sort::merge_sort(_begin(con), _end(con), _STD less<> {});
+				merge_sort::merge_sort(__begin_for_container(con), __end_for_container(con), _STD less<> {});
 			}
-#endif	  // __HASCPP20
+#endif	  // __HAS_CPP20
 		} // namespace merge_sort
 
 		/*-----------------------------------------------------------------------------------------------*/
@@ -1473,11 +1496,11 @@ namespace zhang::algorithms
 			{
 				while ((last - first) > 1)
 				{
-					auto pivot = _cove_type(namespace_sort::std_sort::__median(*first,
-																			   *(last - 1),
-																			   *(first + (last - first) / 2),
-																			   _STD less<> {}),
-											T);
+					auto pivot = __cove_type(namespace_sort::std_sort::__median(*first,
+																				*(last - 1),
+																				*(first + (last - first) / 2),
+																				_STD less<> {}),
+											 T);
 
 					RandomAccessIterator cut =
 						namespace_sort::std_sort::__unguraded_partition(first,
@@ -1500,9 +1523,9 @@ namespace zhang::algorithms
 
 			// quick_sort() for 仿函数 强化版
 			template <typename RandomAccessIterator, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(algorithms::__is_iterator<RandomAccessIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void quick_sort(RandomAccessIterator first, RandomAccessIterator last, Function fun) noexcept
 			{
 				if (!((last - first) > 1))
@@ -1515,33 +1538,33 @@ namespace zhang::algorithms
 
 			// quick_sort() 标准版
 			template <typename RandomAccessIterator>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(algorithms::__is_iterator<RandomAccessIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void quick_sort(RandomAccessIterator first, RandomAccessIterator last) noexcept
 			{
 				quick_sort::quick_sort(first, last, _STD less<> {});
 			}
 
 			// quick_sort() for 容器、仿函数 强化版
-#ifdef __HASCPP20
-			template <typename Containers, typename Function>
-				requires(__is_containers<Containers>)
-			inline void quick_sort(Containers& con, Function fun) noexcept
+#ifdef __HAS_CPP20
+			template <typename Container, typename Function>
+				requires(__is_container<Container>)
+			inline void quick_sort(Container& con, Function fun) noexcept
 			{
-				quick_sort::quick_sort(_begin(con), _end(con), fun);
+				quick_sort::quick_sort(__begin_for_container(con), __end_for_container(con), fun);
 			}
-#endif		// __HASCPP20
+#endif		// __HAS_CPP20
 
 			// quick_sort() for 容器 强化版
-#ifdef __HASCPP20
-			template <typename Containers>
-				requires(__is_containers<Containers>)
-			inline void quick_sort(Containers& con) noexcept
+#ifdef __HAS_CPP20
+			template <typename Container>
+				requires(__is_container<Container>)
+			inline void quick_sort(Container& con) noexcept
 			{
-				quick_sort::quick_sort(_begin(con), _end(con), _STD less<> {});
+				quick_sort::quick_sort(__begin_for_container(con), __end_for_container(con), _STD less<> {});
 			}
-#endif	  // __HASCPP20
+#endif	  // __HAS_CPP20
 		} // namespace quick_sort
 
 		// 此处封装 堆排序
@@ -1549,9 +1572,9 @@ namespace zhang::algorithms
 		{
 			// heap_sort() for 仿函数 强化版
 			template <typename RandomAccessIterator, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(algorithms::__is_iterator<RandomAccessIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void heap_sort(RandomAccessIterator first,
 								  RandomAccessIterator middle,
 								  RandomAccessIterator last,
@@ -1562,9 +1585,9 @@ namespace zhang::algorithms
 
 			// heap_sort() 标准版
 			template <typename RandomAccessIterator>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(algorithms::__is_iterator<RandomAccessIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void
 				heap_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last) noexcept
 			{
@@ -1573,9 +1596,9 @@ namespace zhang::algorithms
 
 			// heap_sort() for 仿函数、无第二区间 强化版
 			template <typename RandomAccessIterator, typename Function>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(algorithms::__is_iterator<RandomAccessIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void heap_sort(RandomAccessIterator first, RandomAccessIterator last, Function fun) noexcept
 			{
 				heap_sort::heap_sort(first, last, last, fun);
@@ -1583,33 +1606,39 @@ namespace zhang::algorithms
 
 			// heap_sort() for 无第二区间 强化版
 			template <typename RandomAccessIterator>
-#ifdef __HASCPP20
+#ifdef __HAS_CPP20
 				requires(algorithms::__is_iterator<RandomAccessIterator>)
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 			inline void heap_sort(RandomAccessIterator first, RandomAccessIterator last) noexcept
 			{
 				heap_sort::heap_sort(first, last, last, _STD less<> {});
 			}
 
 			// heap_sort() for 容器、仿函数、无第二区间 强化版
-#ifdef __HASCPP20
-			template <typename Containers, typename Function>
-				requires(algorithms::__is_containers<Containers>)
-			inline void heap_sort(Containers& con, Function fun) noexcept
+#ifdef __HAS_CPP20
+			template <typename Container, typename Function>
+				requires(algorithms::__is_container<Container>)
+			inline void heap_sort(Container& con, Function fun) noexcept
 			{
-				heap_sort::heap_sort(_begin(con), _end(con), _end(con), fun);
+				heap_sort::heap_sort(__begin_for_container(con),
+									 __end_for_container(con),
+									 __end_for_container(con),
+									 fun);
 			}
-#endif		// __HASCPP20
+#endif		// __HAS_CPP20
 
 			// heap_sort() for 容器、无第二区间 强化版
-#ifdef __HASCPP20
-			template <typename Containers>
-				requires(algorithms::__is_containers<Containers>)
-			inline void heap_sort(Containers& con) noexcept
+#ifdef __HAS_CPP20
+			template <typename Container>
+				requires(algorithms::__is_container<Container>)
+			inline void heap_sort(Container& con) noexcept
 			{
-				heap_sort::heap_sort(_begin(con), _end(con), _end(con), _STD less<> {});
+				heap_sort::heap_sort(__begin_for_container(con),
+									 __end_for_container(con),
+									 __end_for_container(con),
+									 _STD less<> {});
 			}
-#endif	  // __HASCPP20
+#endif	  // __HAS_CPP20
 		} // namespace heap_sort
 	}	  // namespace namespace_sort
 

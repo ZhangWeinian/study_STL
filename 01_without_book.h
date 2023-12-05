@@ -59,7 +59,7 @@ namespace zhang::without_book
 		}
 	} // namespace namespace_pair
 
-#if defined(__HASCPP20) && __has_include(<format>)
+#if defined(__HAS_CPP20) && __has_include(<format>)
 
 	// 此处实现 print() （此函数不属于 STL ，只是基于 C++20 标准封装的 多功能输出函数 print() ）
 	namespace namespace_print
@@ -81,7 +81,7 @@ namespace zhang::without_book
 		concept __is_basic_compound = !(_STD is_compound_v<T>);
 
 		template <typename T>
-		concept __is_containers = requires(T p) {
+		concept __is_container = requires(T p) {
 			typename T::value_type;
 			p.begin();
 			p.end();
@@ -97,9 +97,10 @@ namespace zhang::without_book
 			_STD cout << _STD endl;
 		}
 
+		// 输出空行
 		inline void println(void) noexcept
 		{
-			_STD cout << _STD endl;
+			namespace_print::print();
 		}
 
 		// 1.1、针对 C 风格数组 <指针，距离> 的特化
@@ -121,7 +122,7 @@ namespace zhang::without_book
 			}
 			_STD format_to(_STD back_inserter(msg), "{}\t", *(first + __basic_count));
 
-			_STD cout << _STD vformat(msg, _move(_STD make_format_args()));
+			_STD cout << _STD vformat(msg, __move(_STD make_format_args()));
 		}
 
 		// 1.2、针对 C 风格数组 <指针，指针> 的特化
@@ -190,7 +191,7 @@ namespace zhang::without_book
 				}
 			}
 
-			_STD cout << _STD vformat(msg, _move(_STD make_format_args()));
+			_STD cout << _STD vformat(msg, __move(_STD make_format_args()));
 		}
 
 		// 2.2、针对 迭代器 的特化的 println()
@@ -206,15 +207,15 @@ namespace zhang::without_book
 
 		// 3.1、针对 容器 的特化
 		template <typename T, typename Difference_type = size_t>
-			requires(namespace_print::__is_containers<T>)
+			requires(namespace_print::__is_container<T>)
 		inline void print(const T& con, Difference_type max_distance = 1) noexcept
 		{
-			namespace_print::print(_begin(con), _end(con), max_distance);
+			namespace_print::print(__begin_for_container(con), __end_for_container(con), max_distance);
 		}
 
 		// 3.2、针对 容器 的特化的 println()
 		template <typename T, typename Difference_type = size_t>
-			requires(namespace_print::__is_containers<T>)
+			requires(namespace_print::__is_container<T>)
 		inline void println(const T& con, Difference_type max_distance = 1) noexcept
 		{
 			namespace_print::print(con, max_distance);
@@ -232,7 +233,7 @@ namespace zhang::without_book
 			}
 			else
 			{
-				::std::string fmt_msg { _move(::std::vformat(msg, ::std::make_format_args(args...))) };
+				::std::string fmt_msg { __move(::std::vformat(msg, ::std::make_format_args(args...))) };
 				fputs(fmt_msg.c_str(), stdout);
 			}
 		}
@@ -246,18 +247,18 @@ namespace zhang::without_book
 			namespace_print::print();
 		}
 	}  // namespace namespace_print
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 	// 对外接口
 	using namespace_pair::make_pair;
 	using namespace_pair::pair;
 
-#if defined(__HASCPP20) && __has_include(<format>)
+#if defined(__HAS_CPP20) && __has_include(<format>)
 
 	using namespace_print::print;
 	using namespace_print::println;
 
-#endif // __HASCPP20
+#endif // __HAS_CPP20
 
 
 #ifdef __ZH_NAMESPACE__

@@ -98,14 +98,14 @@ namespace zhang::iterator
 		template <typename Iterator>
 		inline typename iterator_traits<Iterator>::difference_type* distance_type(const Iterator&)
 		{
-			return _cove_type(0, iterator_traits<Iterator>::difference_type*);
+			return __cove_type(0, iterator_traits<Iterator>::difference_type*);
 		}
 
 		// 此函数用于 -- 快速决定某个迭代器的 value type
 		template <typename Iterator>
 		inline typename iterator_traits<Iterator>::value_type* value_type(const Iterator&)
 		{
-			return _cove_type(0, iterator_traits<Iterator>::value_type*);
+			return __cove_type(0, iterator_traits<Iterator>::value_type*);
 		}
 
 		// 以下是整组 distance 函数
@@ -144,7 +144,7 @@ namespace zhang::iterator
 				  typename Distance> // 注意，这个函数书中未给出实现，但却有这样的用法，故在此处自定义实现
 		inline void distance(InputIterator first, InputIterator last, Distance& result)
 		{
-			result = _cove_type(namespace_iterator::distance(first, last), Distance);
+			result = __cove_type(namespace_iterator::distance(first, last), Distance);
 		}
 
 		// 以下是整组 advance 函数

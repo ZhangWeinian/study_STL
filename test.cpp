@@ -2,13 +2,6 @@
 
 #include "mySTL.h"
 
-
-using _STD boolalpha;
-using _STD cout;
-using _STD cerr;
-using _STD cin;
-using _STD endl;
-
 using namespace zh;
 namespace ranges = ::std::ranges;
 
@@ -68,16 +61,16 @@ int main(int argc, char* argv[])
 
 	// 7、自定义 二分查找
 	ranges::sort(test);
-	const auto& [my_begin, my_end]	 = zh::equal_range(test, 10);
-	const auto& [stl_begin, stl_end] = ranges::equal_range(test, 10);
+	const auto& [first1, end1] = zh::equal_range(test, 10);
+	const auto& [first2, end2] = ranges::equal_range(test, 10);
 
 	zh::print(
 		"以下是 自定义_二分查找 zh::equal_range() 结果 与 标准库_二分查找 std::ranges::equal_range() 结果 的对比\n");
 	zh::println("zh::equal_range() \t\t起始位置是{}、\t长度是{}\nstd::ranges::equal_range() \t起始位置是{}、\t长度是{}",
-				my_begin - test.begin(),
-				my_end - my_begin,
-				stl_begin - test.begin(),
-				stl_end - stl_begin);
+				first1 - test.begin(),
+				end1 - first1,
+				first2 - test.begin(),
+				end2 - first2);
 
 	return 0;
 }
