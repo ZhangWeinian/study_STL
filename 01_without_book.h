@@ -59,9 +59,7 @@ namespace zhang::without_book
 		}
 	} // namespace namespace_pair
 
-
-
-#if defined(__HASCXX20) && __has_include(<format>)
+#if defined(__HASCPP20) && __has_include(<format>)
 
 	// 此处实现 print() （此函数不属于 STL ，只是基于 C++20 标准封装的 多功能输出函数 print() ）
 	namespace namespace_print
@@ -93,7 +91,18 @@ namespace zhang::without_book
 		concept __basic_msg_type = (__is_basic_compound<T>) || requires(T msg) { _STD string(msg); } ||
 								   requires(T msg) { _STD string_view(msg); };
 
-		// 1、针对 C 风格数组 <指针，距离> 的特化
+		// 输出空行
+		inline void print(void) noexcept
+		{
+			_STD cout << _STD endl;
+		}
+
+		inline void println(void) noexcept
+		{
+			_STD cout << _STD endl;
+		}
+
+		// 1.1、针对 C 风格数组 <指针，距离> 的特化
 		template <typename T1, typename T2 = size_t>
 			requires(namespace_print::__is_c_array<T1> && (namespace_print::__is_basic_compound<T2>))
 		inline void print(const T1& first, const T2& count, const T2& max_distance = 15) noexcept
@@ -115,7 +124,7 @@ namespace zhang::without_book
 			_STD cout << _STD vformat(msg, _move(_STD make_format_args()));
 		}
 
-		// 1、针对 C 风格数组 <指针，指针> 的特化
+		// 1.2、针对 C 风格数组 <指针，指针> 的特化
 		template <typename T1, typename T2, typename T3 = size_t>
 			requires(namespace_print::__is_c_array<T1> && (namespace_print::__is_pointer<T2>))
 		inline void print(const T1& first, const T2& last, const T3& max_distance = 15)
@@ -123,25 +132,25 @@ namespace zhang::without_book
 			namespace_print::print(first, _STD distance(first, last), max_distance);
 		}
 
-		// 1、针对 C 风格数组 <指针，距离> 的特化的 println()
+		// 1.3、针对 C 风格数组 <指针，距离> 的特化的 println()
 		template <typename T, typename T2 = size_t>
 			requires(namespace_print::__is_c_array<T>)
 		inline void println(const T& first, const T2& count, const T2 max_distance = 15) noexcept
 		{
 			namespace_print::print(first, count, max_distance);
-			fputs("\n", stdout);
+			namespace_print::print();
 		}
 
-		// 1、针对 C 风格数组 <指针，指针> 的特化的println()
+		// 1.4、针对 C 风格数组 <指针，指针> 的特化的println()
 		template <typename T1, typename T2, typename T3 = size_t>
 			requires(namespace_print::__is_c_array<T1> && (namespace_print::__is_pointer<T2>))
-		inline void print(const T1& first, const T2& last, const T3& max_distance = 15)
+		inline void println(const T1& first, const T2& last, const T3& max_distance = 15)
 		{
-			namespace_print::print(first, last, max_distance);
-			fputs("\n", stdout);
+			namespace_print::print(first, _STD distance(first, last), max_distance);
+			namespace_print::print();
 		}
 
-		// 2、针对 迭代器 的特化
+		// 2.1、针对 迭代器 的特化
 		template <typename InputIterator>
 			requires(namespace_print::__is_iterator<InputIterator>)
 		inline void print(InputIterator first,
@@ -184,7 +193,7 @@ namespace zhang::without_book
 			_STD cout << _STD vformat(msg, _move(_STD make_format_args()));
 		}
 
-		// 2、针对 迭代器 的特化的 println()
+		// 2.2、针对 迭代器 的特化的 println()
 		template <typename InputIterator>
 			requires(namespace_print::__is_iterator<InputIterator>)
 		inline void println(InputIterator first,
@@ -192,10 +201,10 @@ namespace zhang::without_book
 							typename _STD iterator_traits<InputIterator>::difference_type max_distance = 1) noexcept
 		{
 			namespace_print::print(first, last, max_distance);
-			fputs("\n", stdout);
+			namespace_print::print();
 		}
 
-		// 3、针对 容器 的特化
+		// 3.1、针对 容器 的特化
 		template <typename T, typename Difference_type = size_t>
 			requires(namespace_print::__is_containers<T>)
 		inline void print(const T& con, Difference_type max_distance = 1) noexcept
@@ -203,21 +212,21 @@ namespace zhang::without_book
 			namespace_print::print(_begin(con), _end(con), max_distance);
 		}
 
-		// 3、针对 容器 的特化的 println()
+		// 3.2、针对 容器 的特化的 println()
 		template <typename T, typename Difference_type = size_t>
 			requires(namespace_print::__is_containers<T>)
 		inline void println(const T& con, Difference_type max_distance = 1) noexcept
 		{
 			namespace_print::print(con, max_distance);
-			fputs("\n", stdout);
+			namespace_print::print();
 		}
 
-		// 4、一般泛化
+		// 4.1、一般泛化
 		template <typename T, typename... Args>
 			requires(namespace_print::__basic_msg_type<T>)
 		inline void print(const T& msg, Args&&... args) noexcept
 		{
-			if constexpr (!(_STD is_compound_v<T>))
+			if constexpr (namespace_print::__is_basic_compound<T>)
 			{
 				_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}", msg);
 			}
@@ -228,38 +237,27 @@ namespace zhang::without_book
 			}
 		}
 
-		// 4、一般泛化模式下的 println()
+		// 4.2、一般泛化模式下的 println()
 		template <typename T, typename... Args>
 			requires(namespace_print::__basic_msg_type<T>)
 		inline void println(const T& msg, Args&&... args) noexcept
 		{
 			namespace_print::print(msg, args...);
-			fputs("\n", stdout);
-		}
-
-		// 输出空行
-		inline void print(void) noexcept
-		{
-			_STD cout << _STD endl;
-		}
-
-		inline void println(void) noexcept
-		{
-			_STD cout << _STD endl;
+			namespace_print::print();
 		}
 	}  // namespace namespace_print
-#endif // __HASCXX20
+#endif // __HASCPP20
 
 	// 对外接口
 	using namespace_pair::make_pair;
 	using namespace_pair::pair;
 
-#if defined(__HASCXX20) && __has_include(<format>)
+#if defined(__HASCPP20) && __has_include(<format>)
 
 	using namespace_print::print;
 	using namespace_print::println;
 
-#endif // __HASCXX20
+#endif // __HASCPP20
 
 
 #ifdef __ZH_NAMESPACE__

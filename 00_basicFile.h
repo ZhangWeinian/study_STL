@@ -20,17 +20,29 @@
 
 #if !(__cplusplus < 202002L)
 
-	#ifndef __HASCXX20
-		#define __HASCXX20 202002L
-	#endif // !__HASCXX20
+	#ifndef __HASCPP20
+		#define __HASCPP20 202002L
+	#endif // !__HASCPP20
+
+#elif !(__cplusplus < 201703L)
+
+	#ifndef __HASCPP17
+		#define __HASCPP17
+	#endif // !__HASCPP17
 
 #endif
 
 #if !(_MSVC_LANG < 202002L)
 
-	#ifndef __HASCXX20
-		#define __HASCXX20 202002L
-	#endif // !__HASCXX20
+	#ifndef __HASCPP20
+		#define __HASCPP20 202002L
+	#endif // !__HASCPP20
+
+#elif !(_MSVC_LANG < 201703L)
+
+	#ifndef __HASCPP17
+		#define __HASCPP17
+	#endif // !__HASCPP17
 
 #endif
 
@@ -43,6 +55,10 @@
 #ifndef _NODISCARD
 	#define _NODISCARD [[nodiscard]]
 #endif // !_NODISCARD
+
+#ifndef _NORETURN
+	#define _NORETURN [[noreturn]]
+#endif // !_NORETURN
 
 
 
