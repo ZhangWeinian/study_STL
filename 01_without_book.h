@@ -81,7 +81,7 @@ namespace zhang::without_book
 		concept __is_basic_compound = !(_STD is_compound_v<T>);
 
 		template <typename T>
-		concept __is_containers = requires(T p) {
+		concept __is_container = requires(T p) {
 			typename T::value_type;
 			p.begin();
 			p.end();
@@ -206,7 +206,7 @@ namespace zhang::without_book
 
 		// 3.1、针对 容器 的特化
 		template <typename T, typename Difference_type = size_t>
-			requires(namespace_print::__is_containers<T>)
+			requires(namespace_print::__is_container<T>)
 		inline void print(const T& con, Difference_type max_distance = 1) noexcept
 		{
 			namespace_print::print(_begin(con), _end(con), max_distance);
@@ -214,7 +214,7 @@ namespace zhang::without_book
 
 		// 3.2、针对 容器 的特化的 println()
 		template <typename T, typename Difference_type = size_t>
-			requires(namespace_print::__is_containers<T>)
+			requires(namespace_print::__is_container<T>)
 		inline void println(const T& con, Difference_type max_distance = 1) noexcept
 		{
 			namespace_print::print(con, max_distance);

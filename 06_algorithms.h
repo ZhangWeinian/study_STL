@@ -41,7 +41,7 @@ namespace zhang::algorithms
 	concept __is_iterator = requires(T p) { *p; };
 
 	template <typename T>
-	concept __is_containers = requires(T p) {
+	concept __is_container = requires(T p) {
 		typename T::value_type;
 		p.begin();
 		p.end();
@@ -246,9 +246,9 @@ namespace zhang::algorithms
 
 		/* function find() for 容器 强化版 */
 #ifdef __HASCPP20
-		template <typename Containers, typename T>
-			requires(algorithms::__is_containers<Containers>)
-		_NODISCARD inline auto find(const Containers& con, const T& value) noexcept
+		template <typename Container, typename T>
+			requires(algorithms::__is_container<Container>)
+		_NODISCARD inline auto find(const Container& con, const T& value) noexcept
 		{
 			return namespace_function::find(_begin(con), _end(con), value);
 		}
@@ -276,9 +276,9 @@ namespace zhang::algorithms
 
 		/* function find_if() for 容器 强化版 */
 #ifdef __HASCPP20
-		template <typename Containers, typename Function>
-			requires(algorithms::__is_containers<Containers>)
-		_NODISCARD inline auto find_if(const Containers& con, Function fun) noexcept
+		template <typename Container, typename Function>
+			requires(algorithms::__is_container<Container>)
+		_NODISCARD inline auto find_if(const Container& con, Function fun) noexcept
 		{
 			return namespace_function::find_if(_begin(con), _end(con), fun);
 		}
@@ -333,9 +333,9 @@ namespace zhang::algorithms
 
 		/* function for_each() for 容器 强化版 */
 #ifdef __HASCPP20
-		template <typename Containers, typename Function>
-			requires(algorithms::__is_containers<Containers>)
-		inline Function for_each(const Containers& con, Function fun) noexcept
+		template <typename Container, typename Function>
+			requires(algorithms::__is_container<Container>)
+		inline Function for_each(const Container& con, Function fun) noexcept
 		{
 			return namespace_function::for_each(_begin(con), _end(con), fun);
 		}
@@ -376,9 +376,9 @@ namespace zhang::algorithms
 
 		/* function equal() for 容器、仿函数 强化版 */
 #ifdef __HASCPP20
-		template <typename Containers, typename T, typename Function>
-			requires(algorithms::__is_containers<Containers> && algorithms::__is_containers<T>)
-		_NODISCARD inline bool equal(const Containers& con1, const T& con2, Function fun) noexcept
+		template <typename Container, typename T, typename Function>
+			requires(algorithms::__is_container<Container> && algorithms::__is_container<T>)
+		_NODISCARD inline bool equal(const Container& con1, const T& con2, Function fun) noexcept
 		{
 			return namespace_function::equal(_begin(con1), _end(con1), _begin(con2), fun);
 		}
@@ -386,9 +386,9 @@ namespace zhang::algorithms
 
 		/* function equal() for 容器 强化版 */
 #ifdef __HASCPP20
-		template <typename Containers, typename T>
-			requires(algorithms::__is_containers<Containers> && algorithms::__is_containers<T>)
-		_NODISCARD inline bool equal(const Containers& con1, const T& con2) noexcept
+		template <typename Container, typename T>
+			requires(algorithms::__is_container<Container> && algorithms::__is_container<T>)
+		_NODISCARD inline bool equal(const Container& con1, const T& con2) noexcept
 		{
 			return namespace_function::equal(_begin(con1), _end(con1), _begin(con2), _STD not_equal_to<> {});
 		}
@@ -410,9 +410,9 @@ namespace zhang::algorithms
 
 		/* function fill() for 容器 强化版 */
 #ifdef __HASCPP20
-		template <typename Containers, typename T>
-			requires(algorithms::__is_containers<Containers>)
-		inline void fill(Containers& con, const T& value) noexcept
+		template <typename Container, typename T>
+			requires(algorithms::__is_container<Container>)
+		inline void fill(Container& con, const T& value) noexcept
 		{
 			namespace_function::fill(_begin(con), _end(con), value);
 		}
@@ -931,9 +931,9 @@ namespace zhang::algorithms
 
 		/* function equal_range() for 容器、仿函数 强化版 */
 #ifdef __HASCPP20
-		template <typename Containers, typename T, typename Function>
-			requires(algorithms::__is_containers<Containers>)
-		inline auto equal_range(const Containers& con, const T& value, Function fun)
+		template <typename Container, typename T, typename Function>
+			requires(algorithms::__is_container<Container>)
+		inline auto equal_range(const Container& con, const T& value, Function fun)
 		{
 			return namespace_binary_search::equal_range(_begin(con), _end(con), value, fun);
 		}
@@ -941,9 +941,9 @@ namespace zhang::algorithms
 
 		/* function equal_range() for 容器 强化版 */
 #ifdef __HASCPP20
-		template <typename Containers, typename T>
-			requires(algorithms::__is_containers<Containers>)
-		inline auto equal_range(const Containers& con, const T& value)
+		template <typename Container, typename T>
+			requires(algorithms::__is_container<Container>)
+		inline auto equal_range(const Container& con, const T& value)
 		{
 			return namespace_binary_search::equal_range(_begin(con), _end(con), value, _STD less<> {});
 		}
@@ -977,9 +977,9 @@ namespace zhang::algorithms
 
 		/* function binary_search() for 容器、仿函数 强化版 */
 #ifdef __HASCPP20
-		template <typename Containers, typename T, typename Function>
-			requires(algorithms::__is_containers<Containers>)
-		inline bool binary_search(const Containers& con, const T& value, Function fun)
+		template <typename Container, typename T, typename Function>
+			requires(algorithms::__is_container<Container>)
+		inline bool binary_search(const Container& con, const T& value, Function fun)
 		{
 			return namespace_binary_search::binary_search(_begin(con), _end(con), value, fun);
 		}
@@ -987,9 +987,9 @@ namespace zhang::algorithms
 
 		/* function binary_search() for 容器 强化版 */
 #ifdef __HASCPP20
-		template <typename Containers, typename T>
-			requires(algorithms::__is_containers<Containers>)
-		inline bool binary_search(const Containers& con, const T& value)
+		template <typename Container, typename T>
+			requires(algorithms::__is_container<Container>)
+		inline bool binary_search(const Container& con, const T& value)
 		{
 			return namespace_binary_search::binary_search(_begin(con), _end(con), value, _STD less<> {});
 		}
@@ -1325,9 +1325,9 @@ namespace zhang::algorithms
 
 			// sort() for 容器、仿函数 强化版
 #ifdef __HASCPP20
-			template <typename Containers, typename Function>
-				requires(__is_containers<Containers>)
-			inline void sort(Containers& con, Function fun) noexcept
+			template <typename Container, typename Function>
+				requires(__is_container<Container>)
+			inline void sort(Container& con, Function fun) noexcept
 			{
 				std_sort::sort(_begin(con), _end(con), fun);
 			}
@@ -1335,9 +1335,9 @@ namespace zhang::algorithms
 
 			// sort() for 容器 强化版
 #ifdef __HASCPP20
-			template <typename Containers>
-				requires(__is_containers<Containers>)
-			inline void sort(Containers& con) noexcept
+			template <typename Container>
+				requires(__is_container<Container>)
+			inline void sort(Container& con) noexcept
 			{
 				std_sort::sort(_begin(con), _end(con), _STD less<> {});
 			}
@@ -1373,9 +1373,9 @@ namespace zhang::algorithms
 
 			// insertion_sort()	for 容器、仿函数 强化版
 #ifdef __HASCPP20
-			template <typename Containers, typename Function>
-				requires(__is_containers<Containers>)
-			inline void insertion_sort(Containers& con, Function fun) noexcept
+			template <typename Container, typename Function>
+				requires(__is_container<Container>)
+			inline void insertion_sort(Container& con, Function fun) noexcept
 			{
 				insertion_sort::insertion_sort(_begin(con), _end(con), fun);
 			}
@@ -1383,9 +1383,9 @@ namespace zhang::algorithms
 
 			// insertion_sort() for 容器 强化版
 #ifdef __HASCPP20
-			template <typename Containers>
-				requires(__is_containers<Containers>)
-			inline void insertion_sort(Containers& con) noexcept
+			template <typename Container>
+				requires(__is_container<Container>)
+			inline void insertion_sort(Container& con) noexcept
 			{
 				insertion_sort::insertion_sort(_begin(con), _end(con), _STD less<> {});
 			}
@@ -1441,9 +1441,9 @@ namespace zhang::algorithms
 
 			// merge_sort() for 容器、仿函数 强化版
 #ifdef __HASCPP20
-			template <typename Containers, typename Function>
-				requires(__is_containers<Containers>)
-			inline void merge_sort(Containers& con, Function fun) noexcept
+			template <typename Container, typename Function>
+				requires(__is_container<Container>)
+			inline void merge_sort(Container& con, Function fun) noexcept
 			{
 				merge_sort::merge_sort(_begin(con), _end(con), fun);
 			}
@@ -1451,9 +1451,9 @@ namespace zhang::algorithms
 
 			// merge_sort() for 容器 强化版
 #ifdef __HASCPP20
-			template <typename Containers>
-				requires(__is_containers<Containers>)
-			inline void merge_sort(Containers& con) noexcept
+			template <typename Container>
+				requires(__is_container<Container>)
+			inline void merge_sort(Container& con) noexcept
 			{
 				merge_sort::merge_sort(_begin(con), _end(con), _STD less<> {});
 			}
@@ -1525,9 +1525,9 @@ namespace zhang::algorithms
 
 			// quick_sort() for 容器、仿函数 强化版
 #ifdef __HASCPP20
-			template <typename Containers, typename Function>
-				requires(__is_containers<Containers>)
-			inline void quick_sort(Containers& con, Function fun) noexcept
+			template <typename Container, typename Function>
+				requires(__is_container<Container>)
+			inline void quick_sort(Container& con, Function fun) noexcept
 			{
 				quick_sort::quick_sort(_begin(con), _end(con), fun);
 			}
@@ -1535,9 +1535,9 @@ namespace zhang::algorithms
 
 			// quick_sort() for 容器 强化版
 #ifdef __HASCPP20
-			template <typename Containers>
-				requires(__is_containers<Containers>)
-			inline void quick_sort(Containers& con) noexcept
+			template <typename Container>
+				requires(__is_container<Container>)
+			inline void quick_sort(Container& con) noexcept
 			{
 				quick_sort::quick_sort(_begin(con), _end(con), _STD less<> {});
 			}
@@ -1593,9 +1593,9 @@ namespace zhang::algorithms
 
 			// heap_sort() for 容器、仿函数、无第二区间 强化版
 #ifdef __HASCPP20
-			template <typename Containers, typename Function>
-				requires(algorithms::__is_containers<Containers>)
-			inline void heap_sort(Containers& con, Function fun) noexcept
+			template <typename Container, typename Function>
+				requires(algorithms::__is_container<Container>)
+			inline void heap_sort(Container& con, Function fun) noexcept
 			{
 				heap_sort::heap_sort(_begin(con), _end(con), _end(con), fun);
 			}
@@ -1603,9 +1603,9 @@ namespace zhang::algorithms
 
 			// heap_sort() for 容器、无第二区间 强化版
 #ifdef __HASCPP20
-			template <typename Containers>
-				requires(algorithms::__is_containers<Containers>)
-			inline void heap_sort(Containers& con) noexcept
+			template <typename Container>
+				requires(algorithms::__is_container<Container>)
+			inline void heap_sort(Container& con) noexcept
 			{
 				heap_sort::heap_sort(_begin(con), _end(con), _end(con), _STD less<> {});
 			}
