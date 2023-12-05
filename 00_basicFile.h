@@ -47,6 +47,15 @@
 #endif
 
 
+#ifdef __HAS_CPP20
+
+	#if __has_include(<format>)&&!(defined __CPP20_PRINT)
+		#define __CPP20_PRINT
+	#endif
+
+#endif // __HAS_CPP20
+
+
 
 #ifndef _STD
 	#define _STD ::std::

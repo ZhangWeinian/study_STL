@@ -66,11 +66,16 @@ int main(int argc, char* argv[])
 
 	zh::print(
 		"以下是 自定义_二分查找 zh::equal_range() 结果 与 标准库_二分查找 std::ranges::equal_range() 结果 的对比\n");
-	zh::println("zh::equal_range() \t\t起始位置是{}、\t长度是{}\nstd::ranges::equal_range() \t起始位置是{}、\t长度是{}",
-				first1 - test.begin(),
-				end1 - first1,
-				first2 - test.begin(),
-				end2 - first2);
+	zh::println(
+		"zh::equal_range() \t\t起始位置是{}、\t长度是{}\nstd::ranges::equal_range() \t起始位置是{}、\t长度是{}\n",
+		first1 - test.begin(),
+		end1 - first1,
+		first2 - test.begin(),
+		end2 - first2);
+
+	system("pause");
+
+	zh::print(zh::equal(test, nums, [](const auto& a, const auto& b) { return a == b; }));
 
 	return 0;
 }
