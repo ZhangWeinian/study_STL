@@ -18,6 +18,28 @@
 
 
 
+#ifndef _STD
+	#define _STD ::std::
+#endif // !_STD
+
+#ifndef _NODISCARD
+	#define _NODISCARD [[nodiscard]]
+#endif // !_NODISCARD
+
+#ifndef _NORETURN
+	#define _NORETURN [[noreturn]]
+#endif // !_NORETURN
+
+#ifndef __move
+	#define __move(cont) ::std::move(cont)
+#endif // !__move
+
+
+#define __cove_type(cont, type)			static_cast<type>(cont)
+#define __init_type(initCont, initType) __cove_type(initCont, initType)
+
+
+
 #if !(__cplusplus < 202002L)
 
 	#ifndef __HAS_CPP20
@@ -47,45 +69,156 @@
 #endif
 
 
-#ifdef __HAS_CPP20
+#if __HAS_CPP20
 
-	#if __has_include(<format>)&&!(defined __CPP20_PRINT)
-		#define __CPP20_PRINT
+	#ifndef __begin_for_container
+		#define __begin_for_container(cont) ::std::ranges::begin(cont)
+	#endif // !__begin_for_container
+
+	#ifndef __end_for_container
+		#define __end_for_container(cont) ::std::ranges::end(cont)
+	#endif // !__end_for_container
+
+#else
+
+	#ifndef __begin_for_container
+		#define __begin_for_container(cont) ::std::begin(cont)
+	#endif // !__begin_for_container
+
+	#ifndef __end_for_container
+		#define __end_for_container(cont) ::std::end(cont)
+	#endif // !__end_for_container
+
+#endif	   // __HAS_CPP20
+
+
+
+#if __HAS_CPP20
+
+template <class T>
+using __with_reference = T&;
+
+template <class T>
+concept __can_reference = requires { typename __with_reference<T>; };
+
+
+template <typename T>
+concept __is_c_array = _STD is_array_v<T>;
+
+
+template <typename T>
+concept __is_c_pointer = _STD is_pointer_v<T>;
+
+
+template <typename T>
+concept __is_basic_compound = !(_STD is_compound_v<T>);
+
+
+template <typename T>
+concept __is_iterator_or_c_pointer =
+	requires(T p) {
+		{
+			*p
+		} noexcept -> __can_reference;
+
+		{
+			++p
+		} noexcept -> _STD same_as<T&>;
+
+		{
+			p++
+		} noexcept -> _STD same_as<T>;
+	}
+	#ifdef __clang__ // TRANSITION, LLVM-48173
+	&& !same_as<_Ty, bool>
+	#endif			 // TRANSITION, LLVM-48173
+	;
+
+template <typename T>
+concept __is_iterator_without_c_pointer = !(__is_c_pointer<T>)&&(__is_iterator_or_c_pointer<T>);
+
+
+
+template <typename T>
+concept __is_container_without_c_array = requires(T p) {
+	typename T::value_type;
+	typename T::iterator;
+	__begin_for_container(p);
+	__end_for_container(p);
+};
+
+template <typename T>
+concept __is_container_or_c_array = __is_container_without_c_array<T> || __is_c_array<T>;
+
+
+
+template <__is_iterator_or_c_pointer Iterator>
+using __difference_type_for_iter = typename _STD iterator_traits<Iterator>::difference_type;
+
+template <__is_container_without_c_array Container>
+using __difference_type_for_con = typename Container::difference_type;
+
+template <__is_iterator_or_c_pointer Iterator>
+using __value_type_for_iter = typename _STD iterator_traits<Iterator>::value_type;
+
+template <__is_container_without_c_array Container>
+using __value_type_for_con = typename Container::value_type;
+
+
+
+	#ifdef _MSC_VER
+template <class Function>
+constexpr auto __check_fun(Function& fun) noexcept
+{
+	constexpr bool __pass_by_value = _STD conjunction_v<_STD bool_constant<sizeof(void*) < sizeof(Function)>,
+														_STD is_trivially_copy_constructible<Function>,
+														_STD is_trivially_destructible<Function>>;
+	if constexpr (__pass_by_value)
+	{
+		return fun;
+	}
+	else
+	{
+		return _STD _Ref_fn<Function> { fun };
+	}
+}
 	#endif
+
+
+
+	#ifdef __MINGW32__
+template <typename Function>
+constexor auto __check_fun(Function& fun)
+{
+	return __gnu_cxx::__ops::__iter_comp_iter(fun);
+}
+	#endif
+
+
+
+	#ifdef __GNUC__
+template <typename Function>
+constexor auto __check_fun(Function& fun)
+{
+	return fun;
+}
+	#endif
+
 
 #endif // __HAS_CPP20
 
 
 
-#ifndef _STD
-	#define _STD ::std::
-#endif // !_STD
+#ifdef __HAS_CPP20
 
-#ifndef _NODISCARD
-	#define _NODISCARD [[nodiscard]]
-#endif // !_NODISCARD
+	#if __has_include(<format>)&&!(defined __CPP20_PRINT)
+		#define __CPP20_PRINT
+template <typename T>
+concept __basic_msg_type =
+	(__is_basic_compound<T>) || requires(T msg) { _STD string(msg); } || requires(T msg) { _STD string_view(msg); };
+	#endif
 
-#ifndef _NORETURN
-	#define _NORETURN [[noreturn]]
-#endif // !_NORETURN
-
-
-
-#ifndef __move
-	#define __move(cont) ::std::move(cont)
-#endif // !__move
-
-#ifndef __begin_for_container
-	#define __begin_for_container(cont) ::std::begin(cont)
-#endif // !__begin_for_container
-
-#ifndef __end_for_container
-	#define __end_for_container(cont) ::std::end(cont)
-#endif // !__end_for_container
-
-
-#define __cove_type(cont, type)			static_cast<type>(cont)
-#define __init_type(initCont, initType) __cove_type(initCont, initType)
+#endif // __HAS_CPP20
 
 
 // 以下全部都是 SGI STL 预定义全局变量
