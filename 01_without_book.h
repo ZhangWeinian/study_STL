@@ -6,16 +6,16 @@
 namespace zhang::without_book
 {
 	// 预定义一些用于 简写 和 标志识别 的宏
-#ifndef __ZH_NAMESPACE__
+#ifndef __zh_namespace
 
 	#ifndef _STD
 		#define _STD ::std::
 	#endif // !_STD
 
-	#define __ZH_NAMESPACE__ ::zhang::
-	#define __ZH_ITER__		 ::zhang::iterator::namespace_iterator::
+	#define __zh_namespace ::zhang::
+	#define __zh_iter	   ::zhang::iterator::namespace_iterator::
 
-#endif // !__ZH_NAMESPACE__
+#endif // !__zh_namespace
 
 	   /*-----------------------------------------------------------------------------------------*/
 
@@ -56,6 +56,9 @@ namespace zhang::without_book
 		};
 
 		template <typename FirstType, typename SecondType>
+		pair(FirstType, SecondType) -> pair<FirstType, SecondType>;
+
+		template <typename FirstType, typename SecondType>
 		inline pair<FirstType, SecondType> make_pair(const FirstType& value1, const SecondType& value2)
 		{
 			return pair<FirstType, SecondType>(value1, value2);
@@ -70,102 +73,21 @@ namespace zhang::without_book
 
 	namespace namespace_print
 	{
-		template <typename T>
-		concept __is_iterator = requires(T p) {
-			_STD input_iterator<T>;
-			typename T::difference_type;
-			++p;
-		};
-
-		template <typename T>
-		concept __is_c_array = _STD is_array_v<T>;
-
-		template <typename T>
-		concept __is_pointer = _STD is_pointer_v<T>;
-
-		template <typename T>
-		concept __is_basic_compound = !(_STD is_compound_v<T>);
-
-		template <typename T>
-		concept __is_container = requires(T p) {
-			typename T::value_type;
-			p.begin();
-			p.end();
-		};
-
-		template <typename T>
-		concept __basic_msg_type = (__is_basic_compound<T>) || requires(T msg) { _STD string(msg); } ||
-								   requires(T msg) { _STD string_view(msg); };
-
-		// 输出空行
-		inline void print(void) noexcept
+		template <__is_iterator_or_c_pointer InputIterator>
+		inline void __print_with_iter(InputIterator first, InputIterator last) noexcept
 		{
-			_STD cout << _STD endl;
-		}
-
-		// 输出空行
-		inline void println(void) noexcept
-		{
-			namespace_print::print();
-		}
-
-		// 1.1、针对 C 风格数组 <指针，距离> 的特化
-		template <namespace_print::__is_c_array T1, namespace_print::__is_basic_compound T2 = size_t>
-		inline void print(const T1& first, const T2& count, const T2& max_distance = 15) noexcept
-		{
-			_STD string msg {};
-			T2			basic_count { 0 };
-
-			for (T2 basic_distance { 1 }; basic_count + 1 != count; ++basic_count, ++basic_distance)
-			{
-				_STD format_to(_STD back_inserter(msg), "{}\t", *(first + basic_count));
-
-				if (basic_distance % max_distance == 0)
-				{
-					msg += '\n';
-				}
-			}
-			_STD format_to(_STD back_inserter(msg), "{}\t", *(first + basic_count));
-
-			_STD cout << _STD vformat(msg, __move(_STD make_format_args()));
-		}
-
-		// 1.2、针对 C 风格数组 <指针，指针> 的特化
-		template <namespace_print::__is_c_array T1, namespace_print::__is_pointer T2, typename T3 = size_t>
-		inline void print(const T1& first, const T2& last, const T3& max_distance = 15)
-		{
-			namespace_print::print(first, _STD distance(first, last), max_distance);
-		}
-
-		// 1.3、针对 C 风格数组 <指针，距离> 的特化的 println()
-		template <namespace_print::__is_c_array T, typename T2 = size_t>
-		inline void println(const T& first, const T2& count, const T2 max_distance = 15) noexcept
-		{
-			namespace_print::print(first, count, max_distance);
-			namespace_print::print();
-		}
-
-		// 1.4、针对 C 风格数组 <指针，指针> 的特化的println()
-		template <namespace_print::__is_c_array T1, namespace_print::__is_c_array T2, typename T3 = size_t>
-		inline void println(const T1& first, const T2& last, const T3& max_distance = 15)
-		{
-			namespace_print::print(first, _STD distance(first, last), max_distance);
-			namespace_print::print();
-		}
-
-		// 2.1、针对 迭代器 的特化
-		template <namespace_print::__is_iterator InputIterator>
-		inline void print(InputIterator first,
-						  InputIterator last,
-						  typename _STD iterator_traits<InputIterator>::difference_type max_distance = 1) noexcept
-		{
-			using difference_type = typename _STD iterator_traits<InputIterator>::difference_type;
-			using value_type	  = typename _STD	   iterator_traits<InputIterator>::value_type;
+			using difference_type = __difference_type_for_iter<InputIterator>;
+			using value_type	  = __value_type_for_iter<InputIterator>;
 
 			_STD string				  msg {};
-			constexpr difference_type max_count = 1024 * 100;
+			difference_type			  max_distance { 1 };
+			constexpr difference_type max_count { 1024 * 100 };
 
-			if constexpr (_STD is_arithmetic_v<value_type>)
+			if constexpr ((_STD is_same_v<value_type, char>) || (_STD is_same_v<value_type, wchar_t>))
+			{
+				msg = _STD string(first, last);
+			}
+			else if constexpr (_STD is_arithmetic_v<value_type>)
 			{
 				if (max_distance == 1)
 				{
@@ -192,39 +114,13 @@ namespace zhang::without_book
 				}
 			}
 
-			_STD cout << _STD vformat(msg, __move(_STD make_format_args()));
+			fputs(msg.c_str(), stdout);
 		}
 
-		// 2.2、针对 迭代器 的特化的 println()
-		template <namespace_print::__is_iterator InputIterator>
-		inline void println(InputIterator first,
-							InputIterator last,
-							typename _STD iterator_traits<InputIterator>::difference_type max_distance = 1) noexcept
+		template <__basic_msg_type T, typename... Args>
+		inline void __print_with_basic_mag(const T& msg, Args&&... args) noexcept
 		{
-			namespace_print::print(first, last, max_distance);
-			namespace_print::print();
-		}
-
-		// 3.1、针对 容器 的特化
-		template <namespace_print::__is_container Container, typename Difference_type = size_t>
-		inline void print(const Container& con, Difference_type max_distance = 1) noexcept
-		{
-			namespace_print::print(__begin_for_container(con), __end_for_container(con), max_distance);
-		}
-
-		// 3.2、针对 容器 的特化的 println()
-		template <namespace_print::__is_container Container, typename Difference_type = size_t>
-		inline void println(const Container& con, Difference_type max_distance = 1) noexcept
-		{
-			namespace_print::print(con, max_distance);
-			namespace_print::print();
-		}
-
-		// 4.1、一般泛化
-		template <namespace_print::__basic_msg_type T, typename... Args>
-		inline void print(const T& msg, Args&&... args) noexcept
-		{
-			if constexpr (namespace_print::__is_basic_compound<T>)
+			if constexpr (__is_basic_compound<T>)
 			{
 				_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}", msg);
 			}
@@ -235,12 +131,107 @@ namespace zhang::without_book
 			}
 		}
 
-		// 4.2、一般泛化模式下的 println()
-		template <namespace_print::__basic_msg_type T, typename... Args>
+		template <__is_c_pointer C_pointer>
+		inline void __print_with_c_pointer(C_pointer first, C_pointer last)
+		{
+			using value_type = __value_type_for_iter<C_pointer>;
+
+			if constexpr ((!(_STD is_same_v<value_type, char> || _STD is_same_v<value_type, wchar_t>)) &&
+						  (noexcept(last - first)))
+			{
+				__print_with_iter(first, last);
+			}
+			else
+			{
+				__print_with_basic_mag(first, last);
+			}
+		}
+
+		// 输出空行
+		inline void print(void) noexcept
+		{
+			fputs("\n", stdout);
+		}
+
+		// 输出空行
+		inline void println(void) noexcept
+		{
+			print();
+		}
+
+		// 1.1、针对 迭代器 的一般泛化
+		template <__is_iterator_without_c_pointer InputIterator>
+		inline void print(InputIterator first, InputIterator last) noexcept
+		{
+			__print_with_iter(first, last);
+		}
+
+		// 1.2、针对 迭代器 的一般泛化的 println()
+		template <__is_iterator_without_c_pointer InputIterator>
+		inline void println(InputIterator first, InputIterator last) noexcept
+		{
+			__print_with_iter(first, last);
+			print();
+		}
+
+		// 2.1、针对 容器 的特化
+		template <__is_container_or_c_array Container>
+		inline void print(const Container& con) noexcept
+		{
+			__print_with_iter(__begin_for_container(con), __end_for_container(con));
+		}
+
+		// 2.2、针对 容器 的特化的 println()
+		template <__is_container_or_c_array Container>
+		inline void println(const Container& con) noexcept
+		{
+			__print_with_iter(__begin_for_container(con), __end_for_container(con));
+			print();
+		}
+
+		// 3.1 针对 C风格指针 的特化
+		template <__is_c_pointer C_pointer>
+		inline void print(C_pointer first, C_pointer last)
+		{
+			__print_with_c_pointer(first, last);
+		}
+
+		// 3.2 针对 C风格指针 的特化的 println()
+		template <__is_c_pointer C_pointer>
+		inline void println(C_pointer first, C_pointer last)
+		{
+			__print_with_c_pointer(first, last);
+			print();
+		}
+
+		// 4.1、针对 format() 格式的一般泛化（右值）
+		template <__basic_msg_type T, typename... Args>
+		inline void print(T&& msg, Args&&... args) noexcept
+		{
+			__print_with_basic_mag(__move(msg), args...);
+		}
+
+		// 4.1、针对 format() 格式的一般泛化（左值）
+		template <__basic_msg_type T, typename... Args>
+		inline void print(const T& msg, Args&&... args) noexcept
+		{
+			__print_with_basic_mag(msg, args...);
+		}
+
+		// 4.2、针对 format() 格式的一般泛化（右值）的 println()
+		template <__basic_msg_type T, typename... Args>
+		inline void println(T&& msg, Args&&... args) noexcept
+		{
+			__print_with_basic_mag(__move(msg), args...);
+			print();
+		}
+
+		// 4.2、针对 format() 格式的一般泛化（左值）的 println()
+		template <__basic_msg_type T, typename... Args>
 		inline void println(const T& msg, Args&&... args) noexcept
 		{
-			namespace_print::print(msg, args...);
-			namespace_print::print();
+			__print_with_basic_mag(msg, args...);
+			print();
 		}
 	}  // namespace namespace_print
 
@@ -261,12 +252,12 @@ namespace zhang::without_book
 
 #endif // __HAS_CPP20
 
-	   /*-----------------------------------------------------------------------------------------*/
+	/*-----------------------------------------------------------------------------------------*/
 
 
 
-#ifdef __ZH_NAMESPACE__
-	#undef __ZH_NAMESPACE__
-	#undef __ZH_ITER__
-#endif // __ZH_NAMESPACE__
+#ifdef __zh_namespace
+	#undef __zh_namespace
+	#undef __zh_iter
+#endif // __zh_namespace
 } // namespace zhang::without_book
