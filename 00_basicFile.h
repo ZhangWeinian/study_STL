@@ -168,19 +168,9 @@ using __value_type_for_con = typename Container::value_type;
 
 	#ifdef _MSC_VER
 template <class Function>
-constexpr auto __check_fun(Function& fun) noexcept
+constexpr decltype(auto) __check_fun(Function& fun) noexcept
 {
-	constexpr bool __pass_by_value = _STD conjunction_v<_STD bool_constant<sizeof(void*) < sizeof(Function)>,
-														_STD is_trivially_copy_constructible<Function>,
-														_STD is_trivially_destructible<Function>>;
-	if constexpr (__pass_by_value)
-	{
-		return fun;
-	}
-	else
-	{
-		return _STD _Ref_fn<Function> { fun };
-	}
+	return _STD _Pass_fn(fun);
 }
 	#endif
 
@@ -188,7 +178,7 @@ constexpr auto __check_fun(Function& fun) noexcept
 
 	#ifdef __MINGW32__
 template <typename Function>
-constexor auto __check_fun(Function& fun)
+constexor decltype(auto) __check_fun(Function& fun)
 {
 	return __gnu_cxx::__ops::__iter_comp_iter(fun);
 }
@@ -198,7 +188,7 @@ constexor auto __check_fun(Function& fun)
 
 	#ifdef __GNUC__
 template <typename Function>
-constexor auto __check_fun(Function& fun)
+constexor decltype(auto) __check_fun(Function& fun)
 {
 	return fun;
 }

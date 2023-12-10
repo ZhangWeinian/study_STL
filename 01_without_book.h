@@ -208,21 +208,21 @@ namespace zhang::without_book
 		template <__basic_msg_type T, typename... Args>
 		inline void print(T&& msg, Args&&... args) noexcept
 		{
-			__print_with_basic_mag(__move(msg), args...);
+			__print_with_basic_mag(__move(msg), _STD forward<Args>(args)...);
 		}
 
 		// 4.1、针对 format() 格式的一般泛化（左值）
 		template <__basic_msg_type T, typename... Args>
 		inline void print(const T& msg, Args&&... args) noexcept
 		{
-			__print_with_basic_mag(msg, args...);
+			__print_with_basic_mag(msg, _STD forward<Args>(args)...);
 		}
 
 		// 4.2、针对 format() 格式的一般泛化（右值）的 println()
 		template <__basic_msg_type T, typename... Args>
 		inline void println(T&& msg, Args&&... args) noexcept
 		{
-			__print_with_basic_mag(__move(msg), args...);
+			__print_with_basic_mag(__move(msg), _STD forward<Args>(args)...);
 			print();
 		}
 
@@ -230,7 +230,7 @@ namespace zhang::without_book
 		template <__basic_msg_type T, typename... Args>
 		inline void println(const T& msg, Args&&... args) noexcept
 		{
-			__print_with_basic_mag(msg, args...);
+			__print_with_basic_mag(msg, _STD forward<Args>(args)...);
 			print();
 		}
 	}  // namespace namespace_print
@@ -252,7 +252,7 @@ namespace zhang::without_book
 
 #endif // __HAS_CPP20
 
-	/*-----------------------------------------------------------------------------------------*/
+	   /*-----------------------------------------------------------------------------------------*/
 
 
 

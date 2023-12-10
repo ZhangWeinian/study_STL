@@ -19,13 +19,14 @@ namespace zhang::sequence_containers
 	/* heap 算法 */
 	namespace namespace_heap
 	{
-		// push_heap
-		template <typename RandomAccessIterator, typename Distance, typename T>
-		inline void __push_heap(RandomAccessIterator first, Distance holeIndex, Distance topIndex, T value)
+		// push_heap() -- 辅助函数
+		template <typename RandomAccessIterator, typename Distance, typename T, typename Function>
+		inline void
+			__push_heap(RandomAccessIterator first, Distance holeIndex, Distance topIndex, T value, Function fun)
 		{
 			Distance parent = (holeIndex - 1) / 2;
 
-			while (holeIndex > topIndex && *(first + parent) < value)
+			while ((topIndex < holeIndex) && fun(*(first + parent), value))
 			{
 				*(first + holeIndex) = *(first + parent);
 				holeIndex			 = parent;
@@ -35,28 +36,65 @@ namespace zhang::sequence_containers
 			*(first + holeIndex) = value;
 		}
 
-		template <typename RandomAccessIterator>
-		inline void push_heap(RandomAccessIterator first, RandomAccessIterator last)
+		// push_heap() for 仿函数 强化版
+		template <typename RandomAccessIterator, typename Function>
+#if __HAS_CPP20
+			requires(__is_iterator_or_c_pointer<RandomAccessIterator>)
+#endif // __HAS_CPP20
+		inline void push_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun)
 		{
+#if __HAS_CPP20
+			fun = __check_fun(fun);
+#endif // __HAS_CPP20
+
 			using value_type = __value_type_for_iter<RandomAccessIterator>;
 			using Distance	 = __difference_type_for_iter<RandomAccessIterator>;
 
 			namespace_heap::__push_heap(first,
 										__cove_type((last - first) - 1, Distance),
 										__init_type(0, Distance),
-										__cove_type(*(last - 1), value_type));
+										__cove_type(*(last - 1), value_type),
+										fun);
 		}
 
-		// pop_heap
-		template <typename RandomAccessIterator, typename Distance, typename T>
-		inline void __adjust_heap(RandomAccessIterator first, Distance holeIndex, Distance len, T value)
+		// push_heap() 标准版
+		template <typename RandomAccessIterator>
+#if __HAS_CPP20
+			requires(__is_iterator_or_c_pointer<RandomAccessIterator>)
+#endif // __HAS_CPP20
+		inline void push_heap(RandomAccessIterator first, RandomAccessIterator last)
+		{
+			namespace_heap::push_heap(first, last, _STD less<> {});
+		}
+
+		// push_heap() for 容器、仿函数 强化版
+#if __HAS_CPP20
+		template <__is_container_or_c_array Container, typename Function>
+		inline void push_heap(Container& con, Function fun)
+		{
+			namespace_heap::push_heap(__begin_for_container(con), __end_for_container(con), fun);
+		}
+#endif	// __HAS_CPP20
+
+		// push_heap() for 容器 强化版
+#if __HAS_CPP20
+		template <__is_container_or_c_array Container>
+		inline void push_heap(Container& con)
+		{
+			namespace_heap::push_heap(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+		}
+#endif // __HAS_CPP20
+
+		// pop_heap -- 辅助函数
+		template <typename RandomAccessIterator, typename Distance, typename T, typename Function>
+		inline void __adjust_heap(RandomAccessIterator first, Distance holeIndex, Distance len, T value, Function fun)
 		{
 			Distance topIndex	 = holeIndex;
 			Distance secondChild = 2 * holeIndex + 2;
 
 			while (secondChild < len)
 			{
-				if (*(first + (secondChild - 1)) > *(first + secondChild))
+				if (fun(*(first + secondChild), *(first + (secondChild - 1))))
 				{
 					secondChild--;
 				}
@@ -71,12 +109,16 @@ namespace zhang::sequence_containers
 				*(first + holeIndex) = *(first + (secondChild - 1));
 			}
 
-			namespace_heap::__push_heap(first, holeIndex, topIndex, value);
+			namespace_heap::__push_heap(first, holeIndex, topIndex, value, fun);
 		}
 
-		template <typename RandomAccessIterator, typename T>
-		inline void
-			__pop_heap(RandomAccessIterator first, RandomAccessIterator last, RandomAccessIterator result, T value)
+		// pop_heap() -- 辅助函数
+		template <typename RandomAccessIterator, typename T, typename Function>
+		inline void __pop_heap(RandomAccessIterator first,
+							   RandomAccessIterator last,
+							   RandomAccessIterator result,
+							   T					value,
+							   Function				fun)
 		{
 			using distance_type = __difference_type_for_iter<RandomAccessIterator>;
 
@@ -85,31 +127,112 @@ namespace zhang::sequence_containers
 			namespace_heap::__adjust_heap(first,
 										  __init_type(0, distance_type),
 										  __cove_type(last - first, distance_type),
-										  value);
+										  value,
+										  fun);
 		}
 
+		// pop_heap() for 仿函数 强化版
+		template <typename RandomAccessIterator, typename Function>
+#if __HAS_CPP20
+			requires(__is_iterator_or_c_pointer<RandomAccessIterator>)
+#endif // __HAS_CPP20
+		inline void pop_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun)
+		{
+#if __HAS_CPP20
+			fun = __check_fun(fun);
+#endif // __HAS_CPP20
+
+			using value_type = __value_type_for_iter<RandomAccessIterator>;
+
+			namespace_heap::__pop_heap(first, last - 1, last - 1, __cove_type(*(last - 1), value_type), fun);
+		}
+
+		// pop_heap() 标准版
 		template <typename RandomAccessIterator>
+#if __HAS_CPP20
+			requires(__is_iterator_or_c_pointer<RandomAccessIterator>)
+#endif // __HAS_CPP20
 		inline void pop_heap(RandomAccessIterator first, RandomAccessIterator last)
 		{
 			using value_type = __value_type_for_iter<RandomAccessIterator>;
 
-			namespace_heap::__pop_heap(first, last - 1, last - 1, __cove_type(*(last - 1), value_type));
+			namespace_heap::__pop_heap(first, last - 1, last - 1, __cove_type(*(last - 1), value_type), _STD less<> {});
 		}
 
-		// sort_heap
-		template <typename RandomAccessIterator>
-		inline void sort_heap(RandomAccessIterator first, RandomAccessIterator last)
+		// pop_heap() for 容器、仿函数 强化版
+#if __HAS_CPP20
+		template <__is_container_or_c_array Container, typename Function>
+		inline void pop_heap(Container& con, Function fun)
 		{
-			while (last - first > 1)
+			namespace_heap::pop_heap(__begin_for_container(con), __end_for_container(con), fun);
+		}
+#endif	// __HAS_CPP20
+
+		// pop_heap() for 容器 强化版
+#if __HAS_CPP20
+		template <__is_container_or_c_array Container>
+		inline void pop_heap(Container& con)
+		{
+			namespace_heap::pop_heap(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+		}
+#endif // __HAS_CPP20
+
+		// sort_heap() for 仿函数 强化版
+		template <typename RandomAccessIterator, typename Function>
+#if __HAS_CPP20
+			requires(__is_iterator_or_c_pointer<RandomAccessIterator>)
+#endif // __HAS_CPP20
+		inline void sort_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun)
+		{
+#if __HAS_CPP20
+			fun = __check_fun(fun);
+#endif // __HAS_CPP20
+
+			while (1 < last - first)
 			{
-				::zhang::sequence_containers::namespace_heap::pop_heap(first, last--);
+				namespace_heap::pop_heap(first, last--, fun);
 			}
 		}
 
-		// make_heap
+		// sort_heap() 标准版
 		template <typename RandomAccessIterator>
-		inline void __make_heap(RandomAccessIterator first, RandomAccessIterator last)
+#if __HAS_CPP20
+			requires(__is_iterator_or_c_pointer<RandomAccessIterator>)
+#endif // __HAS_CPP20
+		inline void sort_heap(RandomAccessIterator first, RandomAccessIterator last)
 		{
+			namespace_heap::sort_heap(first, last, _STD less<> {});
+		}
+
+		// sort_heap() for 容器、仿函数 强化版
+#if __HAS_CPP20
+		template <__is_container_or_c_array Container, typename Function>
+		inline void sort_heap(Container& con, Function fun)
+		{
+			namespace_heap ::sort_heap(__begin_for_container(con), __end_for_container(con), fun);
+		}
+#endif	// __HAS_CPP20
+
+		// sort_heap() for 容器 强化版
+#if __HAS_CPP20
+		template <__is_container_or_c_array Container>
+		inline void sort_heap(Container& con)
+		{
+			namespace_heap ::sort_heap(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+		}
+#endif // __HAS_CPP20
+
+		// make_heap() for 仿函数 强化版
+		template <typename RandomAccessIterator, typename Function>
+#if __HAS_CPP20
+			requires(__is_iterator_or_c_pointer<RandomAccessIterator>)
+#endif // __HAS_CPP20
+		inline void make_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun)
+		{
+#if __HAS_CPP20
+			fun = __check_fun(fun);
+#endif // __HAS_CPP20
+
 			using value_type	= __value_type_for_iter<RandomAccessIterator>;
 			using distance_type = __difference_type_for_iter<RandomAccessIterator>;
 
@@ -123,7 +246,7 @@ namespace zhang::sequence_containers
 
 			while (true)
 			{
-				namespace_heap::__adjust_heap(first, parent, len, __cove_type(*(first + parent), value_type));
+				namespace_heap::__adjust_heap(first, parent, len, __cove_type(*(first + parent), value_type), fun);
 
 				if (parent == 0)
 				{
@@ -134,12 +257,34 @@ namespace zhang::sequence_containers
 			}
 		}
 
+		// make_heap() 标准版
 		template <typename RandomAccessIterator>
+#if __HAS_CPP20
+			requires(__is_iterator_or_c_pointer<RandomAccessIterator>)
+#endif // __HAS_CPP20
 		inline void make_heap(RandomAccessIterator first, RandomAccessIterator last)
 		{
-			namespace_heap::__make_heap(first, last);
+			namespace_heap::make_heap(first, last, _STD less<> {});
 		}
-	} // namespace namespace_heap
+
+		// make_heap() for 仿函数、容器 强化版
+#if __HAS_CPP20
+		template <__is_container_or_c_array Container, typename Function>
+		inline void make_heap(Container& con, Function fun)
+		{
+			namespace_heap::make_heap(__begin_for_container(con), __end_for_container(con), fun);
+		}
+#endif	// __HAS_CPP20
+
+		// make_heap() for 容器 强化版
+#if __HAS_CPP20
+		template <__is_container_or_c_array Container>
+		inline void make_heap(Container& con)
+		{
+			namespace_heap::make_heap(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+		}
+#endif // __HAS_CPP20
+	}  // namespace namespace_heap
 
 	// 对外接口
 	using namespace_heap::make_heap;
