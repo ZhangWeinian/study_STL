@@ -8,10 +8,6 @@ namespace zhang::without_book
 	// 预定义一些用于 简写 和 标志识别 的宏
 #ifndef __zh_namespace
 
-	#ifndef _STD
-		#define _STD ::std::
-	#endif // !_STD
-
 	#define __zh_namespace ::zhang::
 	#define __zh_iter	   ::zhang::iterator::namespace_iterator::
 
@@ -143,7 +139,7 @@ namespace zhang::without_book
 			}
 			else
 			{
-				__print_with_basic_mag(first, last);
+				__print_with_basic_mag(first, _STD forward<C_pointer>(last));
 			}
 		}
 
@@ -252,7 +248,7 @@ namespace zhang::without_book
 
 #endif // __HAS_CPP20
 
-	   /*-----------------------------------------------------------------------------------------*/
+	/*-----------------------------------------------------------------------------------------*/
 
 
 

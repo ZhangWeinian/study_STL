@@ -7,10 +7,6 @@ namespace zhang::sequence_containers
 	// 预定义一些用于 简写 和 标志识别 的宏
 #ifndef __zh_namespace
 
-	#ifndef _STD
-		#define _STD ::std::
-	#endif // !_STD
-
 	#define __zh_namespace ::zhang::
 
 #endif // !__zh_namespace
@@ -64,7 +60,15 @@ namespace zhang::sequence_containers
 #endif // __HAS_CPP20
 		inline void push_heap(RandomAccessIterator first, RandomAccessIterator last)
 		{
-			namespace_heap::push_heap(first, last, _STD less<> {});
+			namespace_heap::push_heap(
+				first,
+				last,
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif // _RANGES
+			);
 		}
 
 		// push_heap() for 容器、仿函数 强化版
@@ -81,7 +85,15 @@ namespace zhang::sequence_containers
 		template <__is_container_or_c_array Container>
 		inline void push_heap(Container& con)
 		{
-			namespace_heap::push_heap(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+			namespace_heap::push_heap(
+				__begin_for_container(con),
+				__end_for_container(con),
+	#ifdef _RANGES
+				_RANGES less {}
+	#else
+				_STD less<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -156,7 +168,17 @@ namespace zhang::sequence_containers
 		{
 			using value_type = __value_type_for_iter<RandomAccessIterator>;
 
-			namespace_heap::__pop_heap(first, last - 1, last - 1, __cove_type(*(last - 1), value_type), _STD less<> {});
+			namespace_heap::__pop_heap(
+				first,
+				last - 1,
+				last - 1,
+				__cove_type(*(last - 1), value_type),
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif // _RANGES
+			);
 		}
 
 		// pop_heap() for 容器、仿函数 强化版
@@ -173,7 +195,15 @@ namespace zhang::sequence_containers
 		template <__is_container_or_c_array Container>
 		inline void pop_heap(Container& con)
 		{
-			namespace_heap::pop_heap(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+			namespace_heap::pop_heap(
+				__begin_for_container(con),
+				__end_for_container(con),
+	#ifdef _RANGES
+				_RANGES less {}
+	#else
+				_STD less<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -201,7 +231,15 @@ namespace zhang::sequence_containers
 #endif // __HAS_CPP20
 		inline void sort_heap(RandomAccessIterator first, RandomAccessIterator last)
 		{
-			namespace_heap::sort_heap(first, last, _STD less<> {});
+			namespace_heap::sort_heap(
+				first,
+				last,
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif // _RANGES
+			);
 		}
 
 		// sort_heap() for 容器、仿函数 强化版
@@ -218,7 +256,15 @@ namespace zhang::sequence_containers
 		template <__is_container_or_c_array Container>
 		inline void sort_heap(Container& con)
 		{
-			namespace_heap ::sort_heap(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+			namespace_heap ::sort_heap(
+				__begin_for_container(con),
+				__end_for_container(con),
+	#ifdef _RANGES
+				_RANGES less {}
+	#else
+				_STD less<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -264,7 +310,15 @@ namespace zhang::sequence_containers
 #endif // __HAS_CPP20
 		inline void make_heap(RandomAccessIterator first, RandomAccessIterator last)
 		{
-			namespace_heap::make_heap(first, last, _STD less<> {});
+			namespace_heap::make_heap(
+				first,
+				last,
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif // _RANGES
+			);
 		}
 
 		// make_heap() for 仿函数、容器 强化版
@@ -281,7 +335,15 @@ namespace zhang::sequence_containers
 		template <__is_container_or_c_array Container>
 		inline void make_heap(Container& con)
 		{
-			namespace_heap::make_heap(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+			namespace_heap::make_heap(
+				__begin_for_container(con),
+				__end_for_container(con),
+	#ifdef _RANGES
+				_RANGES less {}
+	#else
+				_STD less<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 	}  // namespace namespace_heap

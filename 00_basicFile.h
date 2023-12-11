@@ -79,6 +79,12 @@
 		#define __end_for_container(cont) ::std::ranges::end(cont)
 	#endif // !__end_for_container
 
+	#define _STD_RANGES ::std::ranges::
+
+	#ifndef _RANGES
+		#define _RANGES ::std::ranges::
+	#endif // !_RANGES
+
 #else
 
 	#ifndef __begin_for_container
@@ -89,7 +95,9 @@
 		#define __end_for_container(cont) ::std::end(cont)
 	#endif // !__end_for_container
 
-#endif	   // __HAS_CPP20
+	#define _STD_RANGES ::std::
+
+#endif // __HAS_CPP20
 
 
 

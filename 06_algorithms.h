@@ -24,10 +24,6 @@ namespace zhang::algorithms
 	// 预定义一些用于 简写 和 标志识别 的宏
 #ifndef __zh_namespace
 
-	#ifndef _STD
-		#define _STD ::std::
-	#endif // !_STD
-
 	#define __zh_namespace ::zhang::
 	#define __zh_pair	   ::zhang::without_book::namespace_pair::
 	#define __zh_heap	   ::zhang::sequence_containers::namespace_heap::
@@ -264,7 +260,16 @@ namespace zhang::algorithms
 		inline auto count(InputIterator first, InputIterator last, const T& value)
 			-> __difference_type_for_iter<InputIterator>
 		{
-			return namespace_function::count(first, last, value, _STD equal_to<> {});
+			return namespace_function::count(
+				first,
+				last,
+				value,
+#ifdef _RANGES
+				_RANGES equal_to {}
+#else
+				_STD equal_to<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function count() for 容器 强化版 */
@@ -281,10 +286,16 @@ namespace zhang::algorithms
 		template <__is_container_or_c_array Container, typename T>
 		inline auto count(Container& con, const T& value)
 		{
-			return namespace_function::count(__begin_for_container(con),
-											 __end_for_container(con),
-											 value,
-											 _STD equal_to<> {});
+			return namespace_function::count(
+				__begin_for_container(con),
+				__end_for_container(con),
+				value,
+	#ifdef _RANGES
+				_RANGES equal_to {}
+	#else
+				_STD equal_to<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -339,7 +350,16 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 		_NODISCARD inline InputIterator find(InputIterator first, InputIterator last, const T& value) noexcept
 		{
-			return namespace_function::find(first, last, value, _STD equal_to<> {});
+			return namespace_function::find(
+				first,
+				last,
+				value,
+#ifdef _RANGES
+				_RANGES equal_to {}
+#else
+				_STD equal_to<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function find() for 仿函数、容器 强化版 */
@@ -356,10 +376,16 @@ namespace zhang::algorithms
 		template <__is_container_or_c_array Container, typename T>
 		_NODISCARD inline auto find(const Container& con, const T& value) noexcept
 		{
-			return namespace_function::find(__begin_for_container(con),
-											__end_for_container(con),
-											value,
-											_STD equal_to<> {});
+			return namespace_function::find(
+				__begin_for_container(con),
+				__end_for_container(con),
+				value,
+	#ifdef _RANGES
+				_RANGES equal_to {}
+	#else
+				_STD equal_to<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -400,7 +426,17 @@ namespace zhang::algorithms
 			requires(__is_iterator_or_c_pointer<InputIterator> && __is_iterator_or_c_pointer<ForwardIterator>)
 #endif // __HAS_CPP20
 		{
-			return namespace_function::find_first_of(first1, last1, first2, last2, _STD equal_to<> {});
+			return namespace_function::find_first_of(
+				first1,
+				last1,
+				first2,
+				last2,
+#ifdef _RANGES
+				_RANGES equal_to {}
+#else
+				_STD equal_to<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function find_first_of() for 容器 强化版 */
@@ -421,11 +457,17 @@ namespace zhang::algorithms
 		template <__is_container_or_c_array Container>
 		inline auto find_first_of(const Container& con1, const Container& con2)
 		{
-			return namespace_function::find_first_of(__begin_for_container(con1),
-													 __end_for_container(con1),
-													 __begin_for_container(con2),
-													 __end_for_container(con2),
-													 _STD equal_to<> {});
+			return namespace_function::find_first_of(
+				__begin_for_container(con1),
+				__end_for_container(con1),
+				__begin_for_container(con2),
+				__end_for_container(con2),
+	#ifdef _RANGES
+				_RANGES equal_to {}
+	#else
+				_STD equal_to<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -554,7 +596,16 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 		_NODISCARD inline bool equal(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2) noexcept
 		{
-			return namespace_function::equal(first1, last1, first2, _STD equal_to<> {});
+			return namespace_function::equal(
+				first1,
+				last1,
+				first2,
+#ifdef _RANGES
+				_RANGES equal_to {}
+#else
+				_STD equal_to<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function equal() for 容器、仿函数 强化版 */
@@ -574,10 +625,16 @@ namespace zhang::algorithms
 		template <__is_container_or_c_array Container1, __is_container_or_c_array Container2>
 		_NODISCARD inline bool equal(const Container1& con1, const Container2& con2) noexcept
 		{
-			return namespace_function::equal(__begin_for_container(con1),
-											 __end_for_container(con1),
-											 __begin_for_container(con2),
-											 _STD not_equal_to<> {});
+			return namespace_function::equal(
+				__begin_for_container(con1),
+				__end_for_container(con1),
+				__begin_for_container(con2),
+	#ifdef _RANGES
+				_RANGES not_equal_to {}
+	#else
+				_STD not_equal_to<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -634,7 +691,15 @@ namespace zhang::algorithms
 		template <typename T>
 		inline const T& max(const T& a, const T& b) noexcept
 		{
-			return namespace_function::max(a, b, _STD less<> {});
+			return namespace_function::max(
+				a,
+				b,
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function max_element() for 仿函数 强化版 */
@@ -672,7 +737,15 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 		inline ForwardIterator max_element(ForwardIterator first, ForwardIterator last) noexcept
 		{
-			return namespace_function::max_element(first, last, _STD less<> {});
+			return namespace_function::max_element(
+				first,
+				last,
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function max_element() for 容器，仿函数 强化版 */
@@ -689,9 +762,15 @@ namespace zhang::algorithms
 		template <__is_container_or_c_array Container>
 		inline auto max_element(Container& con)
 		{
-			return namespace_function::max_element(__begin_for_container(con),
-												   __end_for_container(con),
-												   _STD less<> {});
+			return namespace_function::max_element(
+				__begin_for_container(con),
+				__end_for_container(con),
+	#ifdef _RANGES
+				_RANGES less {}
+	#else
+				_STD less<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -710,7 +789,15 @@ namespace zhang::algorithms
 		template <typename T>
 		inline const T& min(const T& a, const T& b)
 		{
-			return namespace_function::min(a, b, _STD greater<> {});
+			return namespace_function::min(
+				a,
+				b,
+#ifdef _RANGES
+				_RANGES greater {}
+#else
+				_STD greater<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function min_element() for 仿函数 强化版 */
@@ -748,7 +835,15 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 		inline ForwardIterator min_element(ForwardIterator first, ForwardIterator last) noexcept
 		{
-			return namespace_function::min_element(first, last, _STD greater<> {});
+			return namespace_function::min_element(
+				first,
+				last,
+#ifdef _RANGES
+				_RANGES greater {}
+#else
+				_STD greater<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function min_element() 标准版 */
@@ -765,9 +860,15 @@ namespace zhang::algorithms
 		template <__is_container_or_c_array Container>
 		inline auto min_element(Container& con)
 		{
-			return namespace_function::min_element(__begin_for_container(con),
-												   __end_for_container(con),
-												   _STD greater<> {});
+			return namespace_function::min_element(
+				__begin_for_container(con),
+				__end_for_container(con),
+	#ifdef _RANGES
+				_RANGES greater {}
+	#else
+				_STD greater<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -820,7 +921,18 @@ namespace zhang::algorithms
 									InputIterator2 last2,
 									OutputIterator result) noexcept
 		{
-			return namespace_function::merge(first1, last2, first2, last2, result, _STD less<> {});
+			return namespace_function::merge(
+				first1,
+				last2,
+				first2,
+				last2,
+				result,
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function merge() for 容器、仿函数 强化版 */
@@ -847,12 +959,18 @@ namespace zhang::algorithms
 				  __is_iterator_or_c_pointer OutputIterator>
 		inline auto merge(const Container1& con1, const Container2& con2, OutputIterator result)
 		{
-			return namespace_function::merge(__begin_for_container(con1),
-											 __end_for_container(con1),
-											 __begin_for_container(con2),
-											 __end_for_container(con2),
-											 result,
-											 _STD less<> {});
+			return namespace_function::merge(
+				__begin_for_container(con1),
+				__end_for_container(con1),
+				__begin_for_container(con2),
+				__end_for_container(con2),
+				result,
+	#ifdef _RANGES
+				_RANGES less {}
+	#else
+				_STD less<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -1156,9 +1274,9 @@ namespace zhang::algorithms
 					--depth_limit;
 
 					// “非 ‘几乎有序’ ” 时，首先调用 快排 -- 分割
-					auto pivot = __cove_type(
-						std_sort::__get_median(*first, *(last - 1), *(first + (last - first) / 2), _STD less<> {}),
-						value_type);
+					auto pivot =
+						__cove_type(std_sort::__get_median(*first, *(last - 1), *(first + (last - first) / 2), fun),
+									value_type);
 					RandomAccessIterator cut = std_sort::__unguraded_partition(first, last, pivot, __check_fun(fun));
 
 					// 对右半段 递归sort
@@ -1217,7 +1335,15 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 			inline void sort(RandomAccessIterator first, RandomAccessIterator last) noexcept
 			{
-				std_sort::sort(first, last, _STD less<> {});
+				std_sort::sort(
+					first,
+					last,
+#ifdef _RANGES
+					_RANGES less {}
+#else
+					_STD less<> {}
+#endif // _RANGES
+				);
 			}
 
 			// sort() for 容器、仿函数 强化版
@@ -1234,7 +1360,15 @@ namespace zhang::algorithms
 			template <__is_container_or_c_array Container>
 			inline void sort(Container& con) noexcept
 			{
-				std_sort::sort(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+				std_sort::sort(
+					__begin_for_container(con),
+					__end_for_container(con),
+	#ifdef _RANGES
+					_RANGES less {}
+	#else
+					_STD less<> {}
+	#endif // _RANGES
+				);
 			}
 #endif	  // __HAS_CPP20
 		} // namespace std_sort
@@ -1263,7 +1397,15 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 			inline void insertion_sort(RandomAccessIterator first, RandomAccessIterator last) noexcept
 			{
-				namespace_sort::insertion_sort(first, last, _STD less<> {});
+				namespace_sort::insertion_sort(
+					first,
+					last,
+#ifdef _RANGES
+					_RANGES less {}
+#else
+					_STD less<> {}
+#endif // _RANGES
+				);
 			}
 
 			// insertion_sort()	for 容器、仿函数 强化版
@@ -1280,7 +1422,15 @@ namespace zhang::algorithms
 			template <__is_container_or_c_array Container>
 			inline void insertion_sort(Container& con) noexcept
 			{
-				insertion_sort::insertion_sort(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+				insertion_sort::insertion_sort(
+					__begin_for_container(con),
+					__end_for_container(con),
+	#ifdef _RANGES
+					_RANGES less {}
+	#else
+					_STD less<> {}
+	#endif // _RANGES
+				);
 			}
 #endif	  // __HAS_CPP20
 		} // namespace insertion_sort
@@ -1306,7 +1456,7 @@ namespace zhang::algorithms
 			inline void merge_sort(BidirectionalIterator first, BidirectionalIterator last, Function fun) noexcept
 			{
 				using difference_type = __difference_type_for_iter<BidirectionalIterator>;
-				difference_type n	  = _STD distance(first, last);
+				difference_type n	  = _STD_RANGES distance(first, last);
 
 				if ((n == 0) || (n == 1))
 				{
@@ -1329,7 +1479,15 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 			inline void merge_sort(BidirectionalIterator first, BidirectionalIterator last) noexcept
 			{
-				merge_sort::merge_sort(first, last, _STD less<> {});
+				merge_sort::merge_sort(
+					first,
+					last,
+#ifdef _RANGES
+					_RANGES less {}
+#else
+					_STD less<> {}
+#endif // _RANGES
+				);
 			}
 
 			// merge_sort() for 容器、仿函数 强化版
@@ -1346,7 +1504,15 @@ namespace zhang::algorithms
 			template <__is_container_or_c_array Container>
 			inline void merge_sort(Container& con) noexcept
 			{
-				merge_sort::merge_sort(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+				merge_sort::merge_sort(
+					__begin_for_container(con),
+					__end_for_container(con),
+	#ifdef _RANGES
+					_RANGES less {}
+	#else
+					_STD less<> {}
+	#endif // _RANGES
+				);
 			}
 #endif	  // __HAS_CPP20
 		} // namespace merge_sort
@@ -1366,11 +1532,9 @@ namespace zhang::algorithms
 
 				while ((last - first) > 1)
 				{
-					auto pivot = __cove_type(namespace_sort::std_sort::__get_median(*first,
-																					*(last - 1),
-																					*(first + (last - first) / 2),
-																					_STD less<> {}),
-											 value_type);
+					auto pivot = __cove_type(
+						namespace_sort::std_sort::__get_median(*first, *(last - 1), *(first + (last - first) / 2), fun),
+						value_type);
 
 					RandomAccessIterator cut =
 						namespace_sort::std_sort::__unguraded_partition(first, last, pivot, __check_fun(fun));
@@ -1410,7 +1574,15 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 			inline void quick_sort(RandomAccessIterator first, RandomAccessIterator last) noexcept
 			{
-				quick_sort::quick_sort(first, last, _STD less<> {});
+				quick_sort::quick_sort(
+					first,
+					last,
+#ifdef _RANGES
+					_RANGES less {}
+#else
+					_STD less<> {}
+#endif // _RANGES}
+				);
 			}
 
 			// quick_sort() for 容器、仿函数 强化版
@@ -1427,7 +1599,15 @@ namespace zhang::algorithms
 			template <__is_container_or_c_array Container>
 			inline void quick_sort(Container& con) noexcept
 			{
-				quick_sort::quick_sort(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+				quick_sort::quick_sort(
+					__begin_for_container(con),
+					__end_for_container(con),
+	#ifdef _RANGES
+					_RANGES less {}
+	#else
+					_STD less<> {}
+	#endif // _RANGES
+				);
 			}
 #endif	  // __HAS_CPP20
 		} // namespace quick_sort
@@ -1460,7 +1640,16 @@ namespace zhang::algorithms
 			inline void
 				heap_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last) noexcept
 			{
-				namespace_sort::std_sort::__heap_sort(first, middle, last, _STD less<> {});
+				namespace_sort::std_sort::__heap_sort(
+					first,
+					middle,
+					last,
+#ifdef _RANGES
+					_RANGES less {}
+#else
+					_STD less<> {}
+#endif // _RANGES
+				);
 			}
 
 			// heap_sort() for 仿函数、无第二区间 强化版
@@ -1480,7 +1669,16 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 			inline void heap_sort(RandomAccessIterator first, RandomAccessIterator last) noexcept
 			{
-				heap_sort::heap_sort(first, last, last, _STD less<> {});
+				heap_sort::heap_sort(
+					first,
+					last,
+					last,
+#ifdef _RANGES
+					_RANGES less {}
+#else
+					_STD less<> {}
+#endif // _RANGES
+				);
 			}
 
 			// heap_sort() for 容器、仿函数、无第二区间 强化版
@@ -1500,10 +1698,16 @@ namespace zhang::algorithms
 			template <__is_container_or_c_array Container>
 			inline void heap_sort(Container& con) noexcept
 			{
-				heap_sort::heap_sort(__begin_for_container(con),
-									 __end_for_container(con),
-									 __end_for_container(con),
-									 _STD less<> {});
+				heap_sort::heap_sort(
+					__begin_for_container(con),
+					__end_for_container(con),
+					__end_for_container(con),
+	#ifdef _RANGES
+					_RANGES less {}
+	#else
+					_STD less<> {}
+	#endif // _RANGES
+				);
 			}
 #endif	  // __HAS_CPP20
 		} // namespace heap_sort
@@ -1538,9 +1742,11 @@ namespace zhang::algorithms
 					RandomAccessIterator cut = namespace_sort::std_sort::__unguraded_partition(
 						first,
 						last,
-						__cove_type(
-							namespace_sort::std_sort::__get_median(*first, *(last - 1), *(first + (last - first) / 2)),
-							value_type),
+						__cove_type(namespace_sort::std_sort::__get_median(*first,
+																		   *(last - 1),
+																		   *(first + (last - first) / 2),
+																		   fun),
+									value_type),
 						fun);
 
 					if (nth < cut)	 // 如果 指定位置 < 右段起点，（即 nth 位于右段）
@@ -1563,7 +1769,16 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 			inline void nth_element(RandomAccessIterator first, RandomAccessIterator nth, RandomAccessIterator last)
 			{
-				sort_function::nth_element(first, nth, last, _STD less<> {});
+				sort_function::nth_element(
+					first,
+					nth,
+					last,
+#ifdef _RANGES
+					_RANGES less {}
+#else
+					_STD less<> {}
+#endif // _RANGES
+				);
 			}
 
 			/* function partial_sort() for 仿函数 强化版 */
@@ -1602,7 +1817,15 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 			inline void partial_sort(RandomAccessIterator first, RandomAccessIterator middle, RandomAccessIterator last)
 			{
-				sort_function::partial_sort(first, last, _STD less<> {});
+				sort_function::partial_sort(
+					first,
+					last,
+#ifdef _RANGES
+					_RANGES less {}
+#else
+					_STD less<> {}
+#endif // _RANGES
+				);
 			}
 
 			/* function partial_sort() for 容器、仿函数 强化版 */
@@ -1619,7 +1842,15 @@ namespace zhang::algorithms
 			template <__is_container_or_c_array Container>
 			inline void partial_sort(Container& con)
 			{
-				sort_function::partial_sort(__begin_for_container(con), __end_for_container(con), _STD less<> {});
+				sort_function::partial_sort(
+					__begin_for_container(con),
+					__end_for_container(con),
+	#ifdef _RANGES
+					_RANGES less {}
+	#else
+					_STD less<> {}
+	#endif // _RANGES
+				);
 			}
 #endif	  // __HAS_CPP20
 		} // namespace sort_function
@@ -1645,12 +1876,12 @@ namespace zhang::algorithms
 			fun = __check_fun(fun);
 #endif // __HAS_CPP20
 
-			using Distance		= _STD		iterator_traits<ForwardIterator>::difference_type;
-			using iter_type_tag = _STD iterator_traits<ForwardIterator>::iterator_category;
+			using difference_type = _STD iterator_traits<ForwardIterator>::difference_type;
+			using iter_type_tag	  = _STD   iterator_traits<ForwardIterator>::iterator_category;
 			constexpr bool is_random_access_iter { _STD is_same_v<_STD random_access_iterator_tag(), iter_type_tag()> };
 
-			Distance		len {};
-			Distance		half {};
+			difference_type len {};
+			difference_type half {};
 			ForwardIterator middle {};
 
 			if constexpr (is_random_access_iter)
@@ -1659,7 +1890,7 @@ namespace zhang::algorithms
 			}
 			else
 			{
-				len = _STD distance(first, last);
+				len = _STD_RANGES distance(first, last);
 			}
 
 			while (len > 0)
@@ -1673,7 +1904,7 @@ namespace zhang::algorithms
 				else
 				{
 					middle = first;
-					_STD advance(middle, half);
+					_STD_RANGES advance(middle, half);
 				}
 
 				if (fun(value, *middle))
@@ -1682,15 +1913,8 @@ namespace zhang::algorithms
 				}
 				else
 				{
-					if constexpr (is_random_access_iter)
-					{
-						first = middle + 1;
-					}
-					else
-					{
-						first = middle;
-						++first;
-					}
+					first = middle;
+					++first;
 
 					len -= (half + 1);
 				}
@@ -1706,7 +1930,16 @@ namespace zhang::algorithms
 #endif
 		inline ForwardIterator upper_bound(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			return namespace_binary_search::upper_bound(first, last, value, _STD less<> {});
+			return namespace_binary_search::upper_bound(
+				first,
+				last,
+				value,
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* upper_bound() for 容器、仿函数 强化版 */
@@ -1726,10 +1959,16 @@ namespace zhang::algorithms
 		template <__is_container_or_c_array Container, typename T>
 		inline auto upper_bound(const Container& con, const T& value)
 		{
-			return namespace_binary_search::upper_bound(__begin_for_container(con),
-														__end_for_container(con),
-														value,
-														_STD less<> {});
+			return namespace_binary_search::upper_bound(
+				__begin_for_container(con),
+				__end_for_container(con),
+				value,
+	#ifdef _RANGES
+				_RANGES less {}
+	#else
+				_STD less<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -1748,13 +1987,12 @@ namespace zhang::algorithms
 			fun = __check_fun(fun);
 #endif // __HAS_CPP20
 
-			using Distance		= _STD		iterator_traits<ForwardIterator>::difference_type;
-			using iter_type_tag = _STD iterator_traits<ForwardIterator>::iterator_category;
+			using difference_type = _STD iterator_traits<ForwardIterator>::difference_type;
+			using iter_type_tag	  = _STD   iterator_traits<ForwardIterator>::iterator_category;
 			constexpr bool is_random_access_iter { _STD is_same_v<_STD random_access_iterator_tag(), iter_type_tag()> };
 
-
-			Distance		len {};
-			Distance		half {};
+			difference_type len {};
+			difference_type half {};
 			ForwardIterator middle {};
 
 			if constexpr (is_random_access_iter)
@@ -1763,7 +2001,7 @@ namespace zhang::algorithms
 			}
 			else
 			{
-				len = _STD distance(first, last);
+				len = _STD_RANGES distance(first, last);
 			}
 
 			while (len > 0)
@@ -1777,20 +2015,13 @@ namespace zhang::algorithms
 				else
 				{
 					middle = first;
-					_STD advance(middle, half);
+					_STD_RANGES advance(middle, half);
 				}
 
 				if (fun(*middle, value))
 				{
-					if constexpr (is_random_access_iter)
-					{
-						first = middle + 1;
-					}
-					else
-					{
-						first = middle;
-						++first;
-					}
+					first = middle;
+					++first;
 
 					len -= (half + 1);
 				}
@@ -1810,7 +2041,16 @@ namespace zhang::algorithms
 #endif
 		inline ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			return namespace_binary_search::lower_bound(first, last, value, _STD less<> {});
+			return namespace_binary_search::lower_bound(
+				first,
+				last,
+				value,
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function lower_bound() for 容器、仿函数 强化版 */
@@ -1830,10 +2070,16 @@ namespace zhang::algorithms
 		template <__is_container_or_c_array Container, typename T>
 		inline auto lower_bound(const Container& con, const T& value)
 		{
-			return namespace_binary_search::lower_bound(__begin_for_container(con),
-														__end_for_container(con),
-														value,
-														_STD less<> {});
+			return namespace_binary_search::lower_bound(
+				__begin_for_container(con),
+				__end_for_container(con),
+				value,
+	#ifdef _RANGES
+				_RANGES less {}
+	#else
+				_STD less<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -1870,7 +2116,7 @@ namespace zhang::algorithms
 			}
 			else
 			{
-				len = _STD distance(first, last);
+				len = _STD_RANGES distance(first, last);
 			}
 
 			while (0 < len)							 // 如果整个区间尚未迭代完毕
@@ -1884,7 +2130,7 @@ namespace zhang::algorithms
 				else
 				{
 					middle = first;
-					_STD advance(middle, half);
+					_STD_RANGES advance(middle, half);
 				}
 
 				if (fun(*middle, value)) // 如果 中央元素 < 指定值
@@ -1923,7 +2169,12 @@ namespace zhang::algorithms
 				first,
 				last,
 				value,
-				_STD less<> {}); // 根据不同迭代器的类型（category）采取不同的策略
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif		   // _RANGES
+			); // 根据不同迭代器的类型（category）采取不同的策略
 		}
 
 		/* function equal_range() for 容器、仿函数 强化版 */
@@ -1943,10 +2194,16 @@ namespace zhang::algorithms
 		template <__is_container_or_c_array Container, typename T>
 		inline auto equal_range(const Container& con, const T& value)
 		{
-			return namespace_binary_search::equal_range(__begin_for_container(con),
-														__end_for_container(con),
-														value,
-														_STD less<> {});
+			return namespace_binary_search::equal_range(
+				__begin_for_container(con),
+				__end_for_container(con),
+				value,
+	#ifdef _RANGES
+				_RANGES less {}
+	#else
+				_STD less<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 
@@ -1976,7 +2233,16 @@ namespace zhang::algorithms
 #endif // __HAS_CPP20
 		inline bool binary_search(ForwardIterator first, ForwardIterator last, const T& value)
 		{
-			return namespace_binary_search::binary_search(first, last, value, _STD less<> {});
+			return namespace_binary_search::binary_search(
+				first,
+				last,
+				value,
+#ifdef _RANGES
+				_RANGES less {}
+#else
+				_STD less<> {}
+#endif // _RANGES
+			);
 		}
 
 		/* function binary_search() for 容器、仿函数 强化版 */
@@ -1996,10 +2262,16 @@ namespace zhang::algorithms
 		template <__is_container_or_c_array Container, typename T>
 		inline bool binary_search(const Container& con, const T& value)
 		{
-			return namespace_binary_search::binary_search(__begin_for_container(con),
-														  __end_for_container(con),
-														  value,
-														  _STD less<> {});
+			return namespace_binary_search::binary_search(
+				__begin_for_container(con),
+				__end_for_container(con),
+				value,
+	#ifdef _RANGES
+				_RANGES less {}
+	#else
+				_STD less<> {}
+	#endif // _RANGES
+			);
 		}
 #endif // __HAS_CPP20
 	}  // namespace namespace_binary_search
