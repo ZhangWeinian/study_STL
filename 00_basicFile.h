@@ -43,13 +43,13 @@
 #if !(__cplusplus < 202002L)
 
 	#ifndef __HAS_CPP20
-		#define __HAS_CPP20 202002L
+		#define __HAS_CPP20 __cplusplus
 	#endif // !__HAS_CPP20
 
 #elif !(__cplusplus < 201703L)
 
 	#ifndef __HAS_CPP17
-		#define __HAS_CPP17
+		#define __HAS_CPP17 __cplusplus
 	#endif // !__HAS_CPP17
 
 #endif
@@ -57,16 +57,21 @@
 #if !(_MSVC_LANG < 202002L)
 
 	#ifndef __HAS_CPP20
-		#define __HAS_CPP20 202002L
+		#define __HAS_CPP20 _MSVC_LANG
 	#endif // !__HAS_CPP20
 
 #elif !(_MSVC_LANG < 201703L)
 
 	#ifndef __HAS_CPP17
-		#define __HAS_CPP17
+		#define __HAS_CPP17 _MSVC_LANG
 	#endif // !__HAS_CPP17
 
 #endif
+
+
+#if __HAS_CPP20
+	#include <ranges>
+#endif // __HAS_CPP20
 
 
 #if __HAS_CPP20
@@ -79,6 +84,10 @@
 		#define __end_for_container(cont) ::std::ranges::end(cont)
 	#endif // !__end_for_container
 
+	#ifndef _RANGES
+		#define _RANGES ::std::ranges::
+	#endif // !_RANGES
+
 #else
 
 	#ifndef __begin_for_container
@@ -89,16 +98,20 @@
 		#define __end_for_container(cont) ::std::end(cont)
 	#endif // !__end_for_container
 
+	#ifndef _RANGES
+		#define _RANGES ::std::ranges::
+	#endif // !_RANGES
+
 #endif	   // __HAS_CPP20
 
 
 
 #if __HAS_CPP20
 
-template <class T>
+template <typename T>
 using __with_reference = T&;
 
-template <class T>
+template <typename T>
 concept __can_reference = requires { typename __with_reference<T>; };
 
 
@@ -164,7 +177,8 @@ using __value_type_for_iter = typename _STD iterator_traits<Iterator>::value_typ
 template <__is_container_without_c_array Container>
 using __value_type_for_con = typename Container::value_type;
 
-
+template <__is_container_without_c_array Iterator>
+using __get_iter_type_tag = typename _STD iterator_traits<Iterator>::iterator_category;
 
 	#ifdef _MSC_VER
 template <class Function>

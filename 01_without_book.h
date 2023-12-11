@@ -5,19 +5,17 @@
 // 此处实现一些未在书中出现的内容
 namespace zhang::without_book
 {
+#ifdef __HAS_CPP20
+
 	// 预定义一些用于 简写 和 标志识别 的宏
-#ifndef __zh_namespace
+	#ifndef __zh_namespace
 
-	#ifndef _STD
-		#define _STD ::std::
-	#endif // !_STD
+		#define __zh_namespace ::zhang::
+		#define __zh_iter	   ::zhang::iterator::namespace_iterator::
 
-	#define __zh_namespace ::zhang::
-	#define __zh_iter	   ::zhang::iterator::namespace_iterator::
+	#endif // !__zh_namespace
 
-#endif // !__zh_namespace
-
-	   /*-----------------------------------------------------------------------------------------*/
+	/*-----------------------------------------------------------------------------------------*/
 
 
 
@@ -69,7 +67,7 @@ namespace zhang::without_book
 
 
 	// 此处实现 print() （ 此函数不属于 STL ，只是基于 C++20 标准封装的 多功能输出函数 print() ）
-#ifdef __CPP20_PRINT
+	#ifdef __CPP20_PRINT
 
 	namespace namespace_print
 	{
@@ -132,7 +130,7 @@ namespace zhang::without_book
 		}
 
 		template <__is_c_pointer C_pointer>
-		inline void __print_with_c_pointer(C_pointer first, C_pointer last)
+		inline void __print_with_c_pointer(C_pointer first, C_pointer last) noexcept
 		{
 			using value_type = __value_type_for_iter<C_pointer>;
 
@@ -143,7 +141,7 @@ namespace zhang::without_book
 			}
 			else
 			{
-				__print_with_basic_mag(first, last);
+				__print_with_basic_mag(first, _STD forward<C_pointer>(last));
 			}
 		}
 
@@ -191,14 +189,14 @@ namespace zhang::without_book
 
 		// 3.1 针对 C风格指针 的特化
 		template <__is_c_pointer C_pointer>
-		inline void print(C_pointer first, C_pointer last)
+		inline void print(C_pointer first, C_pointer last) noexcept
 		{
 			__print_with_c_pointer(first, last);
 		}
 
 		// 3.2 针对 C风格指针 的特化的 println()
 		template <__is_c_pointer C_pointer>
-		inline void println(C_pointer first, C_pointer last)
+		inline void println(C_pointer first, C_pointer last) noexcept
 		{
 			__print_with_c_pointer(first, last);
 			print();
@@ -233,11 +231,11 @@ namespace zhang::without_book
 			__print_with_basic_mag(msg, _STD forward<Args>(args)...);
 			print();
 		}
-	}  // namespace namespace_print
+	}	   // namespace namespace_print
 
-#endif // __HAS_CPP20
+	#endif // __HAS_CPP20
 
-	   /*-----------------------------------------------------------------------------------------*/
+	/*-----------------------------------------------------------------------------------------*/
 
 
 
@@ -245,19 +243,17 @@ namespace zhang::without_book
 	using namespace_pair::make_pair;
 	using namespace_pair::pair;
 
-#ifdef __CPP20_PRINT
-
 	using namespace_print::print;
 	using namespace_print::println;
 
-#endif // __HAS_CPP20
-
-	   /*-----------------------------------------------------------------------------------------*/
+	/*-----------------------------------------------------------------------------------------*/
 
 
 
-#ifdef __zh_namespace
-	#undef __zh_namespace
-	#undef __zh_iter
-#endif // __zh_namespace
+	#ifdef __zh_namespace
+		#undef __zh_namespace
+		#undef __zh_iter
+	#endif // __zh_namespace
+
+#endif	   // __HAS_CPP20
 } // namespace zhang::without_book

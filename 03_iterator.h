@@ -2,20 +2,23 @@
 
 namespace zhang::iterator
 {
+#if __HAS_CPP20
+
 	namespace namespace_iterator
 	{
 		// 五种迭代器类型
 
-#ifndef __USE_ZH_TAG__
+	#ifndef __USE_ZH_TAG__
 
-		using contiguous_iterator_tag	 = _STD	   contiguous_iterator_tag;
+		using contiguous_iterator_tag = _STD contiguous_iterator_tag;
+
 		using input_iterator_tag		 = _STD			input_iterator_tag;
 		using output_iterator_tag		 = _STD		   output_iterator_tag;
 		using forward_iterator_tag		 = _STD		  forward_iterator_tag;
 		using bidirectional_iterator_tag = _STD bidirectional_iterator_tag;
 		using random_access_iterator_tag = _STD random_access_iterator_tag;
 
-#else
+	#else
 		struct input_iterator_tag
 		{
 		};
@@ -36,7 +39,7 @@ namespace zhang::iterator
 		{
 		};
 
-#endif // !__use_myself_allocator__
+	#endif // !__use_myself_allocator__
 
 		// 为避免自定义时类型少写，自行开发的迭代器最好继承自如下所示的 _STD iterator
 		template <typename Category,
@@ -369,4 +372,6 @@ namespace zhang::iterator
 	using namespace_iterator::iterator_category;
 	using namespace_iterator::iterator_traits;
 	using namespace_iterator::value_type;
+
+#endif // __HAS_CPP20
 } // namespace zhang::iterator
