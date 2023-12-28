@@ -47,9 +47,10 @@ namespace zhang::without_book
 			}
 
 			template <typename FirstType, typename SecondType>
-			inline bool operator==(const pair<FirstType, SecondType>& value) const
+			inline bool operator==(const pair<FirstType, SecondType>& value) const noexcept
 			{
-				return (value.first == this->first) && (value.second == this->second);
+				return __invoke(_RANGES equal_to {}, value.first, this->first) &&
+					   __invoke(_RANGES equal_to {}, value.second, this->second);
 			}
 		};
 
@@ -57,7 +58,7 @@ namespace zhang::without_book
 		pair(FirstType, SecondType) -> pair<FirstType, SecondType>;
 
 		template <typename FirstType, typename SecondType>
-		inline pair<FirstType, SecondType> make_pair(const FirstType& value1, const SecondType& value2)
+		inline pair<FirstType, SecondType> make_pair(const FirstType& value1, const SecondType& value2) noexcept
 		{
 			return pair<FirstType, SecondType>(value1, value2);
 		}
@@ -71,7 +72,14 @@ namespace zhang::without_book
 
 	namespace namespace_print
 	{
-		template <__is_iterator_or_c_pointer InputIterator>
+		template <typename... Args>
+		inline void __print_with_all_args(Args&&... args) noexcept
+		{
+			_STD cout << _STD boolalpha;
+			(_STD cout << ... << args);
+		}
+
+		template <__is_input_iterator InputIterator>
 		inline void __print_with_iter(InputIterator first, InputIterator last) noexcept
 		{
 			using difference_type = __difference_type_for_iter<InputIterator>;
@@ -118,14 +126,28 @@ namespace zhang::without_book
 		template <__basic_msg_type T, typename... Args>
 		inline void __print_with_basic_mag(const T& msg, Args&&... args) noexcept
 		{
-			if constexpr (__is_basic_compound<T>)
+			if constexpr (__is_basic_compound<T>) // 如果是基本类型的组合
 			{
 				_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}", msg);
 			}
-			else
+			else // 如果是 format() 格式
 			{
-				::std::string fmt_msg { __move(::std::vformat(msg, ::std::make_format_args(args...))) };
-				fputs(fmt_msg.c_str(), stdout);
+				_STD string fmt_msg(msg);
+
+				if (const auto& len_for_args { sizeof...(args) }; len_for_args == 0) // 如果没有参数
+				{
+					fputs(fmt_msg.c_str(), stdout);
+				}
+				else
+				{
+					_STD string new_fmt_msg = __move(_STD vformat(msg, _STD make_format_args(args...)));
+					fputs(new_fmt_msg.c_str(), stdout);
+
+					if (fmt_msg == new_fmt_msg)
+					{
+						__print_with_all_args(_STD forward<Args>(args)...);
+					}
+				}
 			}
 		}
 
@@ -158,14 +180,14 @@ namespace zhang::without_book
 		}
 
 		// 1.1、针对 迭代器 的一般泛化
-		template <__is_iterator_without_c_pointer InputIterator>
+		template <__is_input_iterator_without_c_pointer InputIterator>
 		inline void print(InputIterator first, InputIterator last) noexcept
 		{
 			__print_with_iter(first, last);
 		}
 
 		// 1.2、针对 迭代器 的一般泛化的 println()
-		template <__is_iterator_without_c_pointer InputIterator>
+		template <__is_input_iterator_without_c_pointer InputIterator>
 		inline void println(InputIterator first, InputIterator last) noexcept
 		{
 			__print_with_iter(first, last);
