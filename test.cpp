@@ -2,17 +2,26 @@
 
 #include "mySTL.h"
 
+#include <concepts>
+#include <ranges>
+
 using ::zh::print;
-using ::zh::println;
 
 using ::std::cerr;
 using ::std::cin;
 using ::std::cout;
 
+using ::std::string;
 using ::std::vector;
 
 namespace rg = ::std::ranges;
 namespace vi = ::std::ranges::views;
+
+struct stu
+{
+	string name {};
+	int	   age {};
+};
 
 int main(int argc, char* argv[])
 {
@@ -24,7 +33,6 @@ int main(int argc, char* argv[])
 				  77,	48,	  23,	42,	  17045, 10,   43869, 10,  845,	  1425, 27,	  2740, 10,	  4578, 4836, 48,
 				  748,	8965, 10,	4897, 156,	 4867, 1540,  10,  4557,  869,	4568, 145,	7421, 7412, 1022, 75,
 				  47,	10,	  4823, 472,  7413,	 953,  10,	  237, 4869 };
-
 
 	return 0;
 }
