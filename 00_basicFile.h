@@ -37,6 +37,9 @@
 	#define __move(cont) ::std::move(cont)
 #endif // !__move
 
+#ifndef __invoke
+	#define __invoke(...) std::invoke(__VA_ARGS__)
+#endif // !__invoke
 
 
 #define __cove_type(cont, type)			static_cast<type>(cont)
@@ -110,7 +113,7 @@
 
 #if __HAS_CPP20
 
-// 以下是 基础型别 的定义
+// 以下是 基础型别 的要求
 template <typename T>
 concept __is_c_array = _STD is_array_v<T>;
 
@@ -124,10 +127,24 @@ template <typename T>
 concept __not_basic_compound = _STD is_compound_v<T>;
 
 
-// 以下是 容器型别 的定义
+// 以下是 容器型别 的基础要求
 template <typename T>
 concept __is_range = _RANGES range<T>;
 
+template <typename T>
+concept __is_random_access_range = _RANGES random_access_range<T>;
+
+template <typename T>
+concept __is_bidirectional_range = _RANGES bidirectional_range<T>;
+
+template <typename T>
+concept __is_forward_range = _RANGES forward_range<T>;
+
+template <typename T>
+concept __is_output_range = _RANGES output_range<T, _RANGES range_value_t<T>>;
+
+template <typename T>
+concept __is_input_range = _RANGES input_range<T>;
 
 
 // 从 基础迭代器 或 容器 获取信息
@@ -137,14 +154,14 @@ using __difference_type_for_iter = typename _STD iter_difference_t<Iterator>;
 template <_STD input_or_output_iterator Iterator>
 using __value_type_for_iter = typename _STD iter_value_t<Iterator>;
 
-template <__is_range Range>
+template <_RANGES range Range>
 using __difference_type_for_rg = typename _RANGES range_difference_t<Range>;
 
-template <__is_range Range>
+template <_RANGES range Range>
 using __value_type_for_rg = typename _RANGES range_value_t<Range>;
 
 template <_STD input_or_output_iterator Iterator>
-using __get_iter_type_tag = typename _STD iterator_traits<Iterator>::iterator_category;
+using __type_tag_for_iter = typename _STD iterator_traits<Iterator>::iterator_category;
 
 
 
@@ -153,31 +170,16 @@ template <typename T>
 concept __is_input_iterator = _STD input_iterator<T>;
 
 template <typename T>
-concept __is_input_iterator_without_c_pointer = !(__is_c_pointer<T>)&&(__is_input_iterator<T>);
-
-template <typename T>
 concept __is_output_iterator = _STD output_iterator<T, __value_type_for_iter<T>>;
-
-template <typename T>
-concept __is_output_iterator_without_c_pointer = !(__is_c_pointer<T>)&&(__is_output_iterator<T>);
 
 template <typename T>
 concept __is_bidirectional_iterator = _STD bidirectional_iterator<T>;
 
 template <typename T>
-concept __is_bidirectional_iterator_without_c_pointer = !(__is_c_pointer<T>)&&(__is_bidirectional_iterator<T>);
-
-template <typename T>
 concept __is_forward_iterator = _STD forward_iterator<T>;
 
 template <typename T>
-concept __is_forward_iterator_without_c_pointer = !(__is_c_pointer<T>)&&(__is_forward_iterator<T>);
-
-template <typename T>
 concept __is_random_access_iterator = _STD random_access_iterator<T>;
-
-template <typename T>
-concept __is_random_access_iterator_without_c_pointer = !(__is_c_pointer<T>)&&(__is_random_access_iterator<T>);
 
 
 // 针对 msvc 的检查函数
@@ -207,7 +209,6 @@ constexor decltype(auto) __check_fun(Function& fun)
 }
 	#endif
 
-
 #endif // __HAS_CPP20
 
 
@@ -226,13 +227,9 @@ concept __basic_msg_type = (__is_basic_compound<T>) || requires(T msg) { require
 
 // 以下全部都是 SGI STL 预定义全局变量
 // 1、
-inline constexpr auto __stl_threshold = 16;
+constexpr inline auto __stl_threshold = 16;
 
 // 2、
 #ifndef __STL_TEMPLATE_NULL
 	#define __STL_TEMPLATE_MULL template <>
 #endif // !__STL_TEMPLATE_NULL
-
-
-// 以下是一些自定义的全局信息：为了在实现自定义的 STL 工程中测试功能，而与现有的 MSVC STL 兼容
-#define __C_FUNCTION__

@@ -83,7 +83,7 @@ namespace zhang::without_book
 			}
 		};
 
-		inline constexpr __print_with_basic_data __default_print {};
+		constexpr inline __print_with_basic_data __default_print {};
 
 		/*-----------------------------------------------------------------------------------------*/
 
@@ -155,7 +155,6 @@ namespace zhang::without_book
 			if constexpr (__is_basic_compound<T>) // 如果是基本类型的组合，直接输出
 			{
 				__print_with_args(__default_print, msg, _STD forward<Args>(args)...);
-				fputs("\n", stdout);
 			}
 			else // 如果是 format() 格式，尝试格式化
 			{
@@ -178,10 +177,10 @@ namespace zhang::without_book
 						// 顺次输出参包的所有参数
 						__print_with_args(__default_print, _STD forward<Args>(args)...);
 					}
-
-					fputs("\n", stdout);
 				}
 			}
+
+			fputs("\n", stdout);
 		}
 
 		// 针对 C风格指针 first 和 last ，按照是否可以计算距离，尝试使用不同的 顶级输出方式 输出
@@ -199,7 +198,9 @@ namespace zhang::without_book
 			}
 			else // 如果是其他类型，或者不能计算长度，则顺次输出参包的所有参数
 			{
-				__print_with_args(__default_print, first, last);
+				__print_with_args(fun, first, last);
+
+				fputs("\n", stdout);
 			}
 		}
 
@@ -214,38 +215,22 @@ namespace zhang::without_book
 		}
 
 		// 1.1、针对指向 基础类型数据的 迭代器 的一般泛化
-		template <__is_input_iterator_without_c_pointer InputIterator, class Function = __print_with_basic_data>
-			requires(__is_basic_compound<__value_type_for_iter<InputIterator>>)
+		template <__is_input_iterator InputIterator, class Function = __print_with_basic_data>
+			requires(!(__is_c_pointer<InputIterator>) && (__is_basic_compound<__value_type_for_iter<InputIterator>>))
 		inline void print(InputIterator first, InputIterator last, Function fun = {})
 		{
 			__print_with_iter(first, last, fun);
 		}
 
 		// 1.2、针对指向 复合类型数据的 迭代器 的一般泛化
-		template <__is_input_iterator_without_c_pointer InputIterator, class Function = __print_with_basic_data>
-			requires(__not_basic_compound<__value_type_for_iter<InputIterator>>)
+		template <__is_input_iterator InputIterator, class Function = __print_with_basic_data>
+			requires(!(__is_c_pointer<InputIterator>) && (__not_basic_compound<__value_type_for_iter<InputIterator>>))
 		inline void print(InputIterator first, InputIterator last, Function fun)
 		{
 			__print_with_iter(first, last, fun);
 		}
 
-		// 2.1、针对容纳 基础类型数据的 容器 的特化
-		template <__is_range Range, class Function = __print_with_basic_data>
-			requires(__is_basic_compound<__value_type_for_rg<Range>>)
-		inline void print(const Range& con, Function fun = {})
-		{
-			__print_with_iter(__begin_for_container(con), __end_for_container(con), fun);
-		}
-
-		// 2.2、针对容纳 复合类型数据的 容器 的特化
-		template <__is_range Range, class Function = __print_with_basic_data>
-			requires(__not_basic_compound<__value_type_for_rg<Range>>)
-		inline void print(const Range& con, Function fun)
-		{
-			__print_with_iter(__begin_for_container(con), __end_for_container(con), fun);
-		}
-
-		// 3.1 针对指向 基础类型数据的 C风格指针 的特化
+		// 2.1 针对指向 基础类型数据的 C风格指针 的特化
 		template <__is_c_pointer C_pointer, class Function = __print_with_basic_data>
 			requires(__is_basic_compound<__value_type_for_iter<C_pointer>>)
 		inline void print(C_pointer first, C_pointer last, Function fun = {})
@@ -253,12 +238,28 @@ namespace zhang::without_book
 			__print_with_c_pointer(first, last, fun);
 		}
 
-		// 3.2 针对指向 复合类型数据的 C风格指针 的特化
+		// 2.2 针对指向 复合类型数据的 C风格指针 的特化
 		template <__is_c_pointer C_pointer, class Function = __print_with_basic_data>
 			requires(__not_basic_compound<__value_type_for_iter<C_pointer>>)
 		inline void print(C_pointer first, C_pointer last, Function fun)
 		{
 			__print_with_c_pointer(first, last, fun);
+		}
+
+		// 3.1、针对容纳 基础类型数据的 容器 的特化
+		template <__is_input_range Range, class Function = __print_with_basic_data>
+			requires(__is_basic_compound<__value_type_for_rg<Range>>)
+		inline void print(Range&& con, Function fun = {})
+		{
+			__print_with_iter(__begin_for_container(con), __end_for_container(con), fun);
+		}
+
+		// 3.2、针对容纳 复合类型数据的 容器 的特化
+		template <__is_input_range Range, class Function = __print_with_basic_data>
+			requires(__not_basic_compound<__value_type_for_rg<Range>>)
+		inline void print(Range&& con, Function fun)
+		{
+			__print_with_iter(__begin_for_container(con), __end_for_container(con), fun);
 		}
 
 		// 4.1、针对 format() 格式的一般泛化（右值）

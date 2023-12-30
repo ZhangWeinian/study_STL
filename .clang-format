@@ -217,7 +217,7 @@ CommentPragmas: '^ FOOBAR pragma:'
 # - Right: 位于类型后
 # - Custom: 自定义
 QualifierAlignment: Custom
-QualifierOrder: ['inline', 'static', 'constexpr', 'const', 'volatile', 'type']
+QualifierOrder: ['constexpr', 'inline', 'static', 'const', 'volatile', 'type']
 
 # 紧凑命名空间
 CompactNamespaces: false
