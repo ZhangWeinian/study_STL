@@ -5,12 +5,9 @@
 
 #ifdef __HAS_CPP20
 
-// 此处实现一些未在书中出现的内容
-__BEGIN_NP_ZHANG
+__BEGIN_NAMESPACE_ZHANG
 
 // 此处实现 pair<...>(...)
-__BEGIN_NEW_NP(np_pair)
-
 template <typename FirstType, typename SecondType>
 struct pair
 {
@@ -53,14 +50,10 @@ inline pair<FirstType, SecondType> make_pair(const FirstType& value1, const Seco
 }
 
 
-__END_NEW_NP(np_pair)
-
-/*-----------------------------------------------------------------------------------------*/
-
 
 	#ifdef __CPP20_PRINT
 
-__BEGIN_NEW_NP(np_print)
+
 
 // 对于基础数据类型，采用如下的输出方式，称此方式为 基础输出方式
 struct __print_with_basic_data
@@ -155,7 +148,6 @@ private:
 
 			if (const auto& len_for_args { sizeof...(args) }; len_for_args == 0) // 如果没有参数，直接输出
 			{
-				data_tmp += '\n';
 				fputs(data_tmp.c_str(), stdout);
 			}
 			else // 如果有参数，使用参包格式化
@@ -201,7 +193,7 @@ public:
 	using __not_quite_object::__not_quite_object;
 
 	// 0.1、输出空行
-	void operator()(void) noexcept
+	void operator()(void) const noexcept
 	{
 		fputs("\n", stdout);
 	}
@@ -209,7 +201,7 @@ public:
 	// 1.1、针对指向 基础类型数据的 迭代器 的一般泛化
 	template <__is_input_iterator InputIterator, class Function = __print_with_basic_data>
 		requires(!(__is_c_pointer<InputIterator>) && (__is_basic_compound<__value_type_for_iter<InputIterator>>))
-	constexpr void operator()(InputIterator first, InputIterator last, Function fun = {})
+	constexpr void operator()(InputIterator first, InputIterator last, Function fun = {}) const
 	{
 		__print_with_iter(first, last, fun);
 	}
@@ -217,7 +209,7 @@ public:
 	// 1.2、针对指向 复合类型数据的 迭代器 的一般泛化
 	template <__is_input_iterator InputIterator, class Function = __print_with_basic_data>
 		requires(!(__is_c_pointer<InputIterator>) && (__not_basic_compound<__value_type_for_iter<InputIterator>>))
-	constexpr void operator()(InputIterator first, InputIterator last, Function fun)
+	constexpr void operator()(InputIterator first, InputIterator last, Function fun) const
 	{
 		__print_with_iter(first, last, fun);
 	}
@@ -225,7 +217,7 @@ public:
 	// 2.1 针对指向 基础类型数据的 C风格指针 的特化
 	template <__is_c_pointer C_pointer, class Function = __print_with_basic_data>
 		requires(__is_basic_compound<__value_type_for_iter<C_pointer>>)
-	constexpr void operator()(C_pointer first, C_pointer last, Function fun = {})
+	constexpr void operator()(C_pointer first, C_pointer last, Function fun = {}) const
 	{
 		__print_with_c_pointer(first, last, fun);
 	}
@@ -233,7 +225,7 @@ public:
 	// 2.2 针对指向 复合类型数据的 C风格指针 的特化
 	template <__is_c_pointer C_pointer, class Function = __print_with_basic_data>
 		requires(__not_basic_compound<__value_type_for_iter<C_pointer>>)
-	constexpr void operator()(C_pointer first, C_pointer last, Function fun)
+	constexpr void operator()(C_pointer first, C_pointer last, Function fun) const
 	{
 		__print_with_c_pointer(first, last, fun);
 	}
@@ -241,7 +233,7 @@ public:
 	// 3.1、针对容纳 基础类型数据的 容器 的特化
 	template <__is_input_range Range, class Function = __print_with_basic_data>
 		requires(__is_basic_compound<__value_type_for_range<Range>>)
-	constexpr void operator()(Range&& con, Function fun = {})
+	constexpr void operator()(Range&& con, Function fun = {}) const
 	{
 		__print_with_iter(__begin_for_range(con), __end_for_range(con), fun);
 	}
@@ -249,21 +241,21 @@ public:
 	// 3.2、针对容纳 复合类型数据的 容器 的特化
 	template <__is_input_range Range, class Function = __print_with_basic_data>
 		requires(__not_basic_compound<__value_type_for_range<Range>>)
-	constexpr void operator()(Range&& con, Function fun)
+	constexpr void operator()(Range&& con, Function fun) const
 	{
 		__print_with_iter(__begin_for_range(con), __end_for_range(con), fun);
 	}
 
 	// 4.1、针对 format() 格式的一般泛化（右值）
 	template <__basic_msg_type T, typename... Args>
-	constexpr void operator()(T&& msg, Args&&... args) noexcept
+	constexpr void operator()(T&& msg, Args&&... args) const noexcept
 	{
 		__print_with_basic_mag(__move(msg), _STD forward<Args>(args)...);
 	}
 
 	// 4.2、针对 format() 格式的一般泛化
 	template <__basic_msg_type T, typename... Args>
-	constexpr void operator()(const T& msg, Args&&... args) noexcept
+	constexpr void operator()(const T& msg, Args&&... args) const noexcept
 	{
 		__print_with_basic_mag(__move(msg), _STD forward<Args>(args)...);
 	}
@@ -271,23 +263,12 @@ public:
 
 constexpr inline __print_function print { __not_quite_object::__construct_tag {} };
 
-__END_NEW_NP(np_print)
 
 	#endif // __CPP20_PRINT
 
-/*-----------------------------------------------------------------------------------------*/
-
-
-
-// 对外接口
-using np_pair::make_pair;
-using np_pair::pair;
-
-using np_print::print;
-
 
 /*-----------------------------------------------------------------------------------------*/
 
-__END_NP_ZHANG
+__END_NAMESPACE_ZHANG
 
 #endif // __HAS_CPP20

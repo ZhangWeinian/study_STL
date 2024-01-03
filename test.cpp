@@ -26,8 +26,9 @@ int main(int argc, char* argv[])
 				  748,	8965, 10,	4897, 156,	 4867, 1540,  10,  4557,  869,	4568, 145,	7421, 7412, 1022, 75,
 				  47,	10,	  4823, 472,  7413,	 953,  10,	  237, 4869 };
 
-	// zh::sort(test);
-	rg::sort(test);
+	zh::print(test);
+
+	zh::print(*(rg::sort(test) - 1));
 
 	return 0;
 }

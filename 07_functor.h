@@ -2,7 +2,7 @@
 
 #include <functional>
 
-__BEGIN_NEW_NP(np_functor)
+__BEGIN_NEW_NAMESPACE(np_functor)
 
 // 一元谓词
 template <typename Arg, typename Result>
@@ -23,7 +23,7 @@ struct binary_function
 
 
 // 算术类仿函数
-__BEGIN_NEW_NP(np_arithmetic)
+__BEGIN_NEW_NAMESPACE(np_arithmetic)
 
 template <typename T>
 struct plus: public np_functor::binary_function<T, T, T>
@@ -79,11 +79,11 @@ struct negate: public np_functor::unary_function<T, T>
 	}
 };
 
-__END_NEW_NP(np_arithmetic)
+__END_NEW_NAMESPACE(np_arithmetic)
 
 
 // 关系运算类仿函数
-__BEGIN_NEW_NP(np_relational)
+__BEGIN_NEW_NAMESPACE(np_relational)
 
 template <typename T>
 struct equal_to: public np_functor::binary_function<T, T, bool>
@@ -140,10 +140,10 @@ struct less_equal: public np_functor::binary_function<T, T, bool>
 };
 
 
-__END_NEW_NP(np_relational)
+__END_NEW_NAMESPACE(np_relational)
 
 // 逻辑运算类仿函数
-__BEGIN_NEW_NP(np_logical)
+__BEGIN_NEW_NAMESPACE(np_logical)
 
 template <typename T>
 struct logical_and: public np_functor::binary_function<T, T, bool>
@@ -173,7 +173,7 @@ struct logical_not: public np_functor::unary_function<T, bool>
 };
 
 
-__END_NEW_NP(np_logical)
+__END_NEW_NAMESPACE(np_logical)
 
 /*-----------------------------------------------------------------------------------------*/
 
@@ -198,4 +198,4 @@ using np_logical::logical_and;		// 逻辑与
 using np_logical::logical_not;		// 逻辑非
 using np_logical::logical_or;		// 逻辑或
 
-__END_NEW_NP(np_functor)
+__END_NEW_NAMESPACE(np_functor)

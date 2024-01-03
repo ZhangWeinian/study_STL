@@ -246,28 +246,28 @@ constexpr inline auto __stl_threshold = 16;
 
 // 以下是一些自定义的命名空间
 // 1、
-#ifndef __BEGIN_NP_ZHANG
-	#define __BEGIN_NP_ZHANG   \
-		inline namespace zhang \
+#ifndef __BEGIN_NAMESPACE_ZHANG
+	#define __BEGIN_NAMESPACE_ZHANG \
+		namespace zhang             \
 		{
-#endif // !__BEGIN_NP_ZHANG
+#endif // !__BEGIN_NAMESPACE_ZHANG
 
-#ifndef __END_NP_ZHANG
-	#define __END_NP_ZHANG }
-#endif // !__END_NP_ZHANG
+#ifndef __END_NAMESPACE_ZHANG
+	#define __END_NAMESPACE_ZHANG }
+#endif // !__END_NAMESPACE_ZHANG
 
 // 2、
-#ifndef __BEFIN_NEW_NP
-	#define __BEGIN_NEW_NP(name) \
-		inline namespace name    \
+#ifndef __BEFIN_NEW_NAMESPACE
+	#define __BEGIN_NEW_NAMESPACE(name) \
+		namespace name                  \
 		{
-#endif // !__BEFIN_NEW_NP
+#endif // !__BEFIN_NEW_NAMESPACE
 
-#ifndef __END_NEW_NP
-	#define __END_NEW_NP(name) }
-#endif // !__END_NEW_NP
+#ifndef __END_NEW_NAMESPACE
+	#define __END_NEW_NAMESPACE(name) }
+#endif // !__END_NEW_NAMESPACE
 
-
+// 3、
 class __not_quite_object
 {
 public:
