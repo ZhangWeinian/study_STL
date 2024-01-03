@@ -7,8 +7,10 @@
 #include <climits>
 #include <compare>
 #include <concepts>
+#include <fcntl.h>
 #include <format>
 #include <functional>
+#include <io.h>
 #include <iostream>
 #include <iterator> // for MSVC STL _STD xxx_iterator_tag
 #include <memory>
@@ -104,27 +106,15 @@
 
 #if __HAS_CPP20
 
-	#ifndef __invoke
-		#define __invoke(...) std::invoke(__VA_ARGS__)
-	#endif // !__invoke
-
-#endif	   // __HAS_CPP20
-
-
-#if __HAS_CPP20
-
 // 以下是 基础型别 的要求
 template <typename T>
 concept __is_c_array = _STD is_array_v<T>;
 
 template <typename T>
-concept __is_c_pointer = _STD is_pointer_v<T>;
+concept __not_compound_type = !(_STD is_compound_v<T>);
 
 template <typename T>
-concept __is_basic_compound = !(_STD is_compound_v<T>);
-
-template <typename T>
-concept __not_basic_compound = _STD is_compound_v<T>;
+concept __is_compound_type = _STD is_compound_v<T>;
 
 
 // 以下是 容器型别 的基础要求
@@ -187,10 +177,14 @@ concept __is_forward_iterator = _STD forward_iterator<T>;
 template <typename T>
 concept __is_random_access_iterator = _STD random_access_iterator<T>;
 
+// 为了使 C风格指针 和 C风格数组 被正确识别为迭代器的特别定义
+template <typename T>
+concept __is_iter_or_array = (__is_input_iterator<T>) || (_STD is_array_v<T>);
 
 // 以下是 哨兵 的要求
 //template <__is_input_iterator Iterator>
-//using __sentinel_for_iterator = _STD sentinel_for<Iterator>;
+//using __sentinel_for_iterator = typename _STD sentinel_for<Iterator>;
+
 
 // 针对 msvc 的检查函数
 	#ifdef _MSC_VER
@@ -222,17 +216,11 @@ constexor decltype(auto) __global_check_fun(Function& fun)
 #endif // __HAS_CPP20
 
 
-// 针对 自定义打印函数 的
-#ifdef __HAS_CPP20
-
-	#if __has_include(<format>)&&!(defined __CPP20_PRINT)
-		#define __CPP20_PRINT
+// 针对 format() 格式的一般泛化 的参数要求
 template <typename T>
-concept __basic_msg_type = (__is_basic_compound<T>) || requires(T msg) { requires(noexcept(_STD string(msg))); } ||
-						   requires(T msg) { requires(noexcept(_STD string_view(msg))); };
-	#endif
-
-#endif // __HAS_CPP20
+concept __basic_msg_type = ((__not_compound_type<T>) || (requires(T msg) { requires(noexcept(_STD string(msg))); }) ||
+							(requires(T msg) { requires(noexcept(_STD string_view(msg))); })) ||
+						   (requires(T msg) { requires(noexcept(_STD wstring(msg))); });
 
 
 // 以下是一些 SGI STL 预定义全局变量 和 宏
@@ -246,28 +234,28 @@ constexpr inline auto __stl_threshold = 16;
 
 // 以下是一些自定义的命名空间
 // 1、
-#ifndef __BEGIN_NP_ZHANG
-	#define __BEGIN_NP_ZHANG   \
-		inline namespace zhang \
+#ifndef __BEGIN_NAMESPACE_ZHANG
+	#define __BEGIN_NAMESPACE_ZHANG \
+		namespace zhang             \
 		{
-#endif // !__BEGIN_NP_ZHANG
+#endif // !__BEGIN_NAMESPACE_ZHANG
 
-#ifndef __END_NP_ZHANG
-	#define __END_NP_ZHANG }
-#endif // !__END_NP_ZHANG
+#ifndef __END_NAMESPACE_ZHANG
+	#define __END_NAMESPACE_ZHANG }
+#endif // !__END_NAMESPACE_ZHANG
 
 // 2、
-#ifndef __BEFIN_NEW_NP
-	#define __BEGIN_NEW_NP(name) \
-		inline namespace name    \
+#ifndef __BEFIN_NEW_NAMESPACE
+	#define __BEGIN_NEW_NAMESPACE(name) \
+		namespace name                  \
 		{
-#endif // !__BEFIN_NEW_NP
+#endif // !__BEFIN_NEW_NAMESPACE
 
-#ifndef __END_NEW_NP
-	#define __END_NEW_NP(name) }
-#endif // !__END_NEW_NP
+#ifndef __END_NEW_NAMESPACE
+	#define __END_NEW_NAMESPACE(name) }
+#endif // !__END_NEW_NAMESPACE
 
-
+// 3、基础类
 class __not_quite_object
 {
 public:

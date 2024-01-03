@@ -1,0 +1,20 @@
+// 提示文件帮助 Visual Studio IDE 解释 Visual C++ 标识符,
+// 如函数和宏的名称。
+// 有关详细信息，请参见 https://go.microsoft.com/fwlink/?linkid=865984
+#define _NODISCARD_MSG(_Msg)
+#define _NODISCARD_MSG(_Msg) [[nodiscard(_Msg)]]
+#define _NODISCARD_MSG(_Msg) [[nodiscard]]
+#define __BEGIN_NAMESPACE_ZHANG namespace zhang {
+#define __END_NAMESPACE_ZHANG }
+#define __BEGIN_NEW_NAMESPACE(name) namespace name {
+#define __END_NEW_NAMESPACE(name) }
+#define __move(cont) ::std::move(cont)
+#define __invoke(...) std::invoke(__VA_ARGS__)
+#define __cove_type(cont, type) static_cast<type>(cont)
+#define __init_type(initCont, initType) __cove_type(initCont, initType)
+#define __begin_for_range(cont) ::std::ranges::begin(cont)
+#define __end_for_range(cont) ::std::ranges::end(cont)
+#define __begin_for_range_with_move(cont) std::move(::std::ranges::begin(cont))
+#define __end_for_range_with_move(cont) std::move(::std::ranges::end(cont))
+#define __HAS_CPP20 _MSVC_LANG
+#define _STD

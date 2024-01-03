@@ -49,6 +49,7 @@
     <None Include="README.md" />
     <None Include=".clang-format" />
     <None Include="ClassDiagram.cd" />
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />

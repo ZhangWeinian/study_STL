@@ -4,11 +4,11 @@
 
 #ifdef __HAS_CPP20
 
-__BEGIN_NP_ZHANG
+__BEGIN_NAMESPACE_ZHANG
 
 
 /* heap 算法 */
-__BEGIN_NEW_NP(np_heap)
+__BEGIN_NEW_NAMESPACE(np_heap)
 
 // push_heap() -- 辅助函数
 template <__is_random_access_iterator RandomAccessIterator,
@@ -202,7 +202,7 @@ inline void make_heap(Range& con, Function fun = {}, Projection proj = {})
 }
 
 
-__END_NEW_NP(np_heap)
+__END_NEW_NAMESPACE(np_heap)
 
 // 对外接口
 using np_heap::make_heap;
@@ -211,6 +211,6 @@ using np_heap::push_heap;
 using np_heap::sort_heap;
 
 
-__END_NP_ZHANG
+__END_NAMESPACE_ZHANG
 
 #endif // __HAS_CPP20

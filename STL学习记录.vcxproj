@@ -157,6 +157,7 @@
   <ItemGroup>
     <None Include=".clang-format" />
     <None Include="ClassDiagram.cd" />
+    <None Include="cpp.hint" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>

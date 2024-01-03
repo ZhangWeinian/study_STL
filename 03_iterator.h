@@ -2,9 +2,9 @@
 
 #if __HAS_CPP20
 
-__BEGIN_NP_ZHANG
+__BEGIN_NAMESPACE_ZHANG
 
-__BEGIN_NEW_NP(np_iterator)
+__BEGIN_NEW_NAMESPACE(np_iterator)
 
 // 五种迭代器类型
 
@@ -355,7 +355,7 @@ struct __type_traits<T*>
 	using is_POD_type					  = __true_type;
 };
 
-__END_NEW_NP(np_iterator)
+__END_NEW_NAMESPACE(np_iterator)
 
 // 对外接口
 using np_iterator::__false_type;
@@ -369,6 +369,6 @@ using np_iterator::iterator_category;
 using np_iterator::iterator_traits;
 using np_iterator::value_type;
 
-__END_NP_ZHANG
+__END_NAMESPACE_ZHANG
 
 #endif // __HAS_CPP20
