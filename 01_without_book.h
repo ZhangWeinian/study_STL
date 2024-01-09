@@ -59,13 +59,24 @@ struct __print_with_basic_approach_function
 public:
 
 	template <__basic_msg_type T>
-	constexpr void operator()(const T& msg) const
-		noexcept(noexcept(_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}", msg)))
+	constexpr void operator()(const T msg) const noexcept
 	{
-		_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}", msg);
+		if constexpr (_STD is_pointer_v<T>)
+		{
+			using value_type = __value_type_for_iter<T>;
+
+			if constexpr (!(_STD is_same_v<value_type, char>))
+			{
+				_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{} ", *msg);
+
+				return;
+			}
+		}
+
+		_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{} ", msg);
 	}
 
-	void operator()(const wchar_t* msg) const
+	void operator()(const wchar_t* msg) const noexcept
 	{
 		_STD ios::sync_with_stdio(true);
 		_STD locale::global(_STD locale(""));
@@ -104,15 +115,16 @@ private:
 			}
 			else // 如果有自定义的投影函数 proj ，先投影，再输出
 			{
-				_STD string data_tmp {};
+				// 使用 std::cout 作为标准输出目的地
+				auto standard_output_destination_with_char { _STD ostreambuf_iterator<char> { _STD cout } };
 
 				for (; (first != last) && (*first != '\0'); ++first)
 				{
-					_STD format_to(_STD back_inserter(data_tmp), "{}", __invoke(proj, *first));
+					_STD format_to(standard_output_destination_with_char, "{}", __invoke(proj, *first));
 				}
-
-				fputs(data_tmp.c_str(), stdout);
 			}
+
+			return;
 		}
 		else if constexpr (_STD is_same_v<
 							   value_type,
@@ -128,23 +140,46 @@ private:
 			}
 			else // 如果有自定义的投影函数 proj ，先投影，再输出
 			{
-				_STD wstring w_data_tmp {};
+				// 使用 std::wcout 作为标准输出目的地
+				auto standard_output_destination_with_wchar_t { _STD ostreambuf_iterator<wchar_t> { _STD wcout } };
 
-				for (; first != last; ++first)
+				for (; (first != last) && (*first != L'\0'); ++first)
 				{
-					_STD format_to(_STD back_inserter(w_data_tmp), L"{}", __invoke(proj, *first));
+					_STD format_to(standard_output_destination_with_wchar_t, L"{}", __invoke(proj, *first));
 				}
+			}
 
-				_STD wcout << __move(w_data_tmp);
+			return;
+		}
+	}
+
+	// 使用自定义打印函数 fun 和投影函数 proj ，格式化输出 [first, last) 区间内的所有元素
+	template <__is_input_iterator InputIterator,
+			  class Function	  = __print_with_basic_approach_function,
+			  typename Projection = _STD identity>
+	static constexpr void
+		__print_with_format_iter(InputIterator first, InputIterator last, Function fun, Projection proj) noexcept
+	{
+		fputs("[ ", stdout);
+
+		for (; first != last; ++first)
+		{
+			__invoke(fun, __invoke(proj, *first));
+
+			if (first != (last - 1))
+			{
+				fputs(", ", stdout);
 			}
 		}
+
+		fputs(" ]", stdout);
 	}
 
 	// 顶级输出语句之一。使用自定义打印函数 fun ，顺次输出参数包 args 中的所有参数
 	template <typename Function, typename... Args>
 	static constexpr void __print_with_args(Function fun, Args&&... args) noexcept
 	{
-		(__invoke(fun, _STD forward<Args>(args)), ...);
+		(__invoke(fun, _STD forward<Args&&>(args)), ...);
 	}
 
 	// 顶级输出语句之二。使用迭代器 first 和 last ，顺次输出 [first, last) 区间内的所有元素
@@ -157,12 +192,9 @@ private:
 		using difference_type = __difference_type_for_iter<InputIterator>;
 		using value_type	  = __value_type_for_iter<InputIterator>;
 
-		constexpr bool is_char_or_wchar { ((_STD is_same_v<value_type, char>) ||
-										   (_STD is_same_v<value_type, wchar_t>)) };
-		constexpr bool is_c_pointer { ((_STD is_pointer_v<InputIterator>) || (_STD is_array_v<InputIterator>)) };
-
-		// 特别注意，字符类型的判断必须放在前面，否则会被误判为算术类型
-		if constexpr (is_c_pointer && is_char_or_wchar) // 如果是字符类型的指针，调用 __print_with_char_or_wchar()
+		// 如果是字符类型的指针，调用 __print_with_char_or_wchar() 。特别注意，字符类型的判断必须放在前面，否则会被误判为算术类型
+		if constexpr (((_STD is_same_v<value_type, char>) || (_STD is_same_v<value_type, wchar_t>)) &&
+					  ((_STD is_pointer_v<InputIterator>) || (_STD is_array_v<InputIterator>)))
 		{
 			if (0 < (last - first)) // 如果 first，last 指向同一个字符串，输出这个字符串的信息
 			{
@@ -172,66 +204,72 @@ private:
 			{
 				__print_with_basic_mag(__move(first), __move(last));
 			}
+
+			return;
 		}
 		else if constexpr (
 			(__is_compound_type<value_type>) ||
-			(!_STD is_same_v<
+			(!(_STD is_same_v<
 				Function,
-				__print_with_basic_approach_function>)) // 如果是复合类型 或 已有自定义的输出函数 fun ，使用自定义打印函数 fun ，顺次输出所有元素
+				__print_with_basic_approach_function>))) // 如果是复合类型 或 已有自定义的输出函数 fun ，使用自定义打印函数 fun ，顺次输出所有元素
 		{
-			for (; first != last; ++first)
+			if constexpr (_STD is_pointer_v<value_type>)
 			{
-				__invoke(fun, __invoke(proj, *first));
+				using value_value_type = __value_type_for_iter<value_type>;
+
+				if (__not_compound_type<value_value_type>)
+				{
+					__print_with_format_iter(__move(first), __move(last), fun, proj);
+
+					return;
+				}
 			}
+			else if constexpr (noexcept(__invoke(fun, __invoke(proj, *first))))
+			{
+				__print_with_format_iter(__move(first), __move(last), fun, proj);
+
+				return;
+			}
+
+
+			fputs("Error! Unable to output this type of data using the currently provided Print Function. "
+				  "Please try providing a new Printing Function.",
+				  stdout);
 
 			return;
 		}
 		else if constexpr (_STD is_arithmetic_v<value_type>) // 如果是算术类型，适当美化后输出
 		{
-			constexpr difference_type max_distance { 15 };
-
-			difference_type basic_distance { 1 };
-			_STD string		data_tmp {};
-
-			InputIterator tmp { first };
-			++tmp;
-
 			// 判断经过投影的数据是 整数类型 还是 浮点类型（判断仅做一次）
 			constexpr bool is_float_type { _STD is_floating_point_v<decltype(__invoke(proj, *first))> };
 
-			auto format_data = [&]<typename T>(const T& num)
+			// 使用 std::cout 作为标准输出目的地
+			auto standard_output_destination_with_char { _STD ostreambuf_iterator<char> { _STD cout } };
+
+			fputs("[ ", stdout);
+
+			for (; first != (last - 1); ++first)
 			{
 				if constexpr (is_float_type) // 如果是浮点类型，保留 3 位小数
 				{
-					_STD format_to(_STD back_inserter(data_tmp), "{:.3f}\t", num);
+					_STD format_to(standard_output_destination_with_char, "{:.5f}, ", __invoke(proj, *first));
 				}
 				else // 否则，按默认格式输出
 				{
-					_STD format_to(_STD back_inserter(data_tmp), "{}\t", num);
-				}
-			};
-
-			for (; tmp != last; ++first, ++tmp, ++basic_distance)
-			{
-				format_data(__move(__invoke(proj, *first)));
-
-				if ((basic_distance % max_distance) == 0) // 每隔 max_distance 个元素输出一个换行符
-				{
-					fputs(data_tmp.c_str(), stdout);
-					fputs("\n", stdout);
-
-					data_tmp.clear();
+					_STD format_to(standard_output_destination_with_char, "{}, ", __invoke(proj, *first));
 				}
 			}
 
-			if (!data_tmp.empty()) // 如果最后还有剩余的元素但数量不足 max_distance ，先将它们输出
+			if constexpr (is_float_type)
 			{
-				fputs(data_tmp.c_str(), stdout);
-				data_tmp.clear();
+				_STD format_to(standard_output_destination_with_char, "{:.5f} ]", __invoke(proj, *first));
+			}
+			else
+			{
+				_STD format_to(standard_output_destination_with_char, "{} ]", __invoke(proj, *first));
 			}
 
-			format_data(__move(__invoke(proj, *first))); // 输出最后一个元素
-			fputs(data_tmp.c_str(), stdout);
+			return;
 		}
 	}
 
@@ -239,31 +277,42 @@ private:
 	template <__basic_msg_type T, __basic_msg_type... Args>
 	static constexpr void __print_with_basic_mag(T&& msg, Args&&... args) noexcept
 	{
+		using value_type = decltype(msg);
+
 		if constexpr (__not_compound_type<T>) // 如果是基本类型的组合，直接输出
 		{
 			__print_with_args(__print_with_basic_approach, msg, _STD forward<Args>(args)...);
+
+			return;
 		}
-		else // 如果是 format() 格式，尝试格式化
+		else
 		{
+			// 使用 std::wcout 作为标准输出目的地
+			auto standard_output_destination_with_char { _STD ostreambuf_iterator<char> { _STD cout } };
+
 			_STD string data_tmp(msg);
 
 			if (const auto& len_for_args { sizeof...(args) }; len_for_args == 0) // 如果格式化参包 args 为空，直接输出
 			{
-				fputs(data_tmp.c_str(), stdout);
+				_STD format_to(standard_output_destination_with_char, "{}", msg);
 			}
-			else // 否则，使用参包格式化
+			else
 			{
-				_STD string new_fmt_msg { __move(_STD vformat(msg, _STD make_format_args(args...))) };
+				_STD string new_fmt_msg { __move(_STD vformat(data_tmp, _STD make_format_args(args...))) };
 
 				// 无论如何都输出第一个参数（即格式化参包之前的那一个参数）
-				fputs(new_fmt_msg.c_str(), stdout);
+				_STD format_to(standard_output_destination_with_char, "{}", new_fmt_msg);
 
 				if (data_tmp == new_fmt_msg) // 如果格式化后的字符串和原字符串相同，即格式化失败
 				{
+					fputs(" ", stdout);
+
 					// 顺次输出参包的所有参数
 					__print_with_args(__print_with_basic_approach, _STD forward<Args>(args)...);
 				}
 			}
+
+			return;
 		}
 	}
 
@@ -316,7 +365,9 @@ public:
 	template <__is_input_range Range,
 			  class Function	  = __print_with_basic_approach_function,
 			  typename Projection = _STD identity>
-		requires(__not_compound_type<__value_type_for_range<Range>>) &&
+		requires((__not_compound_type<__value_type_for_range<Range>>) ||
+				 ((_STD is_pointer_v<__value_type_for_range<Range>>)&&(
+					 !__is_compound_type<__value_type_for_iter<__value_type_for_range<Range>>>))) &&
 				requires(__value_type_for_range<Range> it, Function fun, Projection proj) {
 					noexcept(__invoke(fun, __invoke(proj, it)));
 				}
@@ -366,13 +417,11 @@ public:
 
 	using __not_quite_object::__not_quite_object;
 
-	// 0.1、输出空行
 	void operator()(void) const noexcept
 	{
 		fputs("\n", stdout);
 	}
 
-	// 1.1、针对指向 基础类型数据的 迭代器 的一般泛化
 	template <__is_iter_or_array InputIterator,
 			  _STD sentinel_for<InputIterator> Sentinel,
 			  class Function	  = __print_with_basic_approach_function,
@@ -388,7 +437,6 @@ public:
 		fputs("\n", stdout);
 	}
 
-	// 1.2、针对指向 复合类型数据的 迭代器 的一般泛化
 	template <__is_iter_or_array InputIterator,
 			  _STD sentinel_for<InputIterator> Sentinel,
 			  class Function	  = __print_with_basic_approach_function,
@@ -403,11 +451,12 @@ public:
 		fputs("\n", stdout);
 	}
 
-	// 2.1、针对容纳 基础类型数据的 容器 的特化
 	template <__is_input_range Range,
 			  class Function	  = __print_with_basic_approach_function,
 			  typename Projection = _STD identity>
-		requires(__not_compound_type<__value_type_for_range<Range>>) &&
+		requires((__not_compound_type<__value_type_for_range<Range>>) ||
+				 ((_STD is_pointer_v<__value_type_for_range<Range>>)&&(
+					 !__is_compound_type<__value_type_for_iter<__value_type_for_range<Range>>>))) &&
 				requires(__value_type_for_range<Range> it, Function fun, Projection proj) {
 					noexcept(__invoke(fun, __invoke(proj, it)));
 				}
@@ -418,7 +467,6 @@ public:
 		fputs("\n", stdout);
 	}
 
-	// 2.2、针对容纳 复合类型数据的 容器 的特化
 	template <__is_input_range Range,
 			  class Function	  = __print_with_basic_approach_function,
 			  typename Projection = _STD identity>
@@ -433,7 +481,6 @@ public:
 		fputs("\n", stdout);
 	}
 
-	// 3.1、针对 format() 格式的一般泛化（右值）
 	template <__basic_msg_type T, __basic_msg_type... Args>
 	constexpr void operator()(T&& msg, Args&&... args) const
 		noexcept(noexcept(print(_STD forward<T&&>(msg), _STD forward<Args&&>(args)...)))
@@ -442,7 +489,6 @@ public:
 		fputs("\n", stdout);
 	}
 
-	// 3.2、针对 format() 格式的一般泛化
 	template <__basic_msg_type T, __basic_msg_type... Args>
 	constexpr void operator()(const T& msg, Args&&... args) const
 		noexcept(noexcept(print(_STD forward<const T&>(msg), _STD forward<Args>(args)...)))

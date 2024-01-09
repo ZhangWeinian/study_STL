@@ -111,10 +111,10 @@ template <typename T>
 concept __is_c_array = _STD is_array_v<T>;
 
 template <typename T>
-concept __not_compound_type = !(_STD is_compound_v<T>);
+concept __is_compound_type = _STD is_compound_v<T>;
 
 template <typename T>
-concept __is_compound_type = _STD is_compound_v<T>;
+concept __not_compound_type = (!__is_compound_type<T>);
 
 
 // 以下是 容器型别 的基础要求
@@ -181,33 +181,29 @@ concept __is_random_access_iterator = _STD random_access_iterator<T>;
 template <typename T>
 concept __is_iter_or_array = (__is_input_iterator<T>) || (_STD is_array_v<T>);
 
-// 以下是 哨兵 的要求
-//template <__is_input_iterator Iterator>
-//using __sentinel_for_iterator = typename _STD sentinel_for<Iterator>;
-
 
 // 针对 msvc 的检查函数
 	#ifdef _MSC_VER
 template <class Function>
 constexpr decltype(auto) __global_check_fun(Function& fun) noexcept
 {
-	return _STD _Pass_fn(fun);
+	return _STD _Pass_fn(_STD forward<Function&>(fun));
 }
 	#endif
 
 // 针对 clang 的检查函数
 	#ifdef __MINGW32__
 template <typename Function>
-constexor decltype(auto) __global_check_fun(Function& fun)
+constexor decltype(auto) __global_check_fun(Function& fun) noexcept
 {
-	return __gnu_cxx::__ops::__iter_comp_iter(fun);
+	return __gnu_cxx::__ops::__iter_comp_iter(_STD forward<Function&>(fun));
 }
 	#endif
 
 // 针对 mingw 的检查函数
 	#ifdef __GNUC__
 template <typename Function>
-constexor decltype(auto) __global_check_fun(Function& fun)
+constexor decltype(auto) __global_check_fun(Function& fun) noexcept
 {
 	return fun;
 }
@@ -218,9 +214,8 @@ constexor decltype(auto) __global_check_fun(Function& fun)
 
 // 针对 format() 格式的一般泛化 的参数要求
 template <typename T>
-concept __basic_msg_type = ((__not_compound_type<T>) || (requires(T msg) { requires(noexcept(_STD string(msg))); }) ||
-							(requires(T msg) { requires(noexcept(_STD string_view(msg))); })) ||
-						   (requires(T msg) { requires(noexcept(_STD wstring(msg))); });
+concept __basic_msg_type = (__not_compound_type<T>) || (requires(T msg) { noexcept(_STD string(msg)); }) ||
+						   (requires(T msg) { noexcept(_STD wstring(msg)); });
 
 
 // 以下是一些 SGI STL 预定义全局变量 和 宏
