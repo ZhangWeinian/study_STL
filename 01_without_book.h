@@ -174,8 +174,8 @@ private:
 			}
 		}
 		else if constexpr (
-			__is_compound_type<value_type> ||
-			!(_STD is_same_v<
+			(__is_compound_type<value_type>) ||
+			(!_STD is_same_v<
 				Function,
 				__print_with_basic_approach_function>)) // 如果是复合类型 或 已有自定义的输出函数 fun ，使用自定义打印函数 fun ，顺次输出所有元素
 		{
