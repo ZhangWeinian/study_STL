@@ -51,44 +51,86 @@ struct pair
 template <typename FirstType, typename SecondType>
 pair(FirstType, SecondType) -> pair<FirstType, SecondType>;
 
+/*-----------------------------------------------------------------------------------------------------*/
+
 // 此处实现 print<...>(...)
 
-// 对于基础数据类型，采用如下的输出方式，称此方式为 基础输出方式
+// 以下是准备工作
+
+// 工作1、定义：使用默认打印函数时，输出的格式
+
+// a）只输出数据
+struct __print_with_none
+{
+};
+
+// b）在数据之后加上空格
+struct __print_with_space: public __print_with_none
+{
+};
+
+// c）在数据之后加上逗号和空格
+struct __print_with_delimiter: public __print_with_space
+{
+};
+
+// 工作2、约束：打印方式必须是以上三种方式之一
+template <typename PrintMode>
+concept __is_print_mode =
+	(_STD is_same_v<PrintMode, __print_with_none>) || (_STD is_same_v<PrintMode, __print_with_space>) ||
+	(_STD is_same_v<PrintMode, __print_with_delimiter>);
+
+// 工作3、对于基础数据类型，采用如下的输出方式，称此方式为 基础输出方式
 struct __print_with_basic_approach_function
 {
 public:
 
-	template <__basic_msg_type T>
-	constexpr void operator()(const T msg) const noexcept
+	template <__basic_msg_type T, __is_print_mode PrintMode = __print_with_delimiter>
+	constexpr void operator()(const T& msg, PrintMode mode = {}) const noexcept
 	{
-		if constexpr (_STD is_pointer_v<T>)
+		if constexpr (_STD is_same_v<PrintMode, __print_with_delimiter>)
 		{
-			using value_type = __value_type_for_iter<T>;
-
-			if constexpr (!(_STD is_same_v<value_type, char>))
-			{
-				_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{} ", *msg);
-
-				return;
-			}
+			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}, ", msg);
 		}
-
-		_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{} ", msg);
+		else if constexpr (_STD is_same_v<PrintMode, __print_with_space>)
+		{
+			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{} ", msg);
+		}
+		else if constexpr (_STD is_same_v<PrintMode, __print_with_none>)
+		{
+			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}", msg);
+		}
 	}
 
-	void operator()(const wchar_t* msg) const noexcept
+	template <__is_print_mode PrintMode = __print_with_delimiter>
+	void operator()(const wchar_t* msg, PrintMode mode = {}) const noexcept
 	{
 		_STD ios::sync_with_stdio(true);
 		_STD locale::global(_STD locale(""));
 
-		_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{}", msg);
+		if constexpr (_STD is_same_v<PrintMode, __print_with_delimiter>)
+		{
+			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{}, ", msg);
+		}
+		else if constexpr (_STD is_same_v<PrintMode, __print_with_space>)
+		{
+			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{} ", msg);
+		}
+		else if constexpr (_STD is_same_v<PrintMode, __print_with_none>)
+		{
+			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{}", msg);
+		}
 	}
 };
 
 constexpr inline __print_with_basic_approach_function __print_with_basic_approach {};
 
-// 定义别名是为了方便使用者快速定义投影函数的同时，不改变默认的打印方式
+// 工作4、定义别名：是为了方便使用者快速定义投影函数的同时，不改变默认的打印方式
 using default_print = __print_with_basic_approach_function;
+
+// 以上是准备工作
+
+/*-----------------------------------------------------------------------------------------------------*/
 
 // 此处实现 print() （ 此函数不属于 STL ，只是基于 C++20 标准封装的 多功能打印函数 print() ）
 struct __print_function: private __not_quite_object
@@ -160,26 +202,34 @@ private:
 	static constexpr void
 		__print_with_format_iter(InputIterator first, InputIterator last, Function fun, Projection proj) noexcept
 	{
-		fputs("[ ", stdout);
-
-		for (; first != last; ++first)
+		if constexpr (_STD is_same_v<Function, __print_with_basic_approach_function>)
 		{
-			__invoke(fun, __invoke(proj, *first));
+			fputs("[ ", stdout);
 
-			if (first != (last - 1))
+			for (; first != (last - 1); ++first)
 			{
-				fputs(", ", stdout);
+				__invoke(fun, __invoke(proj, *first), __print_with_delimiter {});
+			}
+
+			__invoke(fun, __invoke(proj, *first), __print_with_none {});
+
+			fputs(" ]", stdout);
+		}
+		else
+		{
+			for (; first != last; ++first)
+			{
+				__invoke(fun, __invoke(proj, *first));
 			}
 		}
-
-		fputs(" ]", stdout);
 	}
 
-	// 顶级输出语句之一。使用自定义打印函数 fun ，顺次输出参数包 args 中的所有参数
-	template <typename Function, typename... Args>
-	static constexpr void __print_with_args(Function fun, Args&&... args) noexcept
+	// 顶级输出语句之一。使用默认打印函数 fun ，按预定义打印方式顺次输出参数包 args 中的所有参数
+	template <typename Function, __is_print_mode PrintMode, typename... Args>
+		requires(_STD is_same_v<Function, __print_with_basic_approach_function>)
+	static constexpr void __print_with_args(Function fun, PrintMode mode, Args&&... args) noexcept
 	{
-		(__invoke(fun, _STD forward<Args&&>(args)), ...);
+		(__invoke(fun, _STD forward<Args&&>(args), mode), ...);
 	}
 
 	// 顶级输出语句之二。使用迭代器 first 和 last ，顺次输出 [first, last) 区间内的所有元素
@@ -277,15 +327,13 @@ private:
 	template <__basic_msg_type T, __basic_msg_type... Args>
 	static constexpr void __print_with_basic_mag(T&& msg, Args&&... args) noexcept
 	{
-		using value_type = decltype(msg);
-
 		if constexpr (__not_compound_type<T>) // 如果是基本类型的组合，直接输出
 		{
-			__print_with_args(__print_with_basic_approach, msg, _STD forward<Args>(args)...);
+			__print_with_args(__print_with_basic_approach, __print_with_delimiter {}, msg, _STD forward<Args>(args)...);
 
 			return;
 		}
-		else
+		else // 否则，尝试格式化输出
 		{
 			// 使用 std::wcout 作为标准输出目的地
 			auto standard_output_destination_with_char { _STD ostreambuf_iterator<char> { _STD cout } };
@@ -305,10 +353,12 @@ private:
 
 				if (data_tmp == new_fmt_msg) // 如果格式化后的字符串和原字符串相同，即格式化失败
 				{
-					fputs(" ", stdout);
+					fputs(", ", stdout);
 
 					// 顺次输出参包的所有参数
-					__print_with_args(__print_with_basic_approach, _STD forward<Args>(args)...);
+					__print_with_args(__print_with_basic_approach,
+									  __print_with_delimiter {},
+									  _STD forward<Args>(args)...);
 				}
 			}
 
@@ -391,7 +441,7 @@ public:
 		__print_with_iter(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), fun, proj);
 	}
 
-	// 3.1、针对 format() 格式的一般泛化（右值）
+	// 3.1、针对 format() 格式的 一般泛化（右值）
 	template <__basic_msg_type T, __basic_msg_type... Args>
 	constexpr void operator()(T&& msg, Args&&... args) const
 		noexcept(noexcept(__print_with_basic_mag(__move(msg), _STD forward<Args>(args)...)))
@@ -399,7 +449,7 @@ public:
 		__print_with_basic_mag(_STD forward<T&&>(msg), _STD forward<Args&&>(args)...);
 	}
 
-	// 3.2、针对 format() 格式的一般泛化
+	// 3.2、针对 format() 格式的 一般泛化
 	template <__basic_msg_type T, __basic_msg_type... Args>
 	constexpr void operator()(const T& msg, Args&&... args) const
 		noexcept(noexcept(__print_with_basic_mag(__move(msg), _STD forward<Args>(args)...)))
@@ -409,6 +459,8 @@ public:
 };
 
 constexpr inline __print_function print { __not_quite_object::__construct_tag {} };
+
+/*-----------------------------------------------------------------------------------------------------*/
 
 // 此处实现 println<...>(...)
 struct __println_function: private __not_quite_object

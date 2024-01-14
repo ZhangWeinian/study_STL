@@ -8,45 +8,16 @@
 #include <compare>
 #include <concepts>
 #include <fcntl.h>
-#include <format>
 #include <functional>
 #include <io.h>
 #include <iostream>
-#include <iterator> // for MSVC STL _STD xxx_iterator_tag
+#include <iterator>
 #include <memory>
 #include <new>
-#include <ranges>
 #include <string>
 #include <utility>
 #include <vector>
 #include <version>
-
-
-
-#ifndef _STD
-	#define _STD ::std::
-#endif // !_STD
-
-#ifndef _NODISCARD
-	#define _NODISCARD [[nodiscard]]
-#endif // !_NODISCARD
-
-#ifndef _NORETURN
-	#define _NORETURN [[noreturn]]
-#endif // !_NORETURN
-
-#ifndef __move
-	#define __move(cont) ::std::move(cont)
-#endif // !__move
-
-#ifndef __invoke
-	#define __invoke(...) std::invoke(__VA_ARGS__)
-#endif // !__invoke
-
-
-#define __cove_type(cont, type)			static_cast<type>(cont)
-#define __init_type(initCont, initType) __cove_type(initCont, initType)
-
 
 
 #if !(__cplusplus < 202002L)
@@ -67,18 +38,70 @@
 
 	#ifndef __HAS_CPP20
 		#define __HAS_CPP20 _MSVC_LANG
+		#define __HAS_MSVC
 	#endif // !__HAS_CPP20
 
 #elif !(_MSVC_LANG < 201703L)
 
 	#ifndef __HAS_CPP17
 		#define __HAS_CPP17 _MSVC_LANG
+		#define __HAS_MSVC
 	#endif // !__HAS_CPP17
 
 #endif
 
 
+
 #if __HAS_CPP20
+
+	#if __has_include(<format>)
+	#else
+		#include <format>
+	#endif // __has_include(<format>)
+
+	#if __has_include(<ranges>)
+	#else
+		#include <ranges>
+	#endif // __has_include(<ranges>)
+
+	#if __has_include(<string_view>)
+	#else
+		#include <string_view>
+	#endif // __has_include(<string_view>)
+
+
+	#ifndef _STD
+		#define _STD ::std::
+	#endif // !_STD
+
+	#ifndef _NODISCARD
+		#define _NODISCARD [[nodiscard]]
+	#endif // !_NODISCARD
+
+	#ifndef _NORETURN
+		#define _NORETURN [[noreturn]]
+	#endif // !_NORETURN
+
+	#ifndef _RANGES
+		#define _RANGES ::std::ranges::
+	#endif // !_RANGES
+
+
+
+	#define __cove_type(cont, type)			static_cast<type>(cont)
+	#define __init_type(initCont, initType) __cove_type(initCont, initType)
+
+
+
+	#ifndef __move
+		#define __move(cont) ::std::move(cont)
+	#endif // !__move
+
+	#ifndef __invoke
+		#define __invoke(...) std::invoke(__VA_ARGS__)
+	#endif // !__invoke
+
+
 
 	#ifndef __begin_for_range
 		#define __begin_for_range(cont) ::std::ranges::begin(cont)
@@ -96,15 +119,7 @@
 		#define __end_for_range_with_move(cont) std::move(::std::ranges::end(cont))
 	#endif // !__end_for_range
 
-	#ifndef _RANGES
-		#define _RANGES ::std::ranges::
-	#endif // !_RANGES
 
-#endif	   // __HAS_CPP20
-
-
-
-#if __HAS_CPP20
 
 // 以下是 基础型别 的要求
 template <typename T>
@@ -177,18 +192,29 @@ concept __is_forward_iterator = _STD forward_iterator<T>;
 template <typename T>
 concept __is_random_access_iterator = _STD random_access_iterator<T>;
 
-// 为了使 C风格指针 和 C风格数组 被正确识别为迭代器的特别定义
+// 为了使 C风格指针 和 C风格数组 被正确识别为迭代器的 特别定义
 template <typename T>
 concept __is_iter_or_array = (__is_input_iterator<T>) || (_STD is_array_v<T>);
 
 
+
+// 针对 format() 格式的一般泛化 的参数要求
+template <typename T>
+concept __basic_msg_type = (__not_compound_type<T>) || (requires(T msg) { noexcept(_STD string(msg)); }) ||
+						   (requires(T msg) { noexcept(_STD wstring(msg)); });
+
+
+
 // 针对 msvc 的检查函数
-	#ifdef _MSC_VER
+	#ifdef __HAS_MSVC
 template <class Function>
 constexpr decltype(auto) __global_check_fun(Function& fun) noexcept
 {
 	return _STD _Pass_fn(_STD forward<Function&>(fun));
 }
+
+		#define __has_check_fun
+
 	#endif
 
 // 针对 clang 的检查函数
@@ -198,6 +224,9 @@ constexor decltype(auto) __global_check_fun(Function& fun) noexcept
 {
 	return __gnu_cxx::__ops::__iter_comp_iter(_STD forward<Function&>(fun));
 }
+
+		#define __has_check_fun
+
 	#endif
 
 // 针对 mingw 的检查函数
@@ -207,15 +236,25 @@ constexor decltype(auto) __global_check_fun(Function& fun) noexcept
 {
 	return fun;
 }
+
+		#define __has_check_fun
+
 	#endif
+
+	#ifdef __has_check_fun
+	#else
+
+template <class Function>
+constexpr decltype(auto) __global_check_fun(Function& fun) noexcept
+{
+	return fun;
+}
+
+	#endif // __has_check_fun
+
 
 #endif // __HAS_CPP20
 
-
-// 针对 format() 格式的一般泛化 的参数要求
-template <typename T>
-concept __basic_msg_type = (__not_compound_type<T>) || (requires(T msg) { noexcept(_STD string(msg)); }) ||
-						   (requires(T msg) { noexcept(_STD wstring(msg)); });
 
 
 // 以下是一些 SGI STL 预定义全局变量 和 宏
@@ -226,6 +265,8 @@ constexpr inline auto __stl_threshold = 16;
 #ifndef __STL_TEMPLATE_NULL
 	#define __STL_TEMPLATE_MULL template <>
 #endif // !__STL_TEMPLATE_NULL
+
+
 
 // 以下是一些自定义的命名空间
 // 1、

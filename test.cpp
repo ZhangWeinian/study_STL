@@ -29,22 +29,22 @@ int main(int argc, char* argv[])
 					  145,	7421, 7412, 1022, 75,  47,	 10,   4823, 472,	7413,  953,	 10,	237, 4869 };
 
 	// test1
-	/*zh::println(1, 2, 3);
+	zh::println(1, 2, 3);
 	zh::println("1", 2, 3, "-");
-	zh::println(1, 2, 3, "Hello", "World", "!");*/
+	zh::println(1, 2, 3, "Hello", "World", "!");
 
 	// test2
-	/*zh::println("{}", 12.34);
+	zh::println("{}", 12.34);
 	zh::println("{}", 12, 34, 56, 78);
 	zh::println(typeid(zh::default_print {}).name());
-	zh::println("{}", typeid(zh::default_print {}).name());*/
+	zh::println("{}", typeid(zh::default_print {}).name());
 
 	// test3
 	vector		l1 { 1, 2, 3, 4, 5 };
 	vector		l2 { 'a', 'b', 'c', 'd', 'e' };
 	vector		l3 { "aa", "bb", "cc", "dd", "ee" };
 	int			l4[5] = { 1, 2, 3, 4, 5 };
-	const char	l5[5] = { 'a', 'b', 'c', 'd', 'e' };
+	const char	l5[6] = { 'a', 'b', 'c', 'd', 'e', '\0' };
 	const char* l6[5] = { "aa", "bb", "cc", "dd", "ee" };
 
 	zh::println(l1);
