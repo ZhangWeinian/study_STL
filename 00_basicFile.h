@@ -5,11 +5,7 @@
 
 #include <algorithm>
 #include <climits>
-#include <compare>
-#include <concepts>
-#include <fcntl.h>
 #include <functional>
-#include <io.h>
 #include <iostream>
 #include <iterator>
 #include <memory>
@@ -26,27 +22,12 @@
 		#define __HAS_CPP20 __cplusplus
 	#endif // !__HAS_CPP20
 
-#elif !(__cplusplus < 201703L)
-
-	#ifndef __HAS_CPP17
-		#define __HAS_CPP17 __cplusplus
-	#endif // !__HAS_CPP17
-
-#endif
-
-#if !(_MSVC_LANG < 202002L)
+#elif !(_MSVC_LANG < 202002L)
 
 	#ifndef __HAS_CPP20
 		#define __HAS_CPP20 _MSVC_LANG
 		#define __HAS_MSVC
 	#endif // !__HAS_CPP20
-
-#elif !(_MSVC_LANG < 201703L)
-
-	#ifndef __HAS_CPP17
-		#define __HAS_CPP17 _MSVC_LANG
-		#define __HAS_MSVC
-	#endif // !__HAS_CPP17
 
 #endif
 
@@ -54,20 +35,11 @@
 
 #if __HAS_CPP20
 
-	#if __has_include(<format>)
-	#else
-		#include <format>
-	#endif // __has_include(<format>)
-
-	#if __has_include(<ranges>)
-	#else
-		#include <ranges>
-	#endif // __has_include(<ranges>)
-
-	#if __has_include(<string_view>)
-	#else
-		#include <string_view>
-	#endif // __has_include(<string_view>)
+	#include <format>
+	#include <ranges>
+	#include <string_view>
+	#include <compare>
+	#include <concepts>
 
 
 	#ifndef _STD
@@ -281,17 +253,29 @@ constexpr inline auto __stl_threshold = 16;
 #endif // !__END_NAMESPACE_ZHANG
 
 // 2、
-#ifndef __BEFIN_NEW_NAMESPACE
+#ifndef __BEGIN_NEW_NAMESPACE
 	#define __BEGIN_NEW_NAMESPACE(name) \
 		namespace name                  \
 		{
-#endif // !__BEFIN_NEW_NAMESPACE
+#endif // !__BEGIN_NEW_NAMESPACE
 
 #ifndef __END_NEW_NAMESPACE
 	#define __END_NEW_NAMESPACE(name) }
 #endif // !__END_NEW_NAMESPACE
 
-// 3、基础类
+// 3、
+#ifndef __BEGIN_INLINE_NAMESPACE
+	#define __BEGIN_INLINE_NAMESPACE(name) \
+		inline namespace name              \
+		{
+#endif // !__BEGIN_INLINE_NAMESPACE
+
+#ifndef __END_INLINE_NAMESPACE
+	#define __END_INLINE_NAMESPACE(name) }
+#endif // !__END_INLINE_NAMESPACE
+
+
+// 4、基础类
 class __not_quite_object
 {
 public:

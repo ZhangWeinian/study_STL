@@ -123,8 +123,6 @@ public:
 	}
 };
 
-constexpr inline __print_with_basic_approach_function __print_with_basic_approach {};
-
 // 工作4、定义别名：是为了方便使用者快速定义投影函数的同时，不改变默认的打印方式
 using default_print = __print_with_basic_approach_function;
 
@@ -225,11 +223,31 @@ private:
 	}
 
 	// 顶级输出语句之一。使用默认打印函数 fun ，按预定义打印方式顺次输出参数包 args 中的所有参数
-	template <typename Function, __is_print_mode PrintMode, typename... Args>
+	template <typename Function, __is_print_mode PrintMode>
 		requires(_STD is_same_v<Function, __print_with_basic_approach_function>)
-	static constexpr void __print_with_args(Function fun, PrintMode mode, Args&&... args) noexcept
+	static constexpr void __print_with_args(Function fun, PrintMode) noexcept
 	{
-		(__invoke(fun, _STD forward<Args&&>(args), mode), ...);
+		// 无参数，直接返回
+		return;
+	}
+
+	template <typename Function, __is_print_mode PrintMode, __basic_msg_type Arg>
+		requires(_STD is_same_v<Function, __print_with_basic_approach_function>)
+	static constexpr void __print_with_args(Function fun, PrintMode, Arg&& arg) noexcept
+	{
+		// 一个参数，直接输出，不加任何修饰
+		__invoke(fun, _STD forward<Arg&&>(arg), __print_with_none {});
+	}
+
+	template <typename Function, __is_print_mode PrintMode, __basic_msg_type Arg, __basic_msg_type... Args>
+		requires(_STD is_same_v<Function, __print_with_basic_approach_function>)
+	static constexpr void __print_with_args(Function fun, PrintMode mode, Arg&& arg, Args&&... args) noexcept
+	{
+		// 多个参数，顺次输出，每个参数之间用逗号和空格分隔
+		__invoke(fun, _STD forward<Arg&&>(arg), mode);
+
+		// 递归调用
+		__print_with_args(fun, mode, _STD forward<Args&&>(args)...);
 	}
 
 	// 顶级输出语句之二。使用迭代器 first 和 last ，顺次输出 [first, last) 区间内的所有元素
@@ -252,7 +270,7 @@ private:
 			}
 			else // 如果 first，last 指向不同的字符串，使用格式化输出
 			{
-				__print_with_basic_mag(__move(first), __move(last));
+				__print_with_basic_msg(__move(first), __move(last));
 			}
 
 			return;
@@ -274,19 +292,12 @@ private:
 					return;
 				}
 			}
-			else if constexpr (noexcept(__invoke(fun, __invoke(proj, *first))))
+			else
 			{
 				__print_with_format_iter(__move(first), __move(last), fun, proj);
 
 				return;
 			}
-
-
-			fputs("Error! Unable to output this type of data using the currently provided Print Function. "
-				  "Please try providing a new Printing Function.",
-				  stdout);
-
-			return;
 		}
 		else if constexpr (_STD is_arithmetic_v<value_type>) // 如果是算术类型，适当美化后输出
 		{
@@ -325,17 +336,20 @@ private:
 
 	// 顶级输出语句之三。首先尝试使用参包 args 格式化 msg ，若成功，则输出格式化后的字符串，否则顺次输出 T 和参数包 args 中的所有参数
 	template <__basic_msg_type T, __basic_msg_type... Args>
-	static constexpr void __print_with_basic_mag(T&& msg, Args&&... args) noexcept
+	static constexpr void __print_with_basic_msg(T&& msg, Args&&... args) noexcept
 	{
 		if constexpr (__not_compound_type<T>) // 如果是基本类型的组合，直接输出
 		{
-			__print_with_args(__print_with_basic_approach, __print_with_delimiter {}, msg, _STD forward<Args>(args)...);
+			__print_with_args(__print_with_basic_approach_function {},
+							  __print_with_delimiter {},
+							  _STD forward<T&&>(msg),
+							  _STD forward<Args>(args)...);
 
 			return;
 		}
 		else // 否则，尝试格式化输出
 		{
-			// 使用 std::wcout 作为标准输出目的地
+			// 使用 std::cout 作为标准输出目的地
 			auto standard_output_destination_with_char { _STD ostreambuf_iterator<char> { _STD cout } };
 
 			_STD string data_tmp(msg);
@@ -356,9 +370,10 @@ private:
 					fputs(", ", stdout);
 
 					// 顺次输出参包的所有参数
-					__print_with_args(__print_with_basic_approach,
+
+					__print_with_args(__print_with_basic_approach_function {},
 									  __print_with_delimiter {},
-									  _STD forward<Args>(args)...);
+									  _STD forward<Args&&>(args)...);
 				}
 			}
 
@@ -444,23 +459,23 @@ public:
 	// 3.1、针对 format() 格式的 一般泛化（右值）
 	template <__basic_msg_type T, __basic_msg_type... Args>
 	constexpr void operator()(T&& msg, Args&&... args) const
-		noexcept(noexcept(__print_with_basic_mag(__move(msg), _STD forward<Args>(args)...)))
+		noexcept(noexcept(__print_with_basic_msg(__move(msg), _STD forward<Args>(args)...)))
 	{
-		__print_with_basic_mag(_STD forward<T&&>(msg), _STD forward<Args&&>(args)...);
+		__print_with_basic_msg(_STD forward<T&&>(msg), _STD forward<Args&&>(args)...);
 	}
 
 	// 3.2、针对 format() 格式的 一般泛化
 	template <__basic_msg_type T, __basic_msg_type... Args>
 	constexpr void operator()(const T& msg, Args&&... args) const
-		noexcept(noexcept(__print_with_basic_mag(__move(msg), _STD forward<Args>(args)...)))
+		noexcept(noexcept(__print_with_basic_msg(__move(msg), _STD forward<Args>(args)...)))
 	{
-		__print_with_basic_mag(_STD forward<const T&>(msg), _STD forward<Args&&>(args)...);
+		__print_with_basic_msg(_STD forward<const T&>(msg), _STD forward<Args&&>(args)...);
 	}
 };
 
 constexpr inline __print_function print { __not_quite_object::__construct_tag {} };
 
-/*-----------------------------------------------------------------------------------------------------*/
+/*-----------------------------------------------------f------------------------------------------------*/
 
 // 此处实现 println<...>(...)
 struct __println_function: private __not_quite_object
@@ -551,6 +566,29 @@ public:
 };
 
 constexpr inline __println_function println { __not_quite_object::__construct_tag {} };
+
+//
+__BEGIN_INLINE_NAMESPACE(get_format_string)
+
+struct A
+{
+	const char* str;
+
+	constexpr A(const char* str) noexcept: str(str)
+	{
+	}
+};
+
+template <A a>
+consteval auto operator""_f()
+{
+	return [=]<typename... T>(T&&... Args) constexpr
+	{
+		return _STD format(a.str, _STD forward<T&&>(Args)...);
+	};
+}
+
+__END_INLINE_NAMESPACE(get_format_string)
 
 __END_NAMESPACE_ZHANG
 
