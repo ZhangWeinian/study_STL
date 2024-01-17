@@ -41,7 +41,7 @@ template <__is_random_access_iterator RandomAccessIterator,
 		  typename Projection = _STD  identity>
 inline void push_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun = {}, Projection proj = {})
 {
-	fun = __global_check_fun(fun);
+	fun = __check_function(fun);
 
 	using value_type = __value_type_for_iter<RandomAccessIterator>;
 	using Distance	 = __difference_type_for_iter<RandomAccessIterator>;
@@ -127,7 +127,7 @@ template <__is_random_access_iterator RandomAccessIterator,
 		  typename Projection = _STD  identity>
 inline void pop_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun = {}, Projection proj = {})
 {
-	fun = __global_check_fun(fun);
+	fun = __check_function(fun);
 
 	using value_type = __value_type_for_iter<RandomAccessIterator>;
 
@@ -147,7 +147,7 @@ template <__is_random_access_iterator RandomAccessIterator,
 		  typename Projection = _STD  identity>
 inline void sort_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun = {}, Projection proj = {})
 {
-	fun = __global_check_fun(fun);
+	fun = __check_function(fun);
 
 	while (1 < (last - first))
 	{
@@ -173,7 +173,7 @@ inline void make_heap(RandomAccessIterator first, RandomAccessIterator last, Fun
 		return;
 	}
 
-	fun = __global_check_fun(fun);
+	fun = __check_function(fun);
 
 	using value_type	= __value_type_for_iter<RandomAccessIterator>;
 	using distance_type = __difference_type_for_iter<RandomAccessIterator>;

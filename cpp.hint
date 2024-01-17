@@ -18,3 +18,4 @@
 #define __end_for_range_with_move(cont) std::move(::std::ranges::end(cont))
 #define __HAS_CPP20 _MSVC_LANG
 #define _STD
+#define _RANGES ::std::ranges::

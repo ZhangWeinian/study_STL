@@ -57,87 +57,92 @@ pair(FirstType, SecondType) -> pair<FirstType, SecondType>;
 
 // 以下是准备工作
 
-// 工作1、定义：使用默认打印函数时，输出的格式
+// 工作1、定义基础输出类型
+template <typename T>
+concept __basic_msg_type = (__not_compound_type<T>) || (requires(T msg) { noexcept(_STD string(msg)); }) ||
+						   (requires(T msg) { noexcept(_STD wstring(msg)); });
+
+// 工作2、定义：使用默认打印函数时，输出的格式
 
 // a）只输出数据
-struct __print_with_none
+struct __zh_Print_with_none
 {
 };
 
 // b）在数据之后加上空格
-struct __print_with_space: public __print_with_none
+struct __zh_Print_with_space: public __zh_Print_with_none
 {
 };
 
 // c）在数据之后加上逗号和空格
-struct __print_with_delimiter: public __print_with_space
+struct __zh_Print_with_delimiter: public __zh_Print_with_space
 {
 };
 
-// 工作2、约束：打印方式必须是以上三种方式之一
+// 工作3、约束：打印方式必须是以上三种方式之一
 template <typename PrintMode>
 concept __is_print_mode =
-	(_STD is_same_v<PrintMode, __print_with_none>) || (_STD is_same_v<PrintMode, __print_with_space>) ||
-	(_STD is_same_v<PrintMode, __print_with_delimiter>);
+	(_STD is_same_v<PrintMode, __zh_Print_with_none>) || (_STD is_same_v<PrintMode, __zh_Print_with_space>) ||
+	(_STD is_same_v<PrintMode, __zh_Print_with_delimiter>);
 
-// 工作3、对于基础数据类型，采用如下的输出方式，称此方式为 基础输出方式
-struct __print_with_basic_approach_function
+// 工作4、对于基础数据类型，采用如下的输出方式，称此方式为 基础输出方式
+struct __Print_with_basic_approach_function
 {
 public:
 
-	template <__basic_msg_type T, __is_print_mode PrintMode = __print_with_delimiter>
+	template <__basic_msg_type T, __is_print_mode PrintMode = __zh_Print_with_delimiter>
 	constexpr void operator()(const T& msg, PrintMode mode = {}) const noexcept
 	{
-		if constexpr (_STD is_same_v<PrintMode, __print_with_delimiter>)
+		if constexpr (_STD is_same_v<PrintMode, __zh_Print_with_delimiter>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}, ", msg);
 		}
-		else if constexpr (_STD is_same_v<PrintMode, __print_with_space>)
+		else if constexpr (_STD is_same_v<PrintMode, __zh_Print_with_space>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{} ", msg);
 		}
-		else if constexpr (_STD is_same_v<PrintMode, __print_with_none>)
+		else if constexpr (_STD is_same_v<PrintMode, __zh_Print_with_none>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}", msg);
 		}
 	}
 
-	template <__is_print_mode PrintMode = __print_with_delimiter>
+	template <__is_print_mode PrintMode = __zh_Print_with_delimiter>
 	void operator()(const wchar_t* msg, PrintMode mode = {}) const noexcept
 	{
 		_STD ios::sync_with_stdio(true);
 		_STD locale::global(_STD locale(""));
 
-		if constexpr (_STD is_same_v<PrintMode, __print_with_delimiter>)
+		if constexpr (_STD is_same_v<PrintMode, __zh_Print_with_delimiter>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{}, ", msg);
 		}
-		else if constexpr (_STD is_same_v<PrintMode, __print_with_space>)
+		else if constexpr (_STD is_same_v<PrintMode, __zh_Print_with_space>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{} ", msg);
 		}
-		else if constexpr (_STD is_same_v<PrintMode, __print_with_none>)
+		else if constexpr (_STD is_same_v<PrintMode, __zh_Print_with_none>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{}", msg);
 		}
 	}
 };
 
-// 工作4、定义别名：是为了方便使用者快速定义投影函数的同时，不改变默认的打印方式
-using default_print = __print_with_basic_approach_function;
+// 工作5、定义别名：是为了方便使用者快速定义投影函数的同时，不改变默认的打印方式
+using default_print = __Print_with_basic_approach_function;
 
 // 以上是准备工作
 
 /*-----------------------------------------------------------------------------------------------------*/
 
 // 此处实现 print() （ 此函数不属于 STL ，只是基于 C++20 标准封装的 多功能打印函数 print() ）
-struct __print_function: private __not_quite_object
+struct __Format_print_function: private __not_quite_object
 {
 private:
 
 	// 当 [pointer1, last) 区间中元素类型是 char 或 wchar_t 时的特化版本
 	template <__is_input_iterator InputIterator,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 		requires(_STD is_same_v<__value_type_for_iter<InputIterator>, char> ||
 				 _STD is_same_v<__value_type_for_iter<InputIterator>, wchar_t>)
@@ -195,21 +200,21 @@ private:
 
 	// 使用自定义打印函数 fun 和投影函数 proj ，格式化输出 [first, last) 区间内的所有元素
 	template <__is_input_iterator InputIterator,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 	static constexpr void
 		__print_with_format_iter(InputIterator first, InputIterator last, Function fun, Projection proj) noexcept
 	{
-		if constexpr (_STD is_same_v<Function, __print_with_basic_approach_function>)
+		if constexpr (_STD is_same_v<Function, __Print_with_basic_approach_function>)
 		{
 			fputs("[ ", stdout);
 
 			for (; first != (last - 1); ++first)
 			{
-				__invoke(fun, __invoke(proj, *first), __print_with_delimiter {});
+				__invoke(fun, __invoke(proj, *first), __zh_Print_with_delimiter {});
 			}
 
-			__invoke(fun, __invoke(proj, *first), __print_with_none {});
+			__invoke(fun, __invoke(proj, *first), __zh_Print_with_none {});
 
 			fputs(" ]", stdout);
 		}
@@ -224,7 +229,7 @@ private:
 
 	// 顶级输出语句之一。使用默认打印函数 fun ，按预定义打印方式顺次输出参数包 args 中的所有参数
 	template <typename Function, __is_print_mode PrintMode>
-		requires(_STD is_same_v<Function, __print_with_basic_approach_function>)
+		requires(_STD is_same_v<Function, __Print_with_basic_approach_function>)
 	static constexpr void __print_with_args(Function fun, PrintMode) noexcept
 	{
 		// 无参数，直接返回
@@ -232,15 +237,15 @@ private:
 	}
 
 	template <typename Function, __is_print_mode PrintMode, __basic_msg_type Arg>
-		requires(_STD is_same_v<Function, __print_with_basic_approach_function>)
+		requires(_STD is_same_v<Function, __Print_with_basic_approach_function>)
 	static constexpr void __print_with_args(Function fun, PrintMode, Arg&& arg) noexcept
 	{
 		// 一个参数，直接输出，不加任何修饰
-		__invoke(fun, _STD forward<Arg&&>(arg), __print_with_none {});
+		__invoke(fun, _STD forward<Arg&&>(arg), __zh_Print_with_none {});
 	}
 
 	template <typename Function, __is_print_mode PrintMode, __basic_msg_type Arg, __basic_msg_type... Args>
-		requires(_STD is_same_v<Function, __print_with_basic_approach_function>)
+		requires(_STD is_same_v<Function, __Print_with_basic_approach_function>)
 	static constexpr void __print_with_args(Function fun, PrintMode mode, Arg&& arg, Args&&... args) noexcept
 	{
 		// 多个参数，顺次输出，每个参数之间用逗号和空格分隔
@@ -252,7 +257,7 @@ private:
 
 	// 顶级输出语句之二。使用迭代器 first 和 last ，顺次输出 [first, last) 区间内的所有元素
 	template <__is_iter_or_array InputIterator,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 	static constexpr void
 		__print_with_iter(InputIterator first, InputIterator last, Function fun, Projection proj) noexcept
@@ -279,7 +284,7 @@ private:
 			(__is_compound_type<value_type>) ||
 			(!(_STD is_same_v<
 				Function,
-				__print_with_basic_approach_function>))) // 如果是复合类型 或 已有自定义的输出函数 fun ，使用自定义打印函数 fun ，顺次输出所有元素
+				__Print_with_basic_approach_function>))) // 如果是复合类型 或 已有自定义的输出函数 fun ，使用自定义打印函数 fun ，顺次输出所有元素
 		{
 			if constexpr (_STD is_pointer_v<value_type>)
 			{
@@ -340,8 +345,8 @@ private:
 	{
 		if constexpr (__not_compound_type<T>) // 如果是基本类型的组合，直接输出
 		{
-			__print_with_args(__print_with_basic_approach_function {},
-							  __print_with_delimiter {},
+			__print_with_args(__Print_with_basic_approach_function {},
+							  __zh_Print_with_delimiter {},
 							  _STD forward<T&&>(msg),
 							  _STD forward<Args>(args)...);
 
@@ -371,8 +376,8 @@ private:
 
 					// 顺次输出参包的所有参数
 
-					__print_with_args(__print_with_basic_approach_function {},
-									  __print_with_delimiter {},
+					__print_with_args(__Print_with_basic_approach_function {},
+									  __zh_Print_with_delimiter {},
 									  _STD forward<Args&&>(args)...);
 				}
 			}
@@ -394,7 +399,7 @@ public:
 	// 1.1、针对指向 基础类型数据的 迭代器 的一般泛化
 	template <__is_iter_or_array InputIterator,
 			  _STD sentinel_for<InputIterator> Sentinel,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 		requires(__not_compound_type<__value_type_for_iter<InputIterator>>) &&
 				requires(InputIterator it, Function fun, Projection proj) {
@@ -403,8 +408,8 @@ public:
 	constexpr void
 		operator()(InputIterator first, Sentinel last, Function fun = {}, Projection proj = {}) const noexcept
 	{
-		auto check_first = _RANGES _Unwrap_iter<Sentinel>(__move(first));
-		auto check_last	 = _RANGES _Get_final_iterator_unwrapped<InputIterator>(check_first, __move(last));
+		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
+		auto check_last	 = __get_last_iterator_unwrapped<InputIterator>(check_first, __move(last));
 
 		__print_with_iter(__move(check_first), __move(check_last), fun, proj);
 	}
@@ -412,7 +417,7 @@ public:
 	// 1.2、针对指向 复合类型数据的 迭代器 的一般泛化
 	template <__is_iter_or_array InputIterator,
 			  _STD sentinel_for<InputIterator> Sentinel,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 		requires(__is_compound_type<__value_type_for_iter<InputIterator>>) &&
 				requires(InputIterator it, Function fun, Projection proj) {
@@ -420,15 +425,15 @@ public:
 				}
 	constexpr void operator()(InputIterator first, Sentinel last, Function fun, Projection proj = {}) const noexcept
 	{
-		auto check_first = _RANGES _Unwrap_iter<Sentinel>(__move(first));
-		auto check_last	 = _RANGES _Get_final_iterator_unwrapped<InputIterator>(check_first, __move(last));
+		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
+		auto check_last	 = __get_last_iterator_unwrapped<InputIterator>(check_first, __move(last));
 
 		__print_with_iter(__move(check_first), __move(check_last), fun, proj);
 	}
 
 	// 2.1、针对容纳 基础类型数据的 容器 的特化
 	template <__is_input_range Range,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 		requires((__not_compound_type<__value_type_for_range<Range>>) ||
 				 ((_STD is_pointer_v<__value_type_for_range<Range>>)&&(
@@ -444,7 +449,7 @@ public:
 
 	// 2.2、针对容纳 复合类型数据的 容器 的特化
 	template <__is_input_range Range,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 		requires(__is_compound_type<__value_type_for_range<Range>>) &&
 				requires(__value_type_for_range<Range> it, Function fun, Projection proj) {
@@ -473,12 +478,12 @@ public:
 	}
 };
 
-constexpr inline __print_function print { __not_quite_object::__construct_tag {} };
+constexpr inline __Format_print_function print { __not_quite_object::__construct_tag {} };
 
-/*-----------------------------------------------------f------------------------------------------------*/
+/*-----------------------------------------------------------------------------------------------------*/
 
 // 此处实现 println<...>(...)
-struct __println_function: private __not_quite_object
+struct __Format_println_function: private __not_quite_object
 {
 public:
 
@@ -491,7 +496,7 @@ public:
 
 	template <__is_iter_or_array InputIterator,
 			  _STD sentinel_for<InputIterator> Sentinel,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 		requires(__not_compound_type<__value_type_for_iter<InputIterator>>) &&
 				requires(InputIterator it, Function fun, Projection proj) {
@@ -506,7 +511,7 @@ public:
 
 	template <__is_iter_or_array InputIterator,
 			  _STD sentinel_for<InputIterator> Sentinel,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 		requires(__is_compound_type<__value_type_for_iter<InputIterator>>) &&
 				requires(InputIterator it, Function fun, Projection proj) {
@@ -519,7 +524,7 @@ public:
 	}
 
 	template <__is_input_range Range,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 		requires((__not_compound_type<__value_type_for_range<Range>>) ||
 				 ((_STD is_pointer_v<__value_type_for_range<Range>>)&&(
@@ -535,7 +540,7 @@ public:
 	}
 
 	template <__is_input_range Range,
-			  class Function	  = __print_with_basic_approach_function,
+			  class Function	  = __Print_with_basic_approach_function,
 			  typename Projection = _STD identity>
 		requires(__is_compound_type<__value_type_for_range<Range>>) &&
 				requires(__value_type_for_range<Range> it, Function fun, Projection proj) {
@@ -565,26 +570,28 @@ public:
 	}
 };
 
-constexpr inline __println_function println { __not_quite_object::__construct_tag {} };
+constexpr inline __Format_println_function println { __not_quite_object::__construct_tag {} };
+
+/*-----------------------------------------------------------------------------------------------------*/
 
 //
 __BEGIN_INLINE_NAMESPACE(get_format_string)
 
-struct A
+struct __Take_str
 {
 	const char* str;
 
-	constexpr A(const char* str) noexcept: str(str)
+	constexpr __Take_str(const char* str) noexcept: str(str)
 	{
 	}
 };
 
-template <A a>
+template <__Take_str msg>
 consteval auto operator""_f()
 {
 	return [=]<typename... T>(T&&... Args) constexpr
 	{
-		return _STD format(a.str, _STD forward<T&&>(Args)...);
+		return _STD format(msg.str, _STD forward<T&&>(Args)...);
 	};
 }
 
