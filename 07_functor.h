@@ -2,7 +2,7 @@
 
 #include <functional>
 
-__BEGIN_NEW_NAMESPACE(np_functor)
+__BEGIN_NAMESPACE_ZHANG
 
 // 一元谓词
 template <typename Arg, typename Result>
@@ -21,181 +21,148 @@ struct binary_function
 	using result_type		   = Result;
 };
 
-
 // 算术类仿函数
-__BEGIN_NEW_NAMESPACE(np_arithmetic)
 
-template <typename T>
-struct plus: public np_functor::binary_function<T, T, T>
+template <typename Type>
+struct plus: public binary_function<Type, Type, Type>
 {
-	T operator()(const T& x, const T& y)
+	Type operator()(const Type& x, const Type& y)
 	{
 		return x + y;
 	}
 };
 
-template <typename T>
-struct miuns: public np_functor::binary_function<T, T, T>
+template <typename Type>
+struct miuns: public binary_function<Type, Type, Type>
 {
-	T operator()(const T& x, const T& y)
+	Type operator()(const Type& x, const Type& y)
 	{
 		return x - y;
 	}
 };
 
-template <typename T>
-struct multiplies: public np_functor::binary_function<T, T, T>
+template <typename Type>
+struct multiplies: public binary_function<Type, Type, Type>
 {
-	T operator()(const T& x, const T& y)
+	Type operator()(const Type& x, const Type& y)
 	{
 		return x * y;
 	}
 };
 
-template <typename T>
-struct divides: public np_functor::binary_function<T, T, T>
+template <typename Type>
+struct divides: public binary_function<Type, Type, Type>
 {
-	T operator()(const T& x, const T& y)
+	Type operator()(const Type& x, const Type& y)
 	{
 		return x / y;
 	}
 };
 
-template <typename T>
-struct modulus: public np_functor::binary_function<T, T, T>
+template <typename Type>
+struct modulus: public binary_function<Type, Type, Type>
 {
-	T operator()(const T& x, const T& y)
+	Type operator()(const Type& x, const Type& y)
 	{
 		return x % y;
 	}
 };
 
-template <typename T>
-struct negate: public np_functor::unary_function<T, T>
+template <typename Type>
+struct negate: public unary_function<Type, Type>
 {
-	T operator()(const T& x)
+	Type operator()(const Type& x)
 	{
 		return -x;
 	}
 };
 
-__END_NEW_NAMESPACE(np_arithmetic)
-
-
 // 关系运算类仿函数
-__BEGIN_NEW_NAMESPACE(np_relational)
 
-template <typename T>
-struct equal_to: public np_functor::binary_function<T, T, bool>
+template <typename Type>
+struct equal_to: public binary_function<Type, Type, bool>
 {
-	bool operator()(const T& x, const T& y)
+	bool operator()(const Type& x, const Type& y)
 	{
 		return x == y;
 	}
 };
 
-template <typename T>
-struct not_equal_to: public np_functor::binary_function<T, T, bool>
+template <typename Type>
+struct not_equal_to: public binary_function<Type, Type, bool>
 {
-	bool operator()(const T& x, const T& y)
+	bool operator()(const Type& x, const Type& y)
 	{
 		return x != y;
 	}
 };
 
-template <typename T>
-struct greater: public np_functor::binary_function<T, T, bool>
+template <typename Type>
+struct greater: public binary_function<Type, Type, bool>
 {
-	bool operator()(const T& x, const T& y)
+	bool operator()(const Type& x, const Type& y)
 	{
 		return x > y;
 	}
 };
 
-template <typename T>
-struct less: public np_functor::binary_function<T, T, bool>
+template <typename Type>
+struct less: public binary_function<Type, Type, bool>
 {
-	bool operator()(const T& x, const T& y)
+	bool operator()(const Type& x, const Type& y)
 	{
 		return x < y;
 	}
 };
 
-template <typename T>
-struct greater_equal: public np_functor::binary_function<T, T, bool>
+template <typename Type>
+struct greater_equal: public binary_function<Type, Type, bool>
 {
-	bool operator()(const T& x, const T& y)
+	bool operator()(const Type& x, const Type& y)
 	{
 		return x >= y;
 	}
 };
 
-template <typename T>
-struct less_equal: public np_functor::binary_function<T, T, bool>
+template <typename Type>
+struct less_equal: public binary_function<Type, Type, bool>
 {
-	bool operator()(const T& x, const T& y)
+	bool operator()(const Type& x, const Type& y)
 	{
 		return x <= y;
 	}
 };
 
-
-__END_NEW_NAMESPACE(np_relational)
-
 // 逻辑运算类仿函数
-__BEGIN_NEW_NAMESPACE(np_logical)
 
-template <typename T>
-struct logical_and: public np_functor::binary_function<T, T, bool>
+template <typename Type>
+struct logical_and: public binary_function<Type, Type, bool>
 {
-	bool operator()(const T& x, const T& y)
+	bool operator()(const Type& x, const Type& y)
 	{
 		return x && y;
 	}
 };
 
-template <typename T>
-struct logical_or: public np_functor::binary_function<T, T, bool>
+template <typename Type>
+struct logical_or: public binary_function<Type, Type, bool>
 {
-	bool operator()(const T& x, const T& y)
+	bool operator()(const Type& x, const Type& y)
 	{
 		return x || y;
 	}
 };
 
-template <typename T>
-struct logical_not: public np_functor::unary_function<T, bool>
+template <typename Type>
+struct logical_not: public unary_function<Type, bool>
 {
-	bool operator()(const T& x)
+	bool operator()(const Type& x)
 	{
 		return !x;
 	}
 };
 
-
-__END_NEW_NAMESPACE(np_logical)
-
 /*-----------------------------------------------------------------------------------------*/
 
 
-
-// 统一对外接口
-using np_arithmetic::divides;		// 除
-using np_arithmetic::miuns;			// 减
-using np_arithmetic::modulus;		// 取余
-using np_arithmetic::multiplies;	// 乘
-using np_arithmetic::negate;		// 取反
-using np_arithmetic::plus;			// 加
-
-using np_relational::equal_to;		// 等于
-using np_relational::greater;		// 大于
-using np_relational::greater_equal; // 大于等于
-using np_relational::less;			// 小于
-using np_relational::less_equal;	// 小于等于
-using np_relational::not_equal_to;	// 不等于
-
-using np_logical::logical_and;		// 逻辑与
-using np_logical::logical_not;		// 逻辑非
-using np_logical::logical_or;		// 逻辑或
-
-__END_NEW_NAMESPACE(np_functor)
+__END_NAMESPACE_ZHANG

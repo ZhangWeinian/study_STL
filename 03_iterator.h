@@ -42,11 +42,15 @@ struct random_access_iterator_tag: bidirectional_iterator_tag
 	#endif // !__use_myself_allocator__
 
 // 为避免自定义时类型少写，自行开发的迭代器最好继承自如下所示的 _STD iterator
-template <typename Category, typename T, typename Distance = ptrdiff_t, typename Pointer = T*, typename Reference = T&>
+template <typename Category,
+		  typename Type,
+		  typename Distance	 = ptrdiff_t,
+		  typename Pointer	 = Type*,
+		  typename Reference = Type&>
 struct iterator
 {
 	using iterator_category = Category;
-	using value_type		= T;
+	using value_type		= Type;
 	using difference_type	= Distance;
 	using pointer			= Pointer;
 	using reference			= Reference;
@@ -64,25 +68,25 @@ struct iterator_traits
 };
 
 // 针对原生指针而设计的 traits 偏特化版本
-template <typename T>
-struct iterator_traits<T*>
+template <typename Type>
+struct iterator_traits<Type*>
 {
 	using iterator_category = random_access_iterator_tag;
-	using value_type		= T;
+	using value_type		= Type;
 	using difference_type	= ptrdiff_t;
-	using pointer			= T*;
-	using reference			= T&;
+	using pointer			= Type*;
+	using reference			= Type&;
 };
 
 // 针对原生 pointer-to-const 而设计的偏特化版本
-template <typename T>
-struct iterator_traits<const T*>
+template <typename Type>
+struct iterator_traits<const Type*>
 {
 	using iterator_category = random_access_iterator_tag;
-	using value_type		= T;
+	using value_type		= Type;
 	using difference_type	= ptrdiff_t;
-	using pointer			= const T*;
-	using reference			= const T&;
+	using pointer			= const Type*;
+	using reference			= const Type&;
 };
 
 // 此函数用于 -- 快速决定某个迭代器的类型（category）
@@ -345,8 +349,8 @@ __STL_TEMPLATE_MULL struct __type_traits<long double>
 	using is_POD_type					  = __true_type;
 };
 
-template <typename T>
-struct __type_traits<T*>
+template <typename Type>
+struct __type_traits<Type*>
 {
 	using has_trivial_default_constructor = __true_type;
 	using has_trivial_copy_constructor	  = __true_type;

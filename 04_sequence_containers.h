@@ -13,19 +13,19 @@ __BEGIN_NEW_NAMESPACE(np_heap)
 // push_heap() -- 辅助函数
 template <__is_random_access_iterator RandomAccessIterator,
 		  typename Distance,
-		  typename T,
-		  class Function	  = _RANGES	  less,
+		  typename Type,
+		  class Predicate	  = _RANGES	 less,
 		  typename Projection = _STD identity>
 inline void __push_heap(RandomAccessIterator first,
 						Distance			 holeIndex,
 						Distance			 topIndex,
-						T					 value,
-						Function			 fun  = {},
+						Type				 value,
+						Predicate			 pred = {},
 						Projection			 proj = {})
 {
 	Distance parent = (holeIndex - 1) / 2;
 
-	while ((topIndex < holeIndex) && __invoke(fun, __invoke(proj, *(first + parent)), value))
+	while ((topIndex < holeIndex) && __invoke(pred, __invoke(proj, *(first + parent)), value))
 	{
 		*(first + holeIndex) = __invoke(proj, *(first + parent));
 		holeIndex			 = parent;
@@ -37,11 +37,11 @@ inline void __push_heap(RandomAccessIterator first,
 
 // push_heap() for 仿函数 标准版
 template <__is_random_access_iterator RandomAccessIterator,
-		  class Function	  = _RANGES	   less,
+		  class Predicate	  = _RANGES	  less,
 		  typename Projection = _STD  identity>
-inline void push_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun = {}, Projection proj = {})
+inline void push_heap(RandomAccessIterator first, RandomAccessIterator last, Predicate pred = {}, Projection proj = {})
 {
-	fun = __check_function(fun);
+	pred = __check_predicate(pred);
 
 	using value_type = __value_type_for_iter<RandomAccessIterator>;
 	using Distance	 = __difference_type_for_iter<RandomAccessIterator>;
@@ -50,28 +50,28 @@ inline void push_heap(RandomAccessIterator first, RandomAccessIterator last, Fun
 						 __cove_type((last - first) - 1, Distance),
 						 __init_type(0, Distance),
 						 __cove_type(*(last - 1), value_type),
-						 fun,
+						 pred,
 						 proj);
 }
 
 // push_heap() for 容器、仿函数 强化版
-template <__is_range Range, class Function = _RANGES less, typename Projection = _STD identity>
-inline void push_heap(Range& con, Function fun = {}, Projection proj = {})
+template <__is_range Range, class Predicate = _RANGES less, typename Projection = _STD identity>
+inline void push_heap(Range& con, Predicate pred = {}, Projection proj = {})
 {
-	np_heap::push_heap(__begin_for_range(con), __end_for_range(con), fun, proj);
+	np_heap::push_heap(__begin_for_range(con), __end_for_range(con), pred, proj);
 }
 
 // pop_heap -- 辅助函数
 template <__is_random_access_iterator RandomAccessIterator,
 		  typename Distance,
-		  typename T,
-		  class Function	  = _RANGES	  less,
+		  typename Type,
+		  class Predicate	  = _RANGES	 less,
 		  typename Projection = _STD identity>
 inline void __adjust_heap(RandomAccessIterator first,
 						  Distance			   holeIndex,
 						  Distance			   len,
-						  T					   value,
-						  Function			   fun	= {},
+						  Type				   value,
+						  Predicate			   pred = {},
 						  Projection		   proj = {})
 {
 	Distance topIndex { holeIndex };
@@ -79,7 +79,7 @@ inline void __adjust_heap(RandomAccessIterator first,
 
 	while (secondChild < len)
 	{
-		if (__invoke(fun, __invoke(proj, *(first + secondChild)), __invoke(proj, *(first + (secondChild - 1)))))
+		if (__invoke(pred, __invoke(proj, *(first + secondChild)), __invoke(proj, *(first + (secondChild - 1)))))
 		{
 			secondChild--;
 		}
@@ -94,19 +94,19 @@ inline void __adjust_heap(RandomAccessIterator first,
 		*(first + holeIndex) = __invoke(proj, *(first + (secondChild - 1)));
 	}
 
-	np_heap::__push_heap(first, holeIndex, topIndex, value, fun, proj);
+	np_heap::__push_heap(first, holeIndex, topIndex, value, pred, proj);
 }
 
 // pop_heap() -- 辅助函数
 template <__is_random_access_iterator RandomAccessIterator,
-		  typename T,
-		  class Function	  = _RANGES	  less,
+		  typename Type,
+		  class Predicate	  = _RANGES	 less,
 		  typename Projection = _STD identity>
 inline void __pop_heap(RandomAccessIterator first,
 					   RandomAccessIterator last,
 					   RandomAccessIterator result,
-					   T					value,
-					   Function				fun	 = {},
+					   Type					value,
+					   Predicate			pred = {},
 					   Projection			proj = {})
 {
 	using distance_type = __difference_type_for_iter<RandomAccessIterator>;
@@ -117,63 +117,63 @@ inline void __pop_heap(RandomAccessIterator first,
 						   __init_type(0, distance_type),
 						   __cove_type(last - first, distance_type),
 						   value,
-						   fun,
+						   pred,
 						   proj);
 }
 
 // pop_heap() for 仿函数 标准版
 template <__is_random_access_iterator RandomAccessIterator,
-		  class Function	  = _RANGES	   less,
+		  class Predicate	  = _RANGES	  less,
 		  typename Projection = _STD  identity>
-inline void pop_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun = {}, Projection proj = {})
+inline void pop_heap(RandomAccessIterator first, RandomAccessIterator last, Predicate pred = {}, Projection proj = {})
 {
-	fun = __check_function(fun);
+	pred = __check_predicate(pred);
 
 	using value_type = __value_type_for_iter<RandomAccessIterator>;
 
-	np_heap::__pop_heap(first, last - 1, last - 1, __cove_type(*(last - 1), value_type), fun, proj);
+	np_heap::__pop_heap(first, last - 1, last - 1, __cove_type(*(last - 1), value_type), pred, proj);
 }
 
 // pop_heap() for 容器、仿函数 强化版
-template <__is_range Range, class Function = _RANGES less, typename Projection = _STD identity>
-inline void pop_heap(Range& con, Function fun = {}, Projection proj = {})
+template <__is_range Range, class Predicate = _RANGES less, typename Projection = _STD identity>
+inline void pop_heap(Range& con, Predicate pred = {}, Projection proj = {})
 {
-	np_heap::pop_heap(__begin_for_range(con), __end_for_range(con), fun, proj);
+	np_heap::pop_heap(__begin_for_range(con), __end_for_range(con), pred, proj);
 }
 
 // sort_heap() for 仿函数 标准版
 template <__is_random_access_iterator RandomAccessIterator,
-		  class Function	  = _RANGES	   less,
+		  class Predicate	  = _RANGES	  less,
 		  typename Projection = _STD  identity>
-inline void sort_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun = {}, Projection proj = {})
+inline void sort_heap(RandomAccessIterator first, RandomAccessIterator last, Predicate pred = {}, Projection proj = {})
 {
-	fun = __check_function(fun);
+	pred = __check_predicate(pred);
 
 	while (1 < (last - first))
 	{
-		np_heap::pop_heap(first, last--, fun, proj);
+		np_heap::pop_heap(first, last--, pred, proj);
 	}
 }
 
 // sort_heap() for 容器、仿函数 强化版
-template <__is_range Range, class Function = _RANGES less, typename Projection = _STD identity>
-inline void sort_heap(Range& con, Function fun = {}, Projection proj = {})
+template <__is_range Range, class Predicate = _RANGES less, typename Projection = _STD identity>
+inline void sort_heap(Range& con, Predicate pred = {}, Projection proj = {})
 {
-	np_heap ::sort_heap(__begin_for_range(con), __end_for_range(con), fun, proj);
+	np_heap ::sort_heap(__begin_for_range(con), __end_for_range(con), pred, proj);
 }
 
 // make_heap() for 仿函数 标准版
 template <__is_random_access_iterator RandomAccessIterator,
-		  class Function	  = _RANGES	   less,
+		  class Predicate	  = _RANGES	  less,
 		  typename Projection = _STD  identity>
-inline void make_heap(RandomAccessIterator first, RandomAccessIterator last, Function fun = {}, Projection proj = {})
+inline void make_heap(RandomAccessIterator first, RandomAccessIterator last, Predicate pred = {}, Projection proj = {})
 {
 	if ((last - first) < 2)
 	{
 		return;
 	}
 
-	fun = __check_function(fun);
+	pred = __check_predicate(pred);
 
 	using value_type	= __value_type_for_iter<RandomAccessIterator>;
 	using distance_type = __difference_type_for_iter<RandomAccessIterator>;
@@ -183,7 +183,7 @@ inline void make_heap(RandomAccessIterator first, RandomAccessIterator last, Fun
 
 	while (true)
 	{
-		np_heap::__adjust_heap(first, parent, len, __cove_type(*(first + parent), value_type), fun, proj);
+		np_heap::__adjust_heap(first, parent, len, __cove_type(*(first + parent), value_type), pred, proj);
 
 		if (parent == 0)
 		{
@@ -195,10 +195,10 @@ inline void make_heap(RandomAccessIterator first, RandomAccessIterator last, Fun
 }
 
 // make_heap() for 仿函数、容器 强化版
-template <__is_range Range, class Function = _RANGES less, typename Projection = _STD identity>
-inline void make_heap(Range& con, Function fun = {}, Projection proj = {})
+template <__is_range Range, class Predicate = _RANGES less, typename Projection = _STD identity>
+inline void make_heap(Range& con, Predicate pred = {}, Projection proj = {})
 {
-	np_heap::make_heap(__begin_for_range(con), __end_for_range(con), fun, proj);
+	np_heap::make_heap(__begin_for_range(con), __end_for_range(con), pred, proj);
 }
 
 

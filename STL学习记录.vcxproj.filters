@@ -50,6 +50,7 @@
     <None Include=".clang-format" />
     <None Include="ClassDiagram.cd" />
     <None Include="cpp.hint" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />

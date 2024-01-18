@@ -135,34 +135,31 @@ constexpr inline auto __stl_threshold = 16;
 
 
 // 以下是 基础型别 的要求
-template <typename T>
-concept __is_c_array = _STD is_array_v<T>;
+template <typename Type>
+concept __is_c_array = _STD is_array_v<Type>;
 
-template <typename T>
-concept __is_compound_type = _STD is_compound_v<T>;
-
-template <typename T>
-concept __not_compound_type = (!__is_compound_type<T>);
+template <typename Type>
+concept __not_compound_type = !(_STD is_compound_v<Type>);
 
 
 // 以下是 容器型别 的基础要求
-template <typename T>
-concept __is_range = _RANGES range<T>;
+template <typename Type>
+concept __is_range = _RANGES range<Type>;
 
-template <typename T>
-concept __is_random_access_range = _RANGES random_access_range<T>;
+template <typename Type>
+concept __is_random_access_range = _RANGES random_access_range<Type>;
 
-template <typename T>
-concept __is_bidirectional_range = _RANGES bidirectional_range<T>;
+template <typename Type>
+concept __is_bidirectional_range = _RANGES bidirectional_range<Type>;
 
-template <typename T>
-concept __is_forward_range = _RANGES forward_range<T>;
+template <typename Type>
+concept __is_forward_range = _RANGES forward_range<Type>;
 
-template <typename T>
-concept __is_output_range = _RANGES output_range<T, _RANGES range_value_t<T>>;
+template <typename Type>
+concept __is_output_range = _RANGES output_range<Type, _RANGES range_value_t<Type>>;
 
-template <typename T>
-concept __is_input_range = _RANGES input_range<T>;
+template <typename Type>
+concept __is_input_range = _RANGES input_range<Type>;
 
 
 // 从 基础迭代器 或 容器 获取信息
@@ -189,23 +186,23 @@ using __type_tag_for_iter = typename _STD iterator_traits<Iterator>::iterator_ca
 
 
 // 以下是 迭代器型别 的定义
-template <typename T>
-concept __is_input_iterator = _STD input_iterator<T>;
+template <typename Type>
+concept __is_input_iterator = _STD input_iterator<Type>;
 
-template <typename T>
-concept __is_output_iterator = _STD output_iterator<T, __value_type_for_iter<T>>;
+template <typename Type>
+concept __is_output_iterator = _STD output_iterator<Type, __value_type_for_iter<Type>>;
 
-template <typename T>
-concept __is_bidirectional_iterator = _STD bidirectional_iterator<T>;
+template <typename Type>
+concept __is_bidirectional_iterator = _STD bidirectional_iterator<Type>;
 
-template <typename T>
-concept __is_forward_iterator = _STD forward_iterator<T>;
+template <typename Type>
+concept __is_forward_iterator = _STD forward_iterator<Type>;
 
-template <typename T>
-concept __is_random_access_iterator = _STD random_access_iterator<T>;
+template <typename Type>
+concept __is_random_access_iterator = _STD random_access_iterator<Type>;
 
-template <typename T> // 为了使 C风格指针 和 C风格数组 被正确识别为迭代器的 特别定义
-concept __is_iter_or_array = (__is_input_iterator<T>) || (_STD is_array_v<T>);
+template <typename Type> // 为了使 C风格指针 和 C风格数组 被正确识别为迭代器的 特别定义
+concept __is_iter_or_array = (__is_input_iterator<Type>) || (_STD is_array_v<Type>);
 
 // Iterator 没有 _Unwrapped()
 template <typename Iterator, typename = void>
@@ -331,40 +328,40 @@ _NODISCARD constexpr __unwrap_iterator_type<Iterator, Sentinel>
 /*-----------------------------------------------------------------------------------------------------*/
 
 
-template <typename Function>
+template <typename Predicate>
 struct __get_ref_function
 {
 	// 按值传递函数对象作为引用
-	Function& fun;
+	Predicate& pred;
 
 	template <class... Args>
 	constexpr decltype(auto) operator()(Args&&... args)
 	{
 		// forward function call operator
-		if constexpr (_STD is_member_pointer_v<Function>)
+		if constexpr (_STD is_member_pointer_v<Predicate>)
 		{
-			return __invoke(fun, _STD forward<Args>(args)...);
+			return __invoke(pred, _STD forward<Args>(args)...);
 		}
 		else
 		{
-			return fun(_STD forward<Args>(args)...);
+			return pred(_STD forward<Args>(args)...);
 		}
 	}
 };
 
-template <typename Function>
-_NODISCARD constexpr auto __check_function(Function& fun) noexcept
+template <typename Predicate>
+_NODISCARD constexpr auto __check_predicate(Predicate& pred) noexcept
 {
-	constexpr bool __pass_by_value = _STD conjunction_v<_STD bool_constant<sizeof(Function) <= sizeof(void*)>,
-														_STD is_trivially_copy_constructible<Function>,
-														_STD is_trivially_destructible<Function>>;
+	constexpr bool __pass_by_value = _STD conjunction_v<_STD bool_constant<sizeof(Predicate) <= sizeof(void*)>,
+														_STD is_trivially_copy_constructible<Predicate>,
+														_STD is_trivially_destructible<Predicate>>;
 	if constexpr (__pass_by_value)
 	{
-		return fun;
+		return pred;
 	}
 	else
 	{
-		return __get_ref_function<Function> { fun }; // 通过“引用”传递函子
+		return __get_ref_function<Predicate> { pred }; // 通过“引用”传递函子
 	}
 }
 
