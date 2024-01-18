@@ -581,7 +581,7 @@ struct __Take_str
 {
 	const char* str;
 
-	constexpr __Take_str(const char* str) noexcept: str(str)
+	constexpr explicit(false) __Take_str(const char* str) noexcept: str(str)
 	{
 	}
 };

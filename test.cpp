@@ -33,6 +33,8 @@ int main(int argc, char* argv[])
 					  145,	7421, 7412, 1022, 75,  47,	 10,   4823, 472,	7413,  953,	 10,	237, 4869 };
 
 
+	cout << "{};;{}\n\n"_f(1, 2);
+
 	zh::insertion_sort(num_test);
 
 	zh::print(num_test);
