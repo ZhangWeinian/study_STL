@@ -411,7 +411,7 @@ public:
 		operator()(InputIterator first, Sentinel last, PrintMethod method = {}, Projection proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<InputIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
 		__print_with_iter(__move(check_first), __move(check_last), method, proj);
 	}

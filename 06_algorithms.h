@@ -39,7 +39,7 @@ public:
 	constexpr OutputIterator operator()(InputIterator first, Sentinel last, OutputIterator result) noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<InputIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
 		using iter_type_tag = __type_tag_for_iter<InputIterator>;
 		constexpr bool is_random_access_iter { _STD is_same_v<_STD random_access_iterator_tag(), iter_type_tag()> };
@@ -133,7 +133,7 @@ public:
 	constexpr OutputIterator operator()(InputIterator first, Sentinel last, OutputIterator result) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<InputIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
 		return __default_cpoy(__move(check_first), __move(check_last), __move(result));
 	}
@@ -198,7 +198,7 @@ public:
 							  Projection			proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<InputIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
 		return __default_accumulate(__move(check_first), __move(check_last), __move(init), pred, proj);
 	}
@@ -256,7 +256,7 @@ public:
 		operator()(InputIterator first, Sentinel last, const Type& value, Predicate pred = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<InputIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
 		return __default_count(__move(check_first), __move(check_last), __move(value), pred);
 	}
@@ -297,7 +297,7 @@ public:
 	constexpr void operator()(ForwardIterator first, Sentinel last, Type value) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
 		__default_itoa(__move(check_first), __move(check_last), __move(value));
 	}
@@ -347,7 +347,7 @@ public:
 		operator()(InputIterator first, Sentinel last, const Type& value, Predicate pred = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<InputIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
 		return __default_find(__move(check_first), __move(check_last), __move(value), pred);
 	}
@@ -427,8 +427,10 @@ public:
 	{
 		auto check_first1 = __unwrap_iterator<Sentinel_InputIterator>(__move(first1));
 		auto check_first2 = __unwrap_iterator<Sentinel_ForwardIterator>(__move(first2));
-		auto check_last1  = __get_last_iterator_unwrapped<InputIterator>(check_first1, __move(last1));
-		auto check_last2  = __get_last_iterator_unwrapped<ForwardIterator>(check_first2, __move(last2));
+		auto check_last1 =
+			__get_last_iterator_unwrapped<InputIterator, Sentinel_InputIterator>(check_first1, __move(last1));
+		auto check_last2 =
+			__get_last_iterator_unwrapped<ForwardIterator, Sentinel_ForwardIterator>(check_first2, __move(last2));
 
 		return __default_find_first_of(__move(check_first1),
 									   __move(check_last1),
@@ -530,7 +532,8 @@ public:
 		operator()(ForwardIterator1 first1, Sentinel_ForwardIterator1 last1, ForwardIterator2 first2) const noexcept
 	{
 		auto check_first1 = __unwrap_iterator<Sentinel_ForwardIterator1>(__move(first1));
-		auto check_last1  = __get_last_iterator_unwrapped<ForwardIterator1>(check_first1, __move(last1));
+		auto check_last1 =
+			__get_last_iterator_unwrapped<ForwardIterator1, Sentinel_ForwardIterator1>(check_first1, __move(last1));
 
 		auto check_first2 = __move(first2);
 
@@ -585,7 +588,7 @@ public:
 		operator()(InputIterator first, Sentinel last, Predicate pred, Projection proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<InputIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
 		return __default_for_each(__move(check_first), __move(check_last), __move(pred));
 	}
@@ -890,7 +893,7 @@ public:
 		operator()(ForwardIterator first, Sentinel last, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
 		return __default_max_element(__move(check_first), __move(check_last), pred, proj);
 	}
@@ -953,7 +956,7 @@ public:
 		operator()(ForwardIterator first, Sentinel last, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
 		return __default_min_element(__move(check_first), __move(check_last), pred, proj);
 	}
@@ -1042,8 +1045,10 @@ public:
 	{
 		auto check_first1 = __unwrap_iterator<Sentinel_InputIterator1>(__move(first1));
 		auto check_first2 = __unwrap_iterator<Sentinel_InputIterator2>(__move(first2));
-		auto check_last1  = __get_last_iterator_unwrapped<InputIterator1>(check_first1, __move(last1));
-		auto check_last2  = __get_last_iterator_unwrapped<InputIterator2>(check_first2, __move(last2));
+		auto check_last1 =
+			__get_last_iterator_unwrapped<InputIterator1, Sentinel_InputIterator1>(check_first1, __move(last1));
+		auto check_last2 =
+			__get_last_iterator_unwrapped<InputIterator2, Sentinel_InputIterator2>(check_first2, __move(last2));
 
 		return __default_merge(__move(check_first1),
 							   __move(check_last1),
@@ -1132,7 +1137,7 @@ public:
 			const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<InputIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
 		return __default_transform(__move(check_first), __move(check_last), __move(result), pred, proj);
 	}
@@ -1206,7 +1211,7 @@ public:
 	{
 		auto check_first  = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_middle = __unwrap_iterator<Sentinel>(__move(middle));
-		auto check_last	  = __get_last_iterator_unwrapped<RandomAccessIterator>(check_first, __move(last));
+		auto check_last	  = __get_last_iterator_unwrapped<RandomAccessIterator, Sentinel>(check_first, __move(last));
 
 		__default_partial_sort(__move(check_first), __move(check_middle), __move(check_last), pred, proj);
 	}
@@ -1324,7 +1329,7 @@ public:
 		operator()(RandomAccessIterator first, Sentinel last, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator, Sentinel>(check_first, __move(last));
 
 		__default_insertion_sort(__move(check_first), __move(check_last), pred, proj);
 	}
@@ -1507,7 +1512,7 @@ public:
 		auto ans = _RANGES next(first, last);
 
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator, Sentinel>(check_first, __move(last));
 
 		__default_quick_sort(__move(check_first), __move(check_last), pred, proj);
 
@@ -1577,7 +1582,7 @@ public:
 		auto ans = _RANGES next(first, last);
 
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<BidirectionalIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<BidirectionalIterator, Sentinel>(check_first, __move(last));
 
 		__default_merge_sort(__move(check_first), __move(check_last), pred, proj);
 
@@ -1708,7 +1713,7 @@ public:
 		auto ans = _RANGES next(first, last);
 
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator, Sentinel>(check_first, __move(last));
 
 		__default_sort(__move(check_first), __move(check_last), pred, proj);
 
@@ -1787,7 +1792,7 @@ public:
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_nth	 = __unwrap_iterator<Sentinel>(__move(nth));
-		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator, Sentinel>(check_first, __move(last));
 
 		__nth_element(__move(check_first), __move(check_nth), __move(check_last), pred, proj);
 	}
@@ -1889,7 +1894,7 @@ public:
 										 Projection		 proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
 		return __default_upper_bound(__move(check_first), __move(check_last), __move(value), pred, proj);
 	}
@@ -1989,7 +1994,7 @@ public:
 										 Projection		 proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
 		return __default_lower_bound(__move(check_first), __move(check_last), __move(value), pred, proj);
 	}
@@ -2100,7 +2105,7 @@ public:
 							  Projection	  proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
 		return __default_equal_range(__move(check_first), __move(check_last), __move(value), pred, proj);
 	}
@@ -2157,7 +2162,7 @@ public:
 							  Projection	  proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator>(check_first, __move(last));
+		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
 		return __default_binary_search(__move(check_first), __move(check_last), __move(value), pred, proj);
 	}
