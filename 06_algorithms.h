@@ -160,7 +160,7 @@ constexpr inline __Copy_function copy { __not_quite_object::__construct_tag {} }
 /* 此处实现一些简单函数 */
 
 // 此处实现 accumulate()
-struct __Accumulate_function
+struct __Accumulate_function: private __not_quite_object
 {
 private:
 
@@ -183,6 +183,8 @@ private:
 	}
 
 public:
+
+	using __not_quite_object::__not_quite_object;
 
 	/* function accumulate() for 仿函数 标准版 */
 	template <__is_input_iterator InputIterator,
@@ -213,7 +215,7 @@ public:
 	}
 };
 
-constexpr inline __Accumulate_function accumulate {};
+constexpr inline __Accumulate_function accumulate { __not_quite_object::__construct_tag {} };
 
 // 此处实现 count()
 struct __Count_function: private __not_quite_object
@@ -276,7 +278,7 @@ public:
 constexpr inline __Count_function count { __not_quite_object::__construct_tag {} };
 
 // 此处实现 itoa()
-struct __Itoa_function
+struct __Itoa_function: private __not_quite_object
 {
 private:
 
@@ -291,6 +293,8 @@ private:
 	}
 
 public:
+
+	using __not_quite_object::__not_quite_object;
 
 	/* function itoa() 标准版 */
 	template <__is_forward_iterator ForwardIterator, _STD sentinel_for<ForwardIterator> Sentinel, typename Type>
@@ -310,7 +314,7 @@ public:
 	}
 };
 
-constexpr inline __Itoa_function itoa {};
+constexpr inline __Itoa_function itoa { __not_quite_object::__construct_tag {} };
 
 // 此处实现 find()
 struct __Find_function: private __not_quite_object
@@ -471,9 +475,11 @@ public:
 constexpr inline __Find_first_of_function find_first_of { __not_quite_object::__construct_tag {} };
 
 // 此处实现 swap()
-struct __Swap_function
+struct __Swap_function: private __not_quite_object
 {
 public:
+
+	using __not_quite_object::__not_quite_object;
 
 	template <typename Type>
 	constexpr void operator()(Type& msg, Type& b) const
@@ -485,12 +491,14 @@ public:
 	}
 };
 
-constexpr inline __Swap_function swap {};
+constexpr inline __Swap_function swap { __not_quite_object::__construct_tag {} };
 
 // 此处实现 iter_swap()
-struct __Iter_swap_function
+struct __Iter_swap_function: private __not_quite_object
 {
 public:
+
+	using __not_quite_object::__not_quite_object;
 
 	template <__is_forward_iterator ForwardIterator1, __is_forward_iterator ForwardIterator2>
 	constexpr void operator()(ForwardIterator1 msg, ForwardIterator2 b) const noexcept
@@ -499,7 +507,7 @@ public:
 	}
 };
 
-constexpr inline __Iter_swap_function iter_swap {};
+constexpr inline __Iter_swap_function iter_swap { __not_quite_object::__construct_tag {} };
 
 // 此处实现 swap_ranges()
 struct __Swap_ranges_function: private __not_quite_object

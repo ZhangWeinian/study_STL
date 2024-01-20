@@ -87,7 +87,7 @@ concept __is_print_mode =
 	(_STD is_same_v<PrintMode, __zh_Print_with_delimiter>);
 
 // 工作4、对于基础数据类型，采用如下的输出方式，称此方式为 基础输出方式
-struct __Default_print_method
+struct __zh_Default_print_method
 {
 public:
 
@@ -130,7 +130,7 @@ public:
 };
 
 // 工作5、定义别名：是为了方便使用者快速定义投影函数的同时，不改变默认的打印方式
-using default_print = __Default_print_method;
+using default_print = __zh_Default_print_method;
 
 // 以上是准备工作
 
@@ -143,7 +143,7 @@ private:
 
 	// 当 [first, last) 区间中元素类型是 char 或 wchar_t 时的特化版本
 	template <__is_input_iterator InputIterator,
-			  typename PrintMethod = __Default_print_method,
+			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
 		requires(_STD is_same_v<__value_type_for_iter<InputIterator>, char> ||
 				 _STD is_same_v<__value_type_for_iter<InputIterator>, wchar_t>)
@@ -203,12 +203,12 @@ private:
 
 	// 使用自定义打印函数 method 和投影函数 proj ，格式化输出 [first, last) 区间内的所有元素
 	template <__is_input_iterator InputIterator,
-			  typename PrintMethod = __Default_print_method,
+			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
 	static constexpr void
 		__print_with_format_iter(InputIterator first, InputIterator last, PrintMethod method, Projection proj) noexcept
 	{
-		if constexpr (_STD is_same_v<PrintMethod, __Default_print_method>)
+		if constexpr (_STD is_same_v<PrintMethod, __zh_Default_print_method>)
 		{
 			fputs("[ ", stdout);
 
@@ -232,7 +232,7 @@ private:
 
 	// 顶级输出语句之一。使用默认打印函数 method ，按预定义打印方式顺次输出参数包 args 中的所有参数
 	template <typename PrintMethod, __is_print_mode PrintMode>
-		requires(_STD is_same_v<PrintMethod, __Default_print_method>)
+		requires(_STD is_same_v<PrintMethod, __zh_Default_print_method>)
 	static constexpr void __print_with_args(PrintMethod method, PrintMode) noexcept
 	{
 		// 无参数，直接返回
@@ -240,7 +240,7 @@ private:
 	}
 
 	template <typename PrintMethod, __is_print_mode PrintMode, __basic_msg_type Arg>
-		requires(_STD is_same_v<PrintMethod, __Default_print_method>)
+		requires(_STD is_same_v<PrintMethod, __zh_Default_print_method>)
 	static constexpr void __print_with_args(PrintMethod method, PrintMode, Arg&& arg) noexcept
 	{
 		// 一个参数，直接输出，不加任何修饰
@@ -248,10 +248,10 @@ private:
 	}
 
 	template <typename PrintMethod, __is_print_mode PrintMode, __basic_msg_type Arg, __basic_msg_type... Args>
-		requires(_STD is_same_v<PrintMethod, __Default_print_method>)
+		requires(_STD is_same_v<PrintMethod, __zh_Default_print_method>)
 	static constexpr void __print_with_args(PrintMethod method, PrintMode mode, Arg&& arg, Args&&... args) noexcept
 	{
-		// 多个参数，顺次输出，每个参数之间用逗号和空格分隔
+		// 多个参数，顺次输出，一般情况下是在每个参数之间用逗号和空格分隔
 		__invoke(method, _STD forward<Arg&&>(arg), mode);
 
 		// 递归调用
@@ -260,7 +260,7 @@ private:
 
 	// 顶级输出语句之二。使用迭代器 first 和 last ，顺次输出 [first, last) 区间内的所有元素
 	template <__is_iter_or_array InputIterator,
-			  typename PrintMethod = __Default_print_method,
+			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
 	static constexpr void
 		__print_with_iter(InputIterator first, InputIterator last, PrintMethod method, Projection proj) noexcept
@@ -287,7 +287,7 @@ private:
 			(_STD is_compound_v<value_type>) ||
 			(!(_STD is_same_v<
 				PrintMethod,
-				__Default_print_method>))) // 如果是复合类型 或 已有自定义的输出函数 method ，使用自定义打印函数 method ，顺次输出所有元素
+				__zh_Default_print_method>))) // 如果是复合类型 或 已有自定义的打印函数 method ，则使用自定义打印函数 method ，顺次输出所有元素
 		{
 			if constexpr (_STD is_pointer_v<value_type>)
 			{
@@ -348,7 +348,7 @@ private:
 	{
 		if constexpr (__not_compound_type<MsgType>) // 如果是基本类型的组合，直接输出
 		{
-			__print_with_args(__Default_print_method {},
+			__print_with_args(__zh_Default_print_method {},
 							  __zh_Print_with_delimiter {},
 							  _STD forward<MsgType&&>(msg),
 							  _STD forward<Args>(args)...);
@@ -379,7 +379,7 @@ private:
 
 					// 顺次输出参包的所有参数
 
-					__print_with_args(__Default_print_method {},
+					__print_with_args(__zh_Default_print_method {},
 									  __zh_Print_with_delimiter {},
 									  _STD forward<Args&&>(args)...);
 				}
@@ -402,7 +402,7 @@ public:
 	// 1、针对 迭代器 的一般泛化
 	template <__is_iter_or_array InputIterator,
 			  _STD sentinel_for<InputIterator> Sentinel,
-			  typename PrintMethod = __Default_print_method,
+			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
 		requires(requires(InputIterator iterator, PrintMethod method, Projection proj) {
 			noexcept(__invoke(method, __invoke(proj, *iterator)));
@@ -418,7 +418,7 @@ public:
 
 	// 2、针对 容器 的特化
 	template <__is_input_range Range,
-			  typename PrintMethod = __Default_print_method,
+			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
 		requires(requires(__value_type_for_range<Range> val, PrintMethod method, Projection proj) {
 			noexcept(__invoke(method, __invoke(proj, val)));
@@ -464,7 +464,7 @@ public:
 
 	template <__is_iter_or_array InputIterator,
 			  _STD sentinel_for<InputIterator> Sentinel,
-			  typename PrintMethod = __Default_print_method,
+			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
 		requires(requires(InputIterator iterator, PrintMethod method, Projection proj) {
 			noexcept(__invoke(method, __invoke(proj, *iterator)));
@@ -477,7 +477,7 @@ public:
 	}
 
 	template <__is_input_range Range,
-			  typename PrintMethod = __Default_print_method,
+			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
 		requires(requires(__value_type_for_range<Range> val, PrintMethod method, Projection proj) {
 			noexcept(__invoke(method, __invoke(proj, val)));
