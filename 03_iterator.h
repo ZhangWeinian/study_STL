@@ -1,10 +1,8 @@
-#include "00_basicFile.h"
+#include "./00_basicFile.h"
 
 #if __HAS_CPP20
 
 __BEGIN_NAMESPACE_ZHANG
-
-__BEGIN_NEW_NAMESPACE(np_iterator)
 
 // 五种迭代器类型
 
@@ -139,14 +137,14 @@ inline typename iterator_traits<InputIterator>::difference_type distance(InputIt
 {
 	using category = typename iterator_traits<InputIterator>::iterator_category;
 
-	return np_iterator::__distance(first, last, category());
+	return __distance(first, last, category());
 }
 
 template <typename InputIterator,
 		  typename Distance> // 注意，这个函数书中未给出实现，但却有这样的用法，故在此处自定义实现
 inline void distance(InputIterator first, InputIterator last, Distance& result)
 {
-	result = __cove_type(np_iterator::distance(first, last), Distance);
+	result = __cove_type(distance(first, last), Distance);
 }
 
 // 以下是整组 advance 函数
@@ -187,7 +185,7 @@ inline void __advance(RandomAccessIterator& i, Distance n, random_access_iterato
 template <typename InputIterator, typename Distance>
 inline void advance(InputIterator& i, Distance n)
 {
-	np_iterator::__advance(i, n, np_iterator::iterator_category(i));
+	__advance(i, n, iterator_category(i));
 }
 
 /*-----------------------------------------------------------------------------------------*/
@@ -358,20 +356,6 @@ struct __type_traits<Type*>
 	using has_trivial_destructor		  = __true_type;
 	using is_POD_type					  = __true_type;
 };
-
-__END_NEW_NAMESPACE(np_iterator)
-
-// 对外接口
-using np_iterator::__false_type;
-using np_iterator::__true_type;
-using np_iterator::__type_traits;
-using np_iterator::advance;
-using np_iterator::distance;
-using np_iterator::distance_type;
-using np_iterator::iterator;
-using np_iterator::iterator_category;
-using np_iterator::iterator_traits;
-using np_iterator::value_type;
 
 __END_NAMESPACE_ZHANG
 

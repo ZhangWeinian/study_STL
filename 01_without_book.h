@@ -1,6 +1,6 @@
 #pragma once
 
-#include "00_basicFile.h"
+#include "./00_basicFile.h"
 
 
 #ifdef __HAS_CPP20
@@ -71,16 +71,16 @@ struct __zh_Print_with_none
 };
 
 // b）在数据之后加上空格
-struct __zh_Print_with_space: public __zh_Print_with_none
+struct __zh_Print_with_space
 {
 };
 
 // c）在数据之后加上逗号和空格
-struct __zh_Print_with_delimiter: public __zh_Print_with_space
+struct __zh_Print_with_delimiter
 {
 };
 
-// 工作3、约束：打印方式必须是以上三种方式之一
+// 工作3、约束：使用默认打印函数时，打印格式能且仅能以上三种方式之一
 template <typename PrintMode>
 concept __is_print_mode =
 	(_STD is_same_v<PrintMode, __zh_Print_with_none>) || (_STD is_same_v<PrintMode, __zh_Print_with_space>) ||
@@ -137,7 +137,7 @@ using default_print = __zh_Default_print_method;
 /*-----------------------------------------------------------------------------------------------------*/
 
 // 此处实现 print() （ 此函数不属于 STL ，只是基于 C++20 标准封装的 多功能打印函数 print() ）
-struct __Format_print_function: private __not_quite_object
+struct __Format_print_function: private __Not_quite_object
 {
 private:
 
@@ -149,8 +149,8 @@ private:
 				 _STD is_same_v<__value_type_for_iter<InputIterator>, wchar_t>)
 	static constexpr void __print_with_char_or_wchar(InputIterator first,
 													 InputIterator last,
-													 PrintMethod   method,
-													 Projection	   proj) noexcept
+													 PrintMethod   meod,
+													 Projection	   proj) noexcept(true)
 	{
 		using value_type = __value_type_for_iter<InputIterator>;
 
@@ -201,12 +201,14 @@ private:
 		}
 	}
 
-	// 使用自定义打印函数 method 和投影函数 proj ，格式化输出 [first, last) 区间内的所有元素
+	// 使用自定义打印函数 meod 和投影函数 proj ，格式化输出 [first, last) 区间内的所有元素
 	template <__is_input_iterator InputIterator,
 			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
 	static constexpr void
-		__print_with_format_iter(InputIterator first, InputIterator last, PrintMethod method, Projection proj) noexcept
+		__print_with_format_iter(InputIterator first, InputIterator last, PrintMethod meod, Projection proj) noexcept(
+			(noexcept(__invoke(meod, __invoke(proj, *first)))) ||
+			(noexcept(__invoke(meod, __invoke(proj, *first), __zh_Print_with_delimiter {}))))
 	{
 		if constexpr (_STD is_same_v<PrintMethod, __zh_Default_print_method>)
 		{
@@ -214,10 +216,10 @@ private:
 
 			for (; first != (last - 1); ++first)
 			{
-				__invoke(method, __invoke(proj, *first), __zh_Print_with_delimiter {});
+				__invoke(meod, __invoke(proj, *first), __zh_Print_with_delimiter {});
 			}
 
-			__invoke(method, __invoke(proj, *first), __zh_Print_with_none {});
+			__invoke(meod, __invoke(proj, *first), __zh_Print_with_none {});
 
 			fputs(" ]", stdout);
 		}
@@ -225,15 +227,15 @@ private:
 		{
 			for (; first != last; ++first)
 			{
-				__invoke(method, __invoke(proj, *first));
+				__invoke(meod, __invoke(proj, *first));
 			}
 		}
 	}
 
-	// 顶级输出语句之一。使用默认打印函数 method ，按预定义打印方式顺次输出参数包 args 中的所有参数
+	// 顶级输出语句之一。使用默认打印函数 meod ，按预定义打印方式顺次输出参数包 args 中的所有参数
 	template <typename PrintMethod, __is_print_mode PrintMode>
 		requires(_STD is_same_v<PrintMethod, __zh_Default_print_method>)
-	static constexpr void __print_with_args(PrintMethod method, PrintMode) noexcept
+	static constexpr void __print_with_args(PrintMethod meod, PrintMode) noexcept
 	{
 		// 无参数，直接返回
 		return;
@@ -241,21 +243,21 @@ private:
 
 	template <typename PrintMethod, __is_print_mode PrintMode, __basic_msg_type Arg>
 		requires(_STD is_same_v<PrintMethod, __zh_Default_print_method>)
-	static constexpr void __print_with_args(PrintMethod method, PrintMode, Arg&& arg) noexcept
+	static constexpr void __print_with_args(PrintMethod meod, PrintMode, Arg&& arg) noexcept
 	{
 		// 一个参数，直接输出，不加任何修饰
-		__invoke(method, _STD forward<Arg&&>(arg), __zh_Print_with_none {});
+		__invoke(meod, _STD forward<Arg&&>(arg), __zh_Print_with_none {});
 	}
 
 	template <typename PrintMethod, __is_print_mode PrintMode, __basic_msg_type Arg, __basic_msg_type... Args>
 		requires(_STD is_same_v<PrintMethod, __zh_Default_print_method>)
-	static constexpr void __print_with_args(PrintMethod method, PrintMode mode, Arg&& arg, Args&&... args) noexcept
+	static constexpr void __print_with_args(PrintMethod meod, PrintMode mode, Arg&& arg, Args&&... args) noexcept
 	{
 		// 多个参数，顺次输出，一般情况下是在每个参数之间用逗号和空格分隔
-		__invoke(method, _STD forward<Arg&&>(arg), mode);
+		__invoke(meod, _STD forward<Arg&&>(arg), mode);
 
 		// 递归调用
-		__print_with_args(method, mode, _STD forward<Args&&>(args)...);
+		__print_with_args(meod, mode, _STD forward<Args&&>(args)...);
 	}
 
 	// 顶级输出语句之二。使用迭代器 first 和 last ，顺次输出 [first, last) 区间内的所有元素
@@ -263,7 +265,7 @@ private:
 			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
 	static constexpr void
-		__print_with_iter(InputIterator first, InputIterator last, PrintMethod method, Projection proj) noexcept
+		__print_with_iter(InputIterator first, InputIterator last, PrintMethod meod, Projection proj) noexcept
 	{
 		using difference_type = __difference_type_for_iter<InputIterator>;
 		using value_type	  = __value_type_for_iter<InputIterator>;
@@ -274,7 +276,7 @@ private:
 		{
 			if (0 < (last - first)) // 如果 first，last 指向同一个字符串，输出这个字符串的信息
 			{
-				__print_with_char_or_wchar(__move(first), __move(last), method, proj);
+				__print_with_char_or_wchar(__move(first), __move(last), meod, proj);
 			}
 			else // 如果 first，last 指向不同的字符串，使用格式化输出
 			{
@@ -287,7 +289,7 @@ private:
 			(_STD is_compound_v<value_type>) ||
 			(!(_STD is_same_v<
 				PrintMethod,
-				__zh_Default_print_method>))) // 如果是复合类型 或 已有自定义的打印函数 method ，则使用自定义打印函数 method ，顺次输出所有元素
+				__zh_Default_print_method>))) // 如果是复合类型 或 已有自定义的打印函数 meod ，则使用自定义打印函数 meod ，顺次输出所有元素
 		{
 			if constexpr (_STD is_pointer_v<value_type>)
 			{
@@ -295,14 +297,14 @@ private:
 
 				if (__not_compound_type<value_value_type>)
 				{
-					__print_with_format_iter(__move(first), __move(last), method, proj);
+					__print_with_format_iter(__move(first), __move(last), meod, proj);
 
 					return;
 				}
 			}
 			else
 			{
-				__print_with_format_iter(__move(first), __move(last), method, proj);
+				__print_with_format_iter(__move(first), __move(last), meod, proj);
 
 				return;
 			}
@@ -360,7 +362,7 @@ private:
 			// 使用 std::cout 作为标准输出目的地
 			auto standard_output_destination_with_char { _STD ostreambuf_iterator<char> { _STD cout } };
 
-			_STD string data_tmp(msg);
+			_STD string fmt_msg(msg);
 
 			if (const auto& len_for_args { sizeof...(args) }; len_for_args == 0) // 如果格式化参包 args 为空，直接输出
 			{
@@ -368,12 +370,12 @@ private:
 			}
 			else
 			{
-				_STD string new_fmt_msg { __move(_STD vformat(data_tmp, _STD make_format_args(args...))) };
+				_STD string new_fmt_msg { __move(_STD vformat(fmt_msg, _STD make_format_args(args...))) };
 
 				// 无论如何都输出第一个参数（即格式化参包之前的那一个参数）
 				_STD format_to(standard_output_destination_with_char, "{}", new_fmt_msg);
 
-				if (data_tmp == new_fmt_msg) // 如果格式化后的字符串和原字符串相同，即格式化失败
+				if (fmt_msg == new_fmt_msg) // 如果格式化后的字符串和原字符串相同，即格式化失败
 				{
 					fputs(", ", stdout);
 
@@ -391,10 +393,10 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// 0.1、输出空行
-	void operator()(void) const noexcept
+	void operator()(void) const noexcept(true)
 	{
 		fputs("\n", stdout);
 	}
@@ -404,60 +406,61 @@ public:
 			  _STD sentinel_for<InputIterator> Sentinel,
 			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
-		requires(requires(InputIterator iterator, PrintMethod method, Projection proj) {
-			noexcept(__invoke(method, __invoke(proj, *iterator)));
+		requires(requires(InputIterator iterator, PrintMethod meod, Projection proj) {
+			noexcept(__invoke(__check_function(meod), __invoke(__check_function(proj), *iterator)));
 		})
-	constexpr void
-		operator()(InputIterator first, Sentinel last, PrintMethod method = {}, Projection proj = {}) const noexcept
+	constexpr void operator()(InputIterator first, Sentinel last, PrintMethod meod = {}, Projection proj = {}) const
+		noexcept(
+			noexcept(__print_with_iter(__move(first), __move(last), __check_function(meod), __check_function(proj))))
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
-		__print_with_iter(__move(check_first), __move(check_last), method, proj);
+		__print_with_iter(__move(check_first), __move(check_last), __check_function(meod), __check_function(proj));
 	}
 
 	// 2、针对 容器 的特化
 	template <__is_input_range Range,
 			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
-		requires(requires(__value_type_for_range<Range> val, PrintMethod method, Projection proj) {
-			noexcept(__invoke(method, __invoke(proj, val)));
+		requires(requires(__value_type_for_range<Range> val, PrintMethod meod, Projection proj) {
+			noexcept(__invoke(__check_function(meod), __invoke(__check_function(proj), val)));
 		})
-	constexpr void operator()(Range&& rng, PrintMethod method = {}, Projection proj = {}) const noexcept(
-		noexcept(__print_with_iter(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), method, proj)))
+	constexpr void operator()(Range&& rng, PrintMethod meod = {}, Projection proj = {}) const
+		noexcept(noexcept((*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), meod, proj)))
 	{
-		(*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), method, proj);
+		(*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), meod, proj);
 	}
 
-	// 3.1、针对 format() 格式的 一般泛化（右值）
+	// 3.1、针对 format() 格式的 一般泛化
 	template <__basic_msg_type MsgType, __basic_msg_type... Args>
-	constexpr void operator()(MsgType&& msg, Args&&... args) const
-		noexcept(noexcept(__print_with_basic_msg(__move(msg), _STD forward<Args>(args)...)))
+	constexpr void operator()(MsgType msg, Args... args) const
+		noexcept(noexcept(__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
 	{
 		__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
 	}
 
-	// 3.2、针对 format() 格式的 一般泛化
+	// 3.2、针对 format() 格式的 一般泛化（全左值）
 	template <__basic_msg_type MsgType, __basic_msg_type... Args>
-	constexpr void operator()(const MsgType& msg, Args&&... args) const
-		noexcept(noexcept(__print_with_basic_msg(__move(msg), _STD forward<Args>(args)...)))
+	constexpr void operator()(MsgType&& msg, Args&&... args) const
+		noexcept(noexcept(__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
 	{
-		__print_with_basic_msg(_STD forward<const MsgType&>(msg), _STD forward<Args&&>(args)...);
+		__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
 	}
 };
 
-constexpr inline __Format_print_function print { __not_quite_object::__construct_tag {} };
+constexpr inline __Format_print_function print { __Not_quite_object::__construct_tag {} };
 
 /*-----------------------------------------------------------------------------------------------------*/
 
 // 此处实现 println<...>(...)
-struct __Format_println_function: private __not_quite_object
+struct __Format_println_function: private __Not_quite_object
 {
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
-	void operator()(void) const noexcept
+	void operator()(void) const noexcept(true)
 	{
 		fputs("\n", stdout);
 	}
@@ -466,52 +469,42 @@ public:
 			  _STD sentinel_for<InputIterator> Sentinel,
 			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
-		requires(requires(InputIterator iterator, PrintMethod method, Projection proj) {
-			noexcept(__invoke(method, __invoke(proj, *iterator)));
+		requires(requires(InputIterator iterator, PrintMethod meod, Projection proj) {
+			noexcept(__invoke(__check_function(meod), __invoke(__check_function(proj), *iterator)));
 		})
-	constexpr void
-		operator()(InputIterator first, Sentinel last, PrintMethod method = {}, Projection proj = {}) const noexcept
+	constexpr void operator()(InputIterator first, Sentinel last, PrintMethod meod = {}, Projection proj = {}) const
+		noexcept(noexcept(print(__move(first), __move(last), __check_function(meod), __check_function(proj))))
 	{
-		print(__move(first), __move(last), method, proj);
+		print(__move(first), __move(last), __check_function(meod), __check_function(proj));
 		fputs("\n", stdout);
 	}
 
 	template <__is_input_range Range,
 			  typename PrintMethod = __zh_Default_print_method,
 			  typename Projection  = _STD identity>
-		requires(requires(__value_type_for_range<Range> val, PrintMethod method, Projection proj) {
-			noexcept(__invoke(method, __invoke(proj, val)));
+		requires(requires(__value_type_for_range<Range> value, PrintMethod meod, Projection proj) {
+			noexcept(__invoke(__check_function(meod), __invoke(__check_function(proj), value)));
 		})
-	constexpr void operator()(Range&& rng, PrintMethod method = {}, Projection proj = {}) const
-		noexcept(noexcept(print(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), method, proj)))
+	constexpr void operator()(Range&& rng, PrintMethod meod = {}, Projection proj = {}) const
+		noexcept(noexcept((*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), meod, proj)))
 	{
-		(*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), method, proj);
-		fputs("\n", stdout);
+		(*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), meod, proj);
 	}
 
 	template <__basic_msg_type MsgType, __basic_msg_type... Args>
-	constexpr void operator()(MsgType&& msg, Args&&... args) const
+	constexpr void operator()(MsgType msg, Args... args) const
 		noexcept(noexcept(print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
 	{
 		print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
 		fputs("\n", stdout);
 	}
-
-	template <__basic_msg_type MsgType, __basic_msg_type... Args>
-	constexpr void operator()(const MsgType& msg, Args&&... args) const
-		noexcept(noexcept(print(_STD forward<const MsgType&>(msg), _STD forward<Args>(args)...)))
-	{
-		print(_STD forward<const MsgType&>(msg), _STD forward<Args&&>(args)...);
-		fputs("\n", stdout);
-	}
 };
 
-constexpr inline __Format_println_function println { __not_quite_object::__construct_tag {} };
+constexpr inline __Format_println_function println { __Not_quite_object::__construct_tag {} };
 
 /*-----------------------------------------------------------------------------------------------------*/
 
-//
-__BEGIN_INLINE_NAMESPACE(get_format_string)
+
 
 struct __Take_msg
 {
@@ -523,15 +516,20 @@ struct __Take_msg
 };
 
 template <__Take_msg msg>
-consteval auto operator""_f()
+consteval _STD string operator""_f() noexcept
 {
-	return [=]<typename... Type>(Type&&... Args) constexpr
+	return [=]<typename... Type>(Type... Args) constexpr
 	{
 		return _STD format(msg.info, _STD forward<Type&&>(Args)...);
 	};
 }
 
-__END_INLINE_NAMESPACE(get_format_string)
+template <typename Type>
+	requires(_STD is_pointer_v<Type>)
+inline _STD string ads(const Type p) noexcept
+{
+	return _STD format("{}", p);
+}
 
 __END_NAMESPACE_ZHANG
 

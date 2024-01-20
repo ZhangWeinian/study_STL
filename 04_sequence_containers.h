@@ -1,16 +1,16 @@
 #pragma once
 
-#include "00_basicFile.h"
+#include "./00_basicFile.h"
 
 #ifdef __HAS_CPP20
 
 __BEGIN_NAMESPACE_ZHANG
 
-struct __Push_heap_aux_function: private __not_quite_object
+struct __Push_heap_aux_function: private __Not_quite_object
 {
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	template <__is_random_access_iterator RandomAccessIterator,
 			  typename Distance,
@@ -37,14 +37,14 @@ public:
 	}
 };
 
-constexpr inline __Push_heap_aux_function __zh_Push_heap_aux { __not_quite_object::__construct_tag {} };
+constexpr inline __Push_heap_aux_function __zh_Push_heap_aux { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 push_heap() 算法
-struct __Push_heap_function: private __not_quite_object
+struct __Push_heap_function: private __Not_quite_object
 {
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// push_heap() for 仿函数 标准版
 	template <__is_random_access_iterator  RandomAccessIterator,
@@ -62,7 +62,7 @@ public:
 						   __cove_type((last - first) - 1, difference_type),
 						   __init_type(0, difference_type),
 						   __cove_type(*(last - 1), value_type),
-						   __check_predicate(pred),
+						   __check_function(pred),
 						   proj);
 	}
 
@@ -74,10 +74,10 @@ public:
 	}
 };
 
-constexpr inline __Push_heap_function push_heap { __not_quite_object::__construct_tag {} };
+constexpr inline __Push_heap_function push_heap { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 pop_heap() 算法
-struct __Pop_heap_function: private __not_quite_object
+struct __Pop_heap_function: private __Not_quite_object
 {
 private:
 
@@ -143,7 +143,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// pop_heap() for 仿函数 标准版
 	template <__is_random_access_iterator  RandomAccessIterator,
@@ -160,7 +160,7 @@ public:
 						   last - 1,
 						   last - 1,
 						   __cove_type(*(last - 1), value_type),
-						   __check_predicate(pred),
+						   __check_function(pred),
 						   proj);
 	}
 
@@ -172,14 +172,14 @@ public:
 	}
 };
 
-constexpr inline __Pop_heap_function pop_heap { __not_quite_object::__construct_tag {} };
+constexpr inline __Pop_heap_function pop_heap { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 sort_heap() 算法
-struct __Sort_heap_function: private __not_quite_object
+struct __Sort_heap_function: private __Not_quite_object
 {
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// sort_heap() for 仿函数 标准版
 	template <__is_random_access_iterator  RandomAccessIterator,
@@ -190,7 +190,7 @@ public:
 							  Predicate			   pred = {},
 							  Projection		   proj = {}) const
 	{
-		pred = __check_predicate(pred);
+		pred = __check_function(pred);
 
 		while (1 < (last - first))
 		{
@@ -206,10 +206,10 @@ public:
 	}
 };
 
-constexpr inline __Sort_heap_function sort_heap { __not_quite_object::__construct_tag {} };
+constexpr inline __Sort_heap_function sort_heap { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 make_heap() 算法
-struct __Make_heap_function: private __not_quite_object
+struct __Make_heap_function: private __Not_quite_object
 {
 private:
 
@@ -224,7 +224,7 @@ private:
 			return;
 		}
 
-		pred = __check_predicate(pred);
+		pred = __check_function(pred);
 
 		using value_type	= __value_type_for_iter<RandomAccessIterator>;
 		using distance_type = __difference_type_for_iter<RandomAccessIterator>;
@@ -247,7 +247,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// make_heap() for 仿函数 标准版
 	template <__is_random_access_iterator  RandomAccessIterator,
@@ -258,7 +258,7 @@ public:
 							  Predicate			   pred = {},
 							  Projection		   proj = {}) const
 	{
-		__default_make_heap(first, last, __check_predicate(pred), proj);
+		__default_make_heap(first, last, __check_function(pred), proj);
 	}
 
 	// make_heap() for 仿函数、容器 强化版
@@ -269,7 +269,7 @@ public:
 	}
 };
 
-constexpr inline __Make_heap_function make_heap { __not_quite_object::__construct_tag {} };
+constexpr inline __Make_heap_function make_heap { __Not_quite_object::__construct_tag {} };
 
 __END_NAMESPACE_ZHANG
 

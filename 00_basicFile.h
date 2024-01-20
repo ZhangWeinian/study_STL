@@ -350,7 +350,7 @@ struct __get_ref_function
 };
 
 template <typename Predicate>
-_NODISCARD constexpr auto __check_predicate(Predicate& pred) noexcept
+_NODISCARD constexpr auto __check_function(Predicate& pred) noexcept
 {
 	constexpr bool __pass_by_value = _STD conjunction_v<_STD bool_constant<sizeof(Predicate) <= sizeof(void*)>,
 														_STD is_trivially_copy_constructible<Predicate>,
@@ -365,7 +365,7 @@ _NODISCARD constexpr auto __check_predicate(Predicate& pred) noexcept
 	}
 }
 
-class __not_quite_object
+class __Not_quite_object
 {
 public:
 
@@ -380,20 +380,20 @@ public:
 		explicit __construct_tag() = default;
 	};
 
-	__not_quite_object() = delete;
+	__Not_quite_object() = delete;
 
-	constexpr explicit __not_quite_object(__construct_tag) noexcept
+	constexpr explicit __Not_quite_object(__construct_tag) noexcept
 	{
 	}
 
-	__not_quite_object(const __not_quite_object&)			 = delete;
-	__not_quite_object& operator=(const __not_quite_object&) = delete;
+	__Not_quite_object(const __Not_quite_object&)			 = delete;
+	__Not_quite_object& operator=(const __Not_quite_object&) = delete;
 
 	void operator&() const = delete;
 
 protected:
 
-	~__not_quite_object() = default;
+	~__Not_quite_object() = default;
 };
 
 #endif // __HAS_CPP20

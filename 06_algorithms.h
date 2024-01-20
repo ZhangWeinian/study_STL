@@ -8,7 +8,7 @@
 __BEGIN_NAMESPACE_ZHANG
 
 // 此仿函数直接服务于 copy()，它分为一个 完全泛化版本 和两个 偏特化版本
-struct __zh_Copy_dispatch_function: private __not_quite_object
+struct __zh_Copy_dispatch_function: private __Not_quite_object
 {
 private:
 
@@ -30,7 +30,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// 完全泛化版本
 	template <__is_input_iterator InputIterator,
@@ -66,7 +66,7 @@ public:
 	template <typename Type>
 	constexpr Type* operator()(const Type* first, const Type* last, Type* result) noexcept
 	{
-		using pointer_type_tag = typename np_iterator::__type_traits<Type>::has_trivial_assignment_operator;
+		using pointer_type_tag = typename __type_traits<Type>::has_trivial_assignment_operator;
 		constexpr bool is_trivial_assignment_operator { _STD is_same_v<_STD true_type(), pointer_type_tag()> };
 
 		if (is_trivial_assignment_operator) // 以下版本适用于 “指针所指之对象，具备 trivial assignment operator ”
@@ -82,10 +82,10 @@ public:
 	}
 };
 
-constexpr inline __zh_Copy_dispatch_function __zh_Copy_dispatch { __not_quite_object::__construct_tag {} };
+constexpr inline __zh_Copy_dispatch_function __zh_Copy_dispatch { __Not_quite_object::__construct_tag {} };
 
 /* 此处实现 copy() */
-struct __Copy_function: private __not_quite_object
+struct __Copy_function: private __Not_quite_object
 {
 private:
 
@@ -124,7 +124,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function copy() 一般泛型 */
 	template <__is_input_iterator InputIterator,
@@ -140,7 +140,7 @@ public:
 
 	/* function copy() for all_容器 强化版 */
 	template <__is_input_range Range1, __is_output_range Range2>
-	constexpr auto operator()(Range1&& rng1, Range2&& rng2) const noexcept
+	constexpr __iterator_type_for_range<Range2> operator()(Range1&& rng1, Range2&& rng2) const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng1),
 					   __end_for_range_with_move(rng1),
@@ -149,18 +149,18 @@ public:
 
 	/* function copy() for from_容器 强化版 */
 	template <__is_input_range Range, __is_output_iterator OutputIterator>
-	constexpr auto operator()(Range&& rng, OutputIterator result) const noexcept
+	constexpr OutputIterator operator()(Range&& rng, OutputIterator result) const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), __move(result));
 	}
 };
 
-constexpr inline __Copy_function copy { __not_quite_object::__construct_tag {} };
+constexpr inline __Copy_function copy { __Not_quite_object::__construct_tag {} };
 
 /* 此处实现一些简单函数 */
 
 // 此处实现 accumulate()
-struct __Accumulate_function: private __not_quite_object
+struct __Accumulate_function: private __Not_quite_object
 {
 private:
 
@@ -172,8 +172,6 @@ private:
 														  Predicate		pred,
 														  Projection	proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		for (; first != last; ++first)
 		{
 			init = __invoke(pred, init, __invoke(proj, *first));
@@ -184,7 +182,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function accumulate() for 仿函数 标准版 */
 	template <__is_input_iterator InputIterator,
@@ -202,7 +200,11 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
-		return __default_accumulate(__move(check_first), __move(check_last), __move(init), pred, proj);
+		return __default_accumulate(__move(check_first),
+									__move(check_last),
+									__move(init),
+									__check_function(pred),
+									__check_function(proj));
 	}
 
 	/* function accumulate() for 容器、仿函数 强化版 */
@@ -215,20 +217,18 @@ public:
 	}
 };
 
-constexpr inline __Accumulate_function accumulate { __not_quite_object::__construct_tag {} };
+constexpr inline __Accumulate_function accumulate { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 count()
-struct __Count_function: private __not_quite_object
+struct __Count_function: private __Not_quite_object
 {
 private:
 
 	// 统一调用方式
 	template <__is_input_iterator InputIterator, typename Type, typename Predicate>
-	_NODISCARD static constexpr auto
+	_NODISCARD static constexpr __difference_type_for_iter<InputIterator>
 		__default_count(InputIterator first, InputIterator last, const Type& value, Predicate pred) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		using difference_type = __difference_type_for_iter<InputIterator>;
 
 		difference_type n = 0;
@@ -245,7 +245,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function count() for 仿函数 标准版 */
 	template <__is_input_iterator InputIterator,
@@ -254,13 +254,13 @@ public:
 			  typename Predicate = _RANGES equal_to>
 		requires(
 			_STD indirect_binary_predicate<_RANGES equal_to, _STD projected<InputIterator, Predicate>, const Type*>)
-	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr auto
+	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr __difference_type_for_iter<InputIterator>
 		operator()(InputIterator first, Sentinel last, const Type& value, Predicate pred = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
-		return __default_count(__move(check_first), __move(check_last), __move(value), pred);
+		return __default_count(__move(check_first), __move(check_last), __move(value), __check_function(pred));
 	}
 
 	/* function count() for 容器、仿函数 强化版 */
@@ -268,17 +268,17 @@ public:
 		requires(_STD indirect_binary_predicate<_RANGES equal_to,
 												_STD	projected<__iterator_type_for_range<Range>, Predicate>,
 												const Type*>)
-	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr auto
+	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr __difference_type_for_range<Range>
 		operator()(Range&& rng, const Type& value, Predicate pred = {}) const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), __move(value), pred);
 	}
 };
 
-constexpr inline __Count_function count { __not_quite_object::__construct_tag {} };
+constexpr inline __Count_function count { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 itoa()
-struct __Itoa_function: private __not_quite_object
+struct __Itoa_function: private __Not_quite_object
 {
 private:
 
@@ -294,7 +294,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function itoa() 标准版 */
 	template <__is_forward_iterator ForwardIterator, _STD sentinel_for<ForwardIterator> Sentinel, typename Type>
@@ -314,10 +314,10 @@ public:
 	}
 };
 
-constexpr inline __Itoa_function itoa { __not_quite_object::__construct_tag {} };
+constexpr inline __Itoa_function itoa { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 find()
-struct __Find_function: private __not_quite_object
+struct __Find_function: private __Not_quite_object
 {
 private:
 
@@ -326,8 +326,6 @@ private:
 	_NODISCARD static constexpr InputIterator
 		__default_find(InputIterator first, InputIterator last, const Type& value, Predicate pred) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		while ((first != last) && __invoke(pred, *first, value))
 		{
 			++first;
@@ -338,7 +336,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function find() for 仿函数 标准版 */
 	template <__is_input_iterator InputIterator,
@@ -353,7 +351,7 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
-		return __default_find(__move(check_first), __move(check_last), __move(value), pred);
+		return __default_find(__move(check_first), __move(check_last), __move(value), __check_function(pred));
 	}
 
 	/* function find() for 仿函数、容器 强化版 */
@@ -361,17 +359,17 @@ public:
 		requires(_STD indirect_binary_predicate<_RANGES equal_to,
 												_STD	projected<__iterator_type_for_range<Range>, Predicate>,
 												const Type*>)
-	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr auto
+	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr __iterator_type_for_range<Range>
 		operator()(const Range&& rng, const Type& value, Predicate pred = {}) const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), __move(value), pred);
 	}
 };
 
-constexpr inline __Find_function find { __not_quite_object::__construct_tag {} };
+constexpr inline __Find_function find { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 find_first_of()
-struct __Find_first_of_function: private __not_quite_object
+struct __Find_first_of_function: private __Not_quite_object
 {
 private:
 
@@ -389,8 +387,6 @@ private:
 																	  Projection1	  proj1,
 																	  Projection2	  proj2) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		for (; first1 != last1; ++first1)
 		{
 			for (ForwardIterator i = first2; i != last2; ++i)
@@ -409,7 +405,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function find_first_of() for 仿函数 标准版 */
 	template <__is_input_iterator	InputIterator,
@@ -440,9 +436,9 @@ public:
 									   __move(check_last1),
 									   __move(check_first2),
 									   __move(check_last2),
-									   pred,
-									   proj1,
-									   proj2);
+									   __check_function(pred),
+									   __check_function(proj1),
+									   __check_function(proj2));
 	}
 
 	/* function find_first_of() for 容器、仿函数 强化版 */
@@ -456,11 +452,9 @@ public:
 											Predicate,
 											Projection1,
 											Projection2>)
-	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr auto operator()(Range1&&	   rng1,
-																		   Range2&&	   rng2,
-																		   Predicate   pred	 = {},
-																		   Projection1 proj1 = {},
-																		   Projection2 proj2 = {}) const noexcept
+	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr __iterator_type_for_range<Range1>
+		operator()(Range1&& rng1, Range2&& rng2, Predicate pred = {}, Projection1 proj1 = {}, Projection2 proj2 = {})
+			const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng1),
 					   __end_for_range_with_move(rng1),
@@ -472,45 +466,45 @@ public:
 	}
 };
 
-constexpr inline __Find_first_of_function find_first_of { __not_quite_object::__construct_tag {} };
+constexpr inline __Find_first_of_function find_first_of { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 swap()
-struct __Swap_function: private __not_quite_object
+struct __Swap_function: private __Not_quite_object
 {
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	template <typename Type>
-	constexpr void operator()(Type& msg, Type& b) const
+	constexpr void operator()(Type& a, Type& b) const
 		noexcept((_STD is_nothrow_move_constructible_v<Type>)&&(_STD is_nothrow_move_assignable_v<Type>))
 	{
-		Type tmp(__cove_type(msg, Type&&));
-		msg = __cove_type(b, Type&&);
-		b	= __cove_type(tmp, Type&&);
+		Type tmp(__cove_type(a, Type&&));
+		a = __cove_type(b, Type&&);
+		b = __cove_type(tmp, Type&&);
 	}
 };
 
-constexpr inline __Swap_function swap { __not_quite_object::__construct_tag {} };
+constexpr inline __Swap_function swap { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 iter_swap()
-struct __Iter_swap_function: private __not_quite_object
+struct __Iter_swap_function: private __Not_quite_object
 {
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	template <__is_forward_iterator ForwardIterator1, __is_forward_iterator ForwardIterator2>
-	constexpr void operator()(ForwardIterator1 msg, ForwardIterator2 b) const noexcept
+	constexpr void operator()(ForwardIterator1 a, ForwardIterator2 b) const noexcept
 	{
-		swap(*(__cove_type(msg, ForwardIterator1&&)), *(__cove_type(b, ForwardIterator2&&)));
+		swap(*(__cove_type(a, ForwardIterator1&&)), *(__cove_type(b, ForwardIterator2&&)));
 	}
 };
 
-constexpr inline __Iter_swap_function iter_swap { __not_quite_object::__construct_tag {} };
+constexpr inline __Iter_swap_function iter_swap { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 swap_ranges()
-struct __Swap_ranges_function: private __not_quite_object
+struct __Swap_ranges_function: private __Not_quite_object
 {
 private:
 
@@ -529,14 +523,14 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function swap_ranges() 标准版 */
 	template <__is_forward_iterator ForwardIterator1,
 			  __is_forward_iterator ForwardIterator2,
 			  _STD sentinel_for<ForwardIterator1> Sentinel_ForwardIterator1>
 		requires(_STD indirectly_swappable<ForwardIterator1, ForwardIterator2>)
-	constexpr auto
+	constexpr ForwardIterator2
 		operator()(ForwardIterator1 first1, Sentinel_ForwardIterator1 last1, ForwardIterator2 first2) const noexcept
 	{
 		auto check_first1 = __unwrap_iterator<Sentinel_ForwardIterator1>(__move(first1));
@@ -551,7 +545,7 @@ public:
 	/* function swap_ranges() for 容器 强化版 */
 	template <__is_forward_range Range>
 		requires(_STD indirectly_swappable<__iterator_type_for_range<Range>, __iterator_type_for_range<Range>>)
-	constexpr auto operator()(Range&& rng1, Range&& rng2) const noexcept
+	constexpr __iterator_type_for_range<Range> operator()(Range&& rng1, Range&& rng2) const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng1),
 					   __end_for_range_with_move(rng1),
@@ -559,10 +553,10 @@ public:
 	}
 };
 
-constexpr inline __Swap_ranges_function swap_ranges { __not_quite_object::__construct_tag {} };
+constexpr inline __Swap_ranges_function swap_ranges { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 for_each()
-struct __For_each_function: private __not_quite_object
+struct __For_each_function: private __Not_quite_object
 {
 private:
 
@@ -573,11 +567,9 @@ private:
 	static constexpr Predicate
 		__default_for_each(InputIterator first, InputIterator last, Predicate pred, Projection proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		for (; first != last; ++first)
 		{
-			__invoke(pred, *first);
+			__invoke(pred, __invoke(proj, *first));
 		}
 
 		return pred;
@@ -585,7 +577,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function for_each() 标准版 */
 	template <__is_input_iterator InputIterator,
@@ -598,7 +590,10 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
-		return __default_for_each(__move(check_first), __move(check_last), __move(pred));
+		return __default_for_each(__move(check_first),
+								  __move(check_last),
+								  __check_function(pred),
+								  __check_function(proj));
 	}
 
 	/* function for_each() for 容器 强化版 */
@@ -611,10 +606,10 @@ public:
 	}
 };
 
-constexpr inline __For_each_function for_each { __not_quite_object::__construct_tag {} };
+constexpr inline __For_each_function for_each { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 equal()
-struct __Equal_function: private __not_quite_object
+struct __Equal_function: private __Not_quite_object
 {
 private:
 
@@ -631,8 +626,6 @@ private:
 													 Projection		proj1,
 													 Projection		proj2) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		if ((last1 - first1) != (last2 - first2)) // 如果序列 1 的元素数量与序列 2 的元素数量不相等, 返回 false
 		{
 			return false;
@@ -651,7 +644,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function equal() for 仿函数 标准版 */
 	template <__is_input_iterator InputIterator1,
@@ -679,9 +672,9 @@ public:
 							   __move(check_last1),
 							   __move(check_first2),
 							   __move(check_last2),
-							   pred,
-							   proj1,
-							   proj2);
+							   __check_function(pred),
+							   __check_function(proj1),
+							   __check_function(proj2));
 	}
 
 	/* function equal() for 容器、仿函数 强化版 */
@@ -703,10 +696,10 @@ public:
 	}
 };
 
-constexpr inline __Equal_function equal { __not_quite_object::__construct_tag {} };
+constexpr inline __Equal_function equal { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 fill()
-struct __Fill_function: private __not_quite_object
+struct __Fill_function: private __Not_quite_object
 {
 private:
 
@@ -722,7 +715,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function fill() 标准版 */
 	template <__is_forward_iterator ForwardIterator, _STD sentinel_for<ForwardIterator> Sentinel, typename Type>
@@ -735,10 +728,10 @@ public:
 	};
 };
 
-constexpr inline __Fill_function fill { __not_quite_object::__construct_tag {} };
+constexpr inline __Fill_function fill { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 fill_n()
-struct __Fill_n_function: private __not_quite_object
+struct __Fill_n_function: private __Not_quite_object
 {
 private:
 
@@ -757,7 +750,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function fill_n() 标准版 */
 	template <__is_output_iterator OutputIterator, typename Type>
@@ -768,14 +761,14 @@ public:
 	};
 };
 
-constexpr inline __Fill_n_function fill_n { __not_quite_object::__construct_tag {} };
+constexpr inline __Fill_n_function fill_n { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 max()
-struct __Max_function: private __not_quite_object
+struct __Max_function: private __Not_quite_object
 {
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function max() for 仿函数 标准版 */
 	template <typename Type,
@@ -783,11 +776,12 @@ public:
 			  _STD indirect_strict_weak_order<_STD projected<const Type*, Projection>> Predicate = _RANGES less>
 	_NODISCARD_MSG("此函数的返回值不应该被忽略")
 	constexpr const Type&
-		operator()(const Type& msg, const Type& b, Predicate pred = {}, Projection proj = {}) const noexcept
+		operator()(const Type& a, const Type& b, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		pred = __check_predicate(pred);
+		auto check_pred = __check_function(pred);
+		auto check_proj = __check_function(proj);
 
-		return __invoke(pred, __invoke(proj, msg), __invoke(proj, b)) ? b : msg;
+		return (__invoke(check_pred, __invoke(check_proj, a), __invoke(check_proj, b))) ? b : a;
 	}
 
 	/* function max() for 容器 强化版 */
@@ -799,27 +793,30 @@ public:
 	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr __value_type_for_range<Range>
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const
 	{
+		auto check_pred = __check_function(pred);
+		auto check_proj = __check_function(proj);
+
 		auto first = __begin_for_range_with_move(rng);
 		auto last  = __end_for_range_with_move(rng);
 		auto ans   = first;
 
 		for (; first != last; ++first)
 		{
-			ans = __invoke(pred, __invoke(proj, *first), __invoke(proj, *ans)) ? ans : first;
+			ans = (__invoke(check_pred, __invoke(check_proj, *first), __invoke(check_proj, *ans))) ? ans : first;
 		}
 
 		return *ans;
 	}
 };
 
-constexpr inline __Max_function max { __not_quite_object::__construct_tag {} };
+constexpr inline __Max_function max { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 min()
-struct __Min_function: private __not_quite_object
+struct __Min_function: private __Not_quite_object
 {
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function min() for 仿函数 标准版 */
 	template <typename Type,
@@ -827,11 +824,12 @@ public:
 			  _STD indirect_strict_weak_order<_STD projected<const Type*, Projection>> Predicate = _RANGES greater>
 	_NODISCARD_MSG("此函数的返回值不应该被忽略")
 	constexpr const Type&
-		operator()(const Type& msg, const Type& b, Predicate pred = {}, Projection proj = {}) const noexcept
+		operator()(const Type& a, const Type& b, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		pred = __check_predicate(pred);
+		auto check_pred = __check_function(pred);
+		auto check_proj = __check_function(proj);
 
-		return __invoke(pred, __invoke(proj, msg), __invoke(proj, b)) ? b : msg;
+		return (__invoke(check_pred, __invoke(check_proj, a), __invoke(check_proj, b))) ? b : a;
 	}
 
 	/* function min() for 容器 强化版 */
@@ -843,23 +841,26 @@ public:
 	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr __value_type_for_range<Range>
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
+		auto check_pred = __check_function(pred);
+		auto check_proj = __check_function(proj);
+
 		auto first = __begin_for_range_with_move(rng);
 		auto last  = __end_for_range_with_move(rng);
 		auto ans   = first;
 
 		for (; first != last; ++first)
 		{
-			ans = __invoke(pred, __invoke(proj, *first), __invoke(proj, *ans)) ? ans : first;
+			ans = (__invoke(check_pred, __invoke(check_proj, *first), __invoke(check_proj, *ans))) ? ans : first;
 		}
 
 		return *ans;
 	}
 };
 
-constexpr inline __Min_function min { __not_quite_object::__construct_tag {} };
+constexpr inline __Min_function min { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 max_element()
-struct __Max_element_function: private __not_quite_object
+struct __Max_element_function: private __Not_quite_object
 {
 private:
 
@@ -868,8 +869,6 @@ private:
 	_NODISCARD static constexpr ForwardIterator
 		__default_max_element(ForwardIterator first, ForwardIterator last, Predicate pred, Projection proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		if (first == last)
 		{
 			return first;
@@ -889,7 +888,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function max_element() for 仿函数 标准版 */
 	template <__is_forward_iterator ForwardIterator,
@@ -903,7 +902,10 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
-		return __default_max_element(__move(check_first), __move(check_last), pred, proj);
+		return __default_max_element(__move(check_first),
+									 __move(check_last),
+									 __check_function(pred),
+									 __check_function(proj));
 	}
 
 	/* function max_element() for 容器、仿函数 强化版 */
@@ -919,10 +921,10 @@ public:
 	}
 };
 
-constexpr inline __Max_element_function max_element { __not_quite_object::__construct_tag {} };
+constexpr inline __Max_element_function max_element { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 min_element()
-struct __Min_element_function: private __not_quite_object
+struct __Min_element_function: private __Not_quite_object
 {
 private:
 
@@ -931,8 +933,6 @@ private:
 	_NODISCARD static constexpr ForwardIterator
 		__default_min_element(ForwardIterator first, ForwardIterator last, Predicate pred, Projection proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		if (first == last)
 		{
 			return first;
@@ -952,7 +952,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function min_element() for 仿函数 标准版 */
 	template <__is_forward_iterator ForwardIterator,
@@ -966,7 +966,10 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
-		return __default_min_element(__move(check_first), __move(check_last), pred, proj);
+		return __default_min_element(__move(check_first),
+									 __move(check_last),
+									 __check_function(pred),
+									 __check_function(proj));
 	}
 
 	/* function min_element() for 容器、仿函数 强化版 */
@@ -982,10 +985,10 @@ public:
 	}
 };
 
-constexpr inline __Min_element_function min_element { __not_quite_object::__construct_tag {} };
+constexpr inline __Min_element_function min_element { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 merge()
-struct __Merge_function: private __not_quite_object
+struct __Merge_function: private __Not_quite_object
 {
 private:
 
@@ -1005,8 +1008,6 @@ private:
 															   Projection1	  proj1,
 															   Projection2	  proj2) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		while ((first1 != last1) && (first2 != last2)) // 若两个序列都未完成，则继续
 		{
 			if (__invoke(pred, __invoke(proj2, *first2), __invoke(proj1, *first1))) // 若序列 2 的元素比较小
@@ -1029,7 +1030,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function merge() for 仿函数 标准版 */
 	template <__is_input_iterator InputIterator1,
@@ -1063,9 +1064,9 @@ public:
 							   __move(check_first2),
 							   __move(check_last2),
 							   __move(result),
-							   pred,
-							   proj1,
-							   proj2);
+							   __check_function(pred),
+							   __check_function(proj1),
+							   __check_function(proj2));
 	}
 
 	/* function merge() for 容器、仿函数 强化版 */
@@ -1081,12 +1082,13 @@ public:
 								Predicate,
 								Projection1,
 								Projection2>)
-	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr auto operator()(Range1&&		  rng1,
-																		   Range2&&		  rng2,
-																		   OutputIterator result,
-																		   Predicate	  pred	= {},
-																		   Projection1	  proj1 = {},
-																		   Projection2	  proj2 = {}) const noexcept
+	_NODISCARD_MSG("此函数的返回值不应该被忽略") constexpr OutputIterator
+		operator()(Range1&&		  rng1,
+				   Range2&&		  rng2,
+				   OutputIterator result,
+				   Predicate	  pred	= {},
+				   Projection1	  proj1 = {},
+				   Projection2	  proj2 = {}) const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng1),
 					   __end_for_range_with_move(rng1),
@@ -1099,10 +1101,10 @@ public:
 	}
 };
 
-constexpr inline __Merge_function merge { __not_quite_object::__construct_tag {} };
+constexpr inline __Merge_function merge { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 transform()
-struct __Transform_function: private __not_quite_object
+struct __Transform_function: private __Not_quite_object
 {
 private:
 
@@ -1117,8 +1119,6 @@ private:
 																   Predicate	  pred,
 																   Projection	  proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		for (; first != last; ++first, ++result)
 		{
 			*result = __invoke(pred, __invoke(proj, *first));
@@ -1129,7 +1129,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function transform() for 仿函数 标准版 */
 	template <__is_input_iterator InputIterator,
@@ -1147,7 +1147,11 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, __move(last));
 
-		return __default_transform(__move(check_first), __move(check_last), __move(result), pred, proj);
+		return __default_transform(__move(check_first),
+								   __move(check_last),
+								   __move(result),
+								   __check_function(pred),
+								   __check_function(proj));
 	}
 
 	/* function transform() for 容器 强化版 */
@@ -1156,7 +1160,8 @@ public:
 			  typename Predicate  = _STD  identity,
 			  typename Projection = _STD identity>
 	_NODISCARD_MSG("此函数的返回值不应该被忽略")
-	constexpr auto operator()(Range1&& rng1, Range2&& rng2, Predicate pred = {}, Projection proj = {}) const noexcept
+	constexpr __iterator_type_for_range<Range2>
+		operator()(Range1&& rng1, Range2&& rng2, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng1),
 					   __end_for_range_with_move(rng1),
@@ -1166,12 +1171,12 @@ public:
 	}
 };
 
-constexpr inline __Transform_function transform { __not_quite_object::__construct_tag {} };
+constexpr inline __Transform_function transform { __Not_quite_object::__construct_tag {} };
 
 /* 此处实现一些关于排序的算法 */
 
 // 此处实现 partial_sort()
-struct __Partial_sort_function: private __not_quite_object
+struct __Partial_sort_function: private __Not_quite_object
 {
 private:
 
@@ -1183,8 +1188,6 @@ private:
 												 Predicate			  pred,
 												 Projection			  proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		using value_type = __value_type_for_iter<RandomAccessIterator>;
 
 		_RANGES make_heap(first, middle, pred, proj);
@@ -1203,7 +1206,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function partial_sort() for 仿函数 标准版 */
 	template <__is_random_access_iterator RandomAccessIterator,
@@ -1221,7 +1224,11 @@ public:
 		auto check_middle = __unwrap_iterator<Sentinel>(__move(middle));
 		auto check_last	  = __get_last_iterator_unwrapped<RandomAccessIterator, Sentinel>(check_first, __move(last));
 
-		__default_partial_sort(__move(check_first), __move(check_middle), __move(check_last), pred, proj);
+		__default_partial_sort(__move(check_first),
+							   __move(check_middle),
+							   __move(check_last),
+							   __check_function(pred),
+							   __check_function(proj));
 	}
 
 	/* function partial_sort() for 容器、仿函数 强化版 */
@@ -1233,10 +1240,10 @@ public:
 	}
 };
 
-constexpr inline __Partial_sort_function partial_sort { __not_quite_object::__construct_tag {} };
+constexpr inline __Partial_sort_function partial_sort { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 __zh_Unguarded_insertion_sort() ，原本服务于 insertion_sort() ，单独写出是为了在其他地方调用
-struct __zh_Unguarded_insertion_sort_function: private __not_quite_object
+struct __zh_Unguarded_insertion_sort_function: private __Not_quite_object
 {
 private:
 
@@ -1262,7 +1269,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// 插入排序 第三步（ 使用此函数需要保证 仿函数 有效 ）
 	template <__is_random_access_iterator RandomAccessIterator,
@@ -1272,16 +1279,16 @@ public:
 	constexpr void
 		operator()(RandomAccessIterator last, Type value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		__default_unguarded_insertion_sort(__move(last), __move(value), pred, proj);
+		__default_unguarded_insertion_sort(__move(last), __move(value), __check_function(pred), __check_function(proj));
 	}
 };
 
 constexpr inline __zh_Unguarded_insertion_sort_function __zh_Unguarded_insertion_sort {
-	__not_quite_object::__construct_tag {}
+	__Not_quite_object::__construct_tag {}
 };
 
 // 此处实现 insertion_sort()
-struct __Insertion_sort_function: private __not_quite_object
+struct __Insertion_sort_function: private __Not_quite_object
 {
 private:
 
@@ -1317,7 +1324,7 @@ private:
 				else
 				{
 					// （ 单独写出是为了在其他地方调用 ）
-					__zh_Unguarded_insertion_sort(i, __move(value), __check_predicate(pred), proj);
+					__zh_Unguarded_insertion_sort(i, __move(value), pred, proj);
 				}
 			}
 		}
@@ -1325,7 +1332,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// insertion_sort() for 仿函数 标准版
 	template <__is_random_access_iterator RandomAccessIterator,
@@ -1339,7 +1346,10 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator, Sentinel>(check_first, __move(last));
 
-		__default_insertion_sort(__move(check_first), __move(check_last), pred, proj);
+		__default_insertion_sort(__move(check_first),
+								 __move(check_last),
+								 __check_function(pred),
+								 __check_function(proj));
 	}
 
 	// insertion_sort()	for 容器、仿函数 强化版
@@ -1351,57 +1361,58 @@ public:
 	}
 };
 
-constexpr inline __Insertion_sort_function insertion_sort { __not_quite_object::__construct_tag {} };
+constexpr inline __Insertion_sort_function insertion_sort { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 __zh_Get_median() 获取 “三点中值” 。原本服务于 quick_sort() ，单独写出是为了在其他地方调用
-struct __zh_Get_median_function: private __not_quite_object
+struct __zh_Get_median_function: private __Not_quite_object
 {
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// 函数 1 ，用于获取三个元素中的中间值（使用此函数需要保证 仿函数 有效）
-	template <typename Type, typename Predicate = _RANGES less, typename Projection = _STD identity>
-	constexpr const Type& operator()(const Type& msg,
-									 const Type& b,
-									 const Type& c,
-									 Predicate	 pred = {},
-									 Projection	 proj = {}) const noexcept
+	template <typename Type, typename Predicate, typename Projection>
+	constexpr const Type&
+		operator()(const Type& a, const Type& b, const Type& c, Predicate pred, Projection proj) const noexcept
 	{
-		if (__invoke(pred, __invoke(proj, msg), __invoke(proj, b)))
+		auto check_a = __invoke(proj, a);
+		auto check_b = __invoke(proj, b);
+		auto check_c = __invoke(proj, c);
+
+		if (__invoke(pred, check_a, check_b))
 		{
-			if (__invoke(pred, __invoke(proj, b), __invoke(proj, c)))
+			if (__invoke(pred, check_b, check_c))
 			{
-				return __invoke(proj, b);
+				return b;
 			}
-			else if (__invoke(pred, __invoke(proj, msg), __invoke(proj, c)))
+			else if (__invoke(pred, check_a, check_c))
 			{
-				return __invoke(proj, c);
+				return c;
 			}
 			else
 			{
-				return __invoke(proj, msg);
+				return a;
 			}
 		}
-		else if (__invoke(pred, __invoke(proj, msg), __invoke(proj, c)))
+		else if (__invoke(pred, check_a, check_c))
 		{
-			return __invoke(proj, msg);
+			return a;
 		}
-		else if (__invoke(pred, __invoke(proj, b), __invoke(proj, c)))
+		else if (__invoke(pred, check_b, check_c))
 		{
-			return __invoke(proj, c);
+			return c;
 		}
 		else
 		{
-			return __invoke(proj, b);
+			return b;
 		}
 	}
 };
 
-constexpr inline __zh_Get_median_function __zh_Get_median { __not_quite_object::__construct_tag {} };
+constexpr inline __zh_Get_median_function __zh_Get_median { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 __zh_Unguraded_partition() 进行无边界检查的 分割序列 。原本服务于 quick_sort() ，单独写出是为了在其他地方调用
-struct __zh_Unguraded_partition_function: private __not_quite_object
+struct __zh_Unguraded_partition_function: private __Not_quite_object
 {
 private:
 
@@ -1440,7 +1451,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// 用于分割序列
 	template <__is_random_access_iterator RandomAccessIterator,
@@ -1460,14 +1471,18 @@ public:
 		// c、节点 pivot 右边的节点均大于等于 pivot
 		// d、返回节点 pivot 右边的第一个位置
 
-		return __default_unguraded_partition(first, last, pivot, pred, proj);
+		return __default_unguraded_partition(__move(first),
+											 __move(last),
+											 __move(pivot),
+											 __check_function(pred),
+											 __check_function(proj));
 	}
 };
 
-constexpr inline __zh_Unguraded_partition_function __zh_Unguraded_partition { __not_quite_object::__construct_tag {} };
+constexpr inline __zh_Unguraded_partition_function __zh_Unguraded_partition { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 quick_sort()
-struct __Quick_sort_function: private __not_quite_object
+struct __Quick_sort_function: private __Not_quite_object
 {
 private:
 
@@ -1486,9 +1501,7 @@ private:
 			{
 				value_type pivot { __zh_Get_median(*first, *(last - 1), *(first + (last - first) / 2), pred, proj) };
 
-				RandomAccessIterator cut {
-					__zh_Unguraded_partition(first, last, pivot, __check_predicate(pred), proj)
-				};
+				RandomAccessIterator cut { __zh_Unguraded_partition(first, last, pivot, pred, proj) };
 
 				if ((last - cut) < (cut - first))
 				{
@@ -1506,7 +1519,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// quick_sort() for 仿函数 标准版
 	template <__is_random_access_iterator RandomAccessIterator,
@@ -1522,7 +1535,7 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator, Sentinel>(check_first, __move(last));
 
-		__default_quick_sort(__move(check_first), __move(check_last), pred, proj);
+		__default_quick_sort(__move(check_first), __move(check_last), __check_function(pred), __check_function(proj));
 
 		return ans;
 	}
@@ -1537,10 +1550,10 @@ public:
 	}
 };
 
-constexpr inline __Quick_sort_function quick_sort { __not_quite_object::__construct_tag {} };
+constexpr inline __Quick_sort_function quick_sort { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 merge_sort()
-struct __Merge_sort_function: private __not_quite_object
+struct __Merge_sort_function: private __Not_quite_object
 {
 private:
 
@@ -1565,12 +1578,12 @@ private:
 		__default_merge_sort(mid, last, pred, proj);
 
 		// TODO: 以期实现自己的 inplace_merge() ，同时，此前提到插入排序的缺点之一 “借助额外内存” ，就体现在此函数中
-		_RANGES inplace_merge(__move(first), __move(mid), __move(last), __check_predicate(pred), proj);
+		_RANGES inplace_merge(__move(first), __move(mid), __move(last), pred, proj);
 	}
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/*
 			* 归并排序 未被 sort 采纳，主要是考虑到：
@@ -1592,7 +1605,7 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<BidirectionalIterator, Sentinel>(check_first, __move(last));
 
-		__default_merge_sort(__move(check_first), __move(check_last), pred, proj);
+		__default_merge_sort(__move(check_first), __move(check_last), __check_function(pred), __check_function(proj));
 
 		return ans;
 	}
@@ -1607,10 +1620,10 @@ public:
 	}
 };
 
-constexpr inline __Merge_sort_function merge_sort { __not_quite_object::__construct_tag {} };
+constexpr inline __Merge_sort_function merge_sort { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 sort()
-struct __Sort_function: private __not_quite_object
+struct __Sort_function: private __Not_quite_object
 {
 private:
 
@@ -1653,7 +1666,7 @@ private:
 
 			// “非 ‘几乎有序’ ” 时，首先调用 快排 -- 分割
 			value_type pivot { __zh_Get_median(*first, *(last - 1), *(first + (last - first) / 2), pred, proj) };
-			RandomAccessIterator cut { __zh_Unguraded_partition(first, last, pivot, __check_predicate(pred), proj) };
+			RandomAccessIterator cut { __zh_Unguraded_partition(first, last, pivot, pred, proj) };
 
 			// 对右半段 递归sort
 
@@ -1680,7 +1693,7 @@ private:
 			// 对剩余元素(剩余元素数量一定少于前面的元素数量) 插入排序(无边界检查)
 			for (RandomAccessIterator i { first + __stl_threshold }; i != last; ++i)
 			{
-				__zh_Unguarded_insertion_sort(i, __cove_type(*i, value_type), __check_predicate(pred), proj);
+				__zh_Unguarded_insertion_sort(i, __cove_type(*i, value_type), pred, proj);
 			}
 		}
 		else // 否
@@ -1698,7 +1711,12 @@ private:
 		if (first < last) // 真实的排序由以下两个函数完成
 		{
 			// 排序，使之 “几乎有序”
-			__introsort_loop_sort(first, last, __get_depth_limit(last - first) * 2, pred, proj);
+			__introsort_loop_sort(first,
+								  last,
+								  (__get_depth_limit<__difference_type_for_iter<RandomAccessIterator>>(last - first)) *
+									  2,
+								  pred,
+								  proj);
 
 			// 排序，使 “几乎有序” 蜕变到 “完全有序”
 			__final_insertion_sort(__move(first), __move(last), pred, proj);
@@ -1707,7 +1725,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	// sort() for 仿函数 标准版
 	template <__is_random_access_iterator RandomAccessIterator,
@@ -1723,7 +1741,7 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator, Sentinel>(check_first, __move(last));
 
-		__default_sort(__move(check_first), __move(check_last), pred, proj);
+		__default_sort(__move(check_first), __move(check_last), __check_function(pred), __check_function(proj));
 
 		return ans;
 	}
@@ -1738,10 +1756,10 @@ public:
 	}
 };
 
-constexpr inline __Sort_function sort { __not_quite_object::__construct_tag {} };
+constexpr inline __Sort_function sort { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 nth_element()
-struct __Nth_element_function: private __not_quite_object
+struct __Nth_element_function: private __Not_quite_object
 {
 private:
 
@@ -1753,8 +1771,6 @@ private:
 										Predicate			 pred,
 										Projection			 proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		using value_type = __value_type_for_iter<RandomAccessIterator>;
 
 		while (3 < (last - first)) // 如果 长度 > 3
@@ -1785,7 +1801,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function nth_element() for 仿函数 标准版 */
 	template <__is_random_access_iterator RandomAccessIterator,
@@ -1802,7 +1818,11 @@ public:
 		auto check_nth	 = __unwrap_iterator<Sentinel>(__move(nth));
 		auto check_last	 = __get_last_iterator_unwrapped<RandomAccessIterator, Sentinel>(check_first, __move(last));
 
-		__nth_element(__move(check_first), __move(check_nth), __move(check_last), pred, proj);
+		__nth_element(__move(check_first),
+					  __move(check_nth),
+					  __move(check_last),
+					  __check_function(pred),
+					  __check_function(proj));
 	}
 
 	/* function nth_element() for 容器、仿函数 强化版 */
@@ -1817,12 +1837,12 @@ public:
 	}
 };
 
-constexpr inline __Nth_element_function nth_element { __not_quite_object::__construct_tag {} };
+constexpr inline __Nth_element_function nth_element { __Not_quite_object::__construct_tag {} };
 
 /* 此处实现一些关于二分查找的算法 */
 
 // 此处实现 lower_bound()
-struct __Upper_bound_function: private __not_quite_object
+struct __Upper_bound_function: private __Not_quite_object
 {
 private:
 
@@ -1834,8 +1854,6 @@ private:
 																	  Predicate		  pred,
 																	  Projection	  proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		using difference_type = __difference_type_for_iter<ForwardIterator>;
 		using iter_type_tag	  = __type_tag_for_iter<ForwardIterator>;
 		constexpr bool is_random_access_iter { _STD is_same_v<_STD random_access_iterator_tag(), iter_type_tag()> };
@@ -1886,7 +1904,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* upper_bound() for 仿函数 标准版 */
 	template <__is_forward_iterator ForwardIterator,
@@ -1904,7 +1922,11 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
-		return __default_upper_bound(__move(check_first), __move(check_last), __move(value), pred, proj);
+		return __default_upper_bound(__move(check_first),
+									 __move(check_last),
+									 __move(value),
+									 __check_function(pred),
+									 __check_function(proj));
 	}
 
 	/* upper_bound() for 容器、仿函数 强化版 */
@@ -1913,16 +1935,17 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 	_NODISCARD_MSG("此函数的返回值不应该被忽略")
-	constexpr auto operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
+	constexpr __iterator_type_for_range<Range>
+		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), __move(value), pred, proj);
 	}
 };
 
-constexpr inline __Upper_bound_function upper_bound { __not_quite_object::__construct_tag {} };
+constexpr inline __Upper_bound_function upper_bound { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 upper_bound()
-struct __Lower_bound_function: private __not_quite_object
+struct __Lower_bound_function: private __Not_quite_object
 {
 private:
 
@@ -1934,8 +1957,6 @@ private:
 																	  Predicate		  pred,
 																	  Projection	  proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		using difference_type = __difference_type_for_iter<ForwardIterator>;
 		using iter_type_tag	  = __type_tag_for_iter<ForwardIterator>;
 		constexpr bool is_random_access_iter { _STD is_same_v<_STD random_access_iterator_tag(), iter_type_tag()> };
@@ -1986,7 +2007,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function lower_bound() for 仿函数 标准版 */
 	template <__is_forward_iterator ForwardIterator,
@@ -2004,7 +2025,11 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
-		return __default_lower_bound(__move(check_first), __move(check_last), __move(value), pred, proj);
+		return __default_lower_bound(__move(check_first),
+									 __move(check_last),
+									 __move(value),
+									 __check_function(pred),
+									 __check_function(proj));
 	}
 
 	/* function lower_bound() for 容器、仿函数 强化版 */
@@ -2013,29 +2038,29 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 	_NODISCARD_MSG("此函数的返回值不应该被忽略")
-	constexpr auto operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
+	constexpr __iterator_type_for_range<Range>
+		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), __move(value), pred, proj);
 	}
 };
 
-constexpr inline __Lower_bound_function lower_bound { __not_quite_object::__construct_tag {} };
+constexpr inline __Lower_bound_function lower_bound { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 equal_range()
-struct __Equal_range_function: private __not_quite_object
+struct __Equal_range_function: private __Not_quite_object
 {
 private:
 
 	// 统一调用方式
 	template <__is_forward_iterator ForwardIterator, typename Type, typename Predicate, typename Projection>
-	_NODISCARD static constexpr auto __default_equal_range(ForwardIterator first,
+	_NODISCARD static constexpr _STD pair<ForwardIterator, ForwardIterator>
+									 __default_equal_range(ForwardIterator first,
 														   ForwardIterator last,
 														   const Type&	   value,
 														   Predicate	   pred,
 														   Projection	   proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		using difference_type = __difference_type_for_iter<ForwardIterator>;
 		using iter_type_tag	  = __type_tag_for_iter<ForwardIterator>;
 		constexpr bool is_random_access_iter { _STD is_same_v<_STD random_access_iterator_tag(), iter_type_tag()> };
@@ -2043,9 +2068,7 @@ private:
 		difference_type len { 0 };
 		difference_type half { 0 };
 
-		ForwardIterator left { first };
 		ForwardIterator middle { first };
-		ForwardIterator right { first };
 
 		if constexpr (is_random_access_iter)
 		{
@@ -2083,11 +2106,11 @@ private:
 			}
 			else			// 如果 中央元素 == 指定值
 			{
-				left  = lower_bound(first, middle, value, pred, proj); // 在前半段寻找
-				right = upper_bound(__move(++middle), __move(first + len), __move(value), pred,
-									proj);							   // 在后半段寻找
-
-				return _STD pair { __move(left), __move(right) };
+				return _STD pair {
+					__move(lower_bound(first, middle, value, pred, proj)), // 在前半段寻找
+					__move(
+						upper_bound(__move(++middle), __move(first + len), __move(value), pred, proj)) // 在后半段寻找
+				};
 			}
 		}
 
@@ -2097,7 +2120,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function equal_range() for 仿函数 标准版 */
 	template <__is_forward_iterator ForwardIterator,
@@ -2106,16 +2129,20 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 	_NODISCARD_MSG("此函数的返回值不应该被忽略")
-	constexpr auto operator()(ForwardIterator first,
-							  Sentinel		  last,
-							  const Type&	  value,
-							  Predicate		  pred = {},
-							  Projection	  proj = {}) const noexcept
+	constexpr _STD pair<ForwardIterator, ForwardIterator> operator()(ForwardIterator first,
+																	 Sentinel		 last,
+																	 const Type&	 value,
+																	 Predicate		 pred = {},
+																	 Projection		 proj = {}) const noexcept
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
-		return __default_equal_range(__move(check_first), __move(check_last), __move(value), pred, proj);
+		return __default_equal_range(__move(check_first),
+									 __move(check_last),
+									 __move(value),
+									 __check_function(pred),
+									 __check_function(proj));
 	}
 
 	/* function equal_range() for 容器、仿函数 强化版 */
@@ -2124,16 +2151,17 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 	_NODISCARD_MSG("此函数的返回值不应该被忽略")
-	constexpr auto operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
+	constexpr _STD pair<__iterator_type_for_range<Range>, __iterator_type_for_range<Range>>
+		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		return (*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), __move(value), pred, proj);
 	}
 };
 
-constexpr inline __Equal_range_function equal_range { __not_quite_object::__construct_tag {} };
+constexpr inline __Equal_range_function equal_range { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 binary_search()
-struct __Binary_search_function: private __not_quite_object
+struct __Binary_search_function: private __Not_quite_object
 {
 private:
 
@@ -2145,8 +2173,6 @@ private:
 															 Predicate		 pred,
 															 Projection		 proj) noexcept
 	{
-		pred = __check_predicate(pred);
-
 		ForwardIterator i { lower_bound(first, last, value, pred, proj) };
 
 		return (i != last) && !(__invoke(pred, value, __invoke(proj, *i)));
@@ -2154,7 +2180,7 @@ private:
 
 public:
 
-	using __not_quite_object::__not_quite_object;
+	using __Not_quite_object::__Not_quite_object;
 
 	/* function binary_search() for 仿函数 标准版 */
 	template <__is_forward_iterator ForwardIterator,
@@ -2172,7 +2198,11 @@ public:
 		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
 		auto check_last	 = __get_last_iterator_unwrapped<ForwardIterator, Sentinel>(check_first, __move(last));
 
-		return __default_binary_search(__move(check_first), __move(check_last), __move(value), pred, proj);
+		return __default_binary_search(__move(check_first),
+									   __move(check_last),
+									   __move(value),
+									   __check_function(pred),
+									   __check_function(proj));
 	}
 
 	/* function binary_search() for 容器、仿函数 强化版 */
@@ -2187,7 +2217,7 @@ public:
 	}
 };
 
-constexpr inline __Binary_search_function binary_search { __not_quite_object::__construct_tag {} };
+constexpr inline __Binary_search_function binary_search { __Not_quite_object::__construct_tag {} };
 
 __END_NAMESPACE_ZHANG
 
