@@ -1363,8 +1363,8 @@ public:
 
 constexpr inline __Insertion_sort_function insertion_sort { __Not_quite_object::__construct_tag {} };
 
-// 此处实现 __zh_Get_median() 获取 “三点中值” 。原本服务于 quick_sort() ，单独写出是为了在其他地方调用
-struct __zh_Get_median_function: private __Not_quite_object
+// 此处实现 __zh_Get_median_of_three() 获取 “三点中值” 。原本服务于 quick_sort() ，单独写出是为了在其他地方调用
+struct __zh_Get_median_of_three_function: private __Not_quite_object
 {
 public:
 
@@ -1409,7 +1409,7 @@ public:
 	}
 };
 
-constexpr inline __zh_Get_median_function __zh_Get_median { __Not_quite_object::__construct_tag {} };
+constexpr inline __zh_Get_median_of_three_function __zh_Get_median_of_three { __Not_quite_object::__construct_tag {} };
 
 // 此处实现 __zh_Unguraded_partition() 进行无边界检查的 分割序列 。原本服务于 quick_sort() ，单独写出是为了在其他地方调用
 struct __zh_Unguraded_partition_function: private __Not_quite_object
@@ -1493,26 +1493,25 @@ private:
 											   Predicate			pred,
 											   Projection			proj) noexcept
 	{
-		if (1 < (last - first))
+		using value_type = __value_type_for_iter<RandomAccessIterator>;
+
+		while (1 < (last - first))
 		{
-			using value_type = __value_type_for_iter<RandomAccessIterator>;
+			value_type pivot {
+				__zh_Get_median_of_three(*first, *(last - 1), *(first + (last - first) / 2), pred, proj)
+			};
 
-			while (1 < (last - first))
+			RandomAccessIterator cut { __zh_Unguraded_partition(first, last, __move(pivot), pred, proj) };
+
+			if ((last - cut) < (cut - first))
 			{
-				value_type pivot { __zh_Get_median(*first, *(last - 1), *(first + (last - first) / 2), pred, proj) };
-
-				RandomAccessIterator cut { __zh_Unguraded_partition(first, last, pivot, pred, proj) };
-
-				if ((last - cut) < (cut - first))
-				{
-					__default_quick_sort(cut, last, pred, proj);
-					last = cut;
-				}
-				else
-				{
-					__default_quick_sort(first, cut, pred, proj);
-					first = cut;
-				}
+				__default_quick_sort(cut, last, pred, proj);
+				last = cut;
+			}
+			else
+			{
+				__default_quick_sort(first, cut, pred, proj);
+				first = cut;
 			}
 		}
 	}
@@ -1649,12 +1648,13 @@ private:
 												Predicate			 pred,
 												Projection			 proj) noexcept
 	{
-		using value_type = __value_type_for_iter<RandomAccessIterator>;
+		using value_type	  = __value_type_for_iter<RandomAccessIterator>;
+		using difference_type = __difference_type_for_iter<RandomAccessIterator>;
 
 		// “几乎有序” 的判断标准：需要排序的元素个数足够少，否则视为 “非 ‘几乎有序’ ”
-		while (__stl_threshold < (last - first)) // “几乎有序”
+		while ((__stl_threshold<difference_type>) < (last - first)) // “几乎有序”
 		{
-			if (depth_limit == 0)				 // 递归深度足够深
+			if (depth_limit == 0)									// 递归深度足够深
 			{
 				partial_sort(first, last, last, pred,
 							 proj); // 此时调用 partial_sort()，实际上调用了一个 “堆排序”
@@ -1665,8 +1665,12 @@ private:
 			--depth_limit;
 
 			// “非 ‘几乎有序’ ” 时，首先调用 快排 -- 分割
-			value_type pivot { __zh_Get_median(*first, *(last - 1), *(first + (last - first) / 2), pred, proj) };
-			RandomAccessIterator cut { __zh_Unguraded_partition(first, last, pivot, pred, proj) };
+
+			value_type pivot {
+				__zh_Get_median_of_three(*first, *(last - 1), *(first + (last - first) / 2), pred, proj)
+			};
+
+			RandomAccessIterator cut { __zh_Unguraded_partition(first, last, __move(pivot), pred, proj) };
 
 			// 对右半段 递归sort
 
@@ -1682,16 +1686,17 @@ private:
 												 Predicate			  pred,
 												 Projection			  proj) noexcept
 	{
-		// 待排序元素个数是否足够多？
-		if (__stl_threshold < (last - first)) // 是
-		{
-			using value_type = __value_type_for_iter<RandomAccessIterator>;
+		using value_type	  = __value_type_for_iter<RandomAccessIterator>;
+		using difference_type = __difference_type_for_iter<RandomAccessIterator>;
 
+		// 待排序元素个数是否足够多？
+		if ((__stl_threshold<difference_type>) < (last - first)) // 是
+		{
 			// 对前若干个元素 插入排序
-			insertion_sort(first, first + __stl_threshold, pred, proj);
+			insertion_sort(first, first + (__stl_threshold<difference_type>), pred, proj);
 
 			// 对剩余元素(剩余元素数量一定少于前面的元素数量) 插入排序(无边界检查)
-			for (RandomAccessIterator i { first + __stl_threshold }; i != last; ++i)
+			for (RandomAccessIterator i { first + (__stl_threshold<difference_type>)}; i != last; ++i)
 			{
 				__zh_Unguarded_insertion_sort(i, __cove_type(*i, value_type), pred, proj);
 			}
@@ -1778,13 +1783,11 @@ private:
 			// 采用 “三点中值”
 			// 返回一个迭代器，指向分割后的右段第一个元素
 
-			RandomAccessIterator cut { __zh_Unguraded_partition(
-				first,
-				last,
-				__cove_type(__zh_Get_median(*first, *(last - 1), *(first + (last - first) / 2), pred, proj),
-							value_type),
-				pred,
-				proj) };
+			value_type pivot {
+				__zh_Get_median_of_three(*first, *(last - 1), *(first + (last - first) / 2), pred, proj)
+			};
+
+			RandomAccessIterator cut { __zh_Unguraded_partition(first, last, pivot, pred, proj) };
 
 			if (nth < cut)	 // 如果 指定位置 < 右段起点，（即 nth 位于右段）
 			{

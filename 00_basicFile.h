@@ -125,8 +125,19 @@
 	#endif // !__END_INLINE_NAMESPACE
 
 	#ifndef __stl_threshold
-constexpr inline auto __stl_threshold = 16;
+template <typename Type>
+constexpr Type __stl_threshold = Type(16);
 	#endif // !__stl_threshold
+
+	#ifndef __max_msg_args
+template <typename Type>
+constexpr Type __max_msg_args = Type(127);
+	#endif // !__max_msg_args
+
+	#ifndef __limit_msg_args
+template <typename Type>
+constexpr Type __limit_msg_args = Type(63);
+	#endif // !__limit_msg_args
 
 
 
@@ -186,6 +197,9 @@ using __type_tag_for_iter = typename _STD iterator_traits<Iterator>::iterator_ca
 
 
 // 以下是 迭代器型别 的定义
+template <typename Type>
+concept __is_iterator = _STD input_or_output_iterator<Type>;
+
 template <typename Type>
 concept __is_input_iterator = _STD input_iterator<Type>;
 
