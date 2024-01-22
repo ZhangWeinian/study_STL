@@ -432,7 +432,9 @@ public:
 	constexpr void operator()(MsgType msg, Args... args) const
 		noexcept(noexcept(__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
 	{
-		static_assert(sizeof...(args) < (__max_msg_args<int>),
+		constexpr auto& len_for_args { sizeof...(args) };
+
+		static_assert((len_for_args < (__max_msg_args<decltype(len_for_args)>)),
 					  "There are too many parameters, please consider printing in an STL container.");
 
 		__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
@@ -485,7 +487,9 @@ public:
 	constexpr void operator()(MsgType msg, Args... args) const
 		noexcept(noexcept(print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
 	{
-		static_assert(sizeof...(args) < (__max_msg_args<int>),
+		constexpr auto len_for_args { sizeof...(args) };
+
+		static_assert((len_for_args < (__max_msg_args<decltype(len_for_args)>)),
 					  "There are too many parameters, please consider printing in an STL container.");
 
 		print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
