@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 
 	vector nums2 { 4582, 15, 5927, 77, 10, 12308, 4, 110, 101, 6, 87, 277 };
 
-	// print(1, 2, 3, 4);
+	print(1, 2, 3, 4);
 
 	return 0;
 }
