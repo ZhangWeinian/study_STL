@@ -487,7 +487,7 @@ public:
 	constexpr void operator()(MsgType msg, Args... args) const
 		noexcept(noexcept(print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
 	{
-		constexpr auto len_for_args { sizeof...(args) };
+		constexpr auto& len_for_args { sizeof...(args) };
 
 		static_assert((len_for_args < (__max_msg_args<decltype(len_for_args)>)),
 					  "There are too many parameters, please consider printing in an STL container.");
