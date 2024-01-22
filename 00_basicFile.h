@@ -129,15 +129,20 @@ template <typename Type>
 constexpr Type __stl_threshold = Type(16);
 	#endif // !__stl_threshold
 
+
 	#ifndef __max_msg_args
+
 template <typename Type>
 constexpr Type __max_msg_args = Type(127);
-	#endif // !__max_msg_args
 
-	#ifndef __limit_msg_args
+		#ifndef __limit_msg_args
+
 template <typename Type>
-constexpr Type __limit_msg_args = Type(63);
-	#endif // !__limit_msg_args
+constexpr Type __limit_msg_args = (__max_msg_args<Type>) >> 1;
+
+		#endif // !__limit_msg_args
+
+	#endif	   // !__max_msg_args
 
 
 
