@@ -12,7 +12,7 @@ public:
 
 	using __Not_quite_object::__Not_quite_object;
 
-	template <__is_random_access_iterator RandomAccessIterator,
+	template <__random_access_iterator RandomAccessIterator,
 			  typename Distance,
 			  typename Type,
 			  typename Predicate  = _RANGES less,
@@ -47,7 +47,7 @@ public:
 	using __Not_quite_object::__Not_quite_object;
 
 	// push_heap() for 仿函数 标准版
-	template <__is_random_access_iterator  RandomAccessIterator,
+	template <__random_access_iterator	   RandomAccessIterator,
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 	constexpr void operator()(RandomAccessIterator first,
@@ -67,7 +67,7 @@ public:
 	}
 
 	// push_heap() for 容器、仿函数 强化版
-	template <__is_random_access_range Range, typename Predicate = _RANGES less, typename Projection = _STD identity>
+	template <__random_access_range Range, typename Predicate = _RANGES less, typename Projection = _STD identity>
 	constexpr void operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const
 	{
 		(*this)(__begin_for_range(rng), __end_for_range(rng), pred, proj);
@@ -82,7 +82,7 @@ struct __Pop_heap_function: private __Not_quite_object
 private:
 
 	// pop_heap -- 辅助函数
-	template <__is_random_access_iterator RandomAccessIterator,
+	template <__random_access_iterator RandomAccessIterator,
 			  typename Distance,
 			  typename Type,
 			  typename Predicate  = _RANGES less,
@@ -118,7 +118,7 @@ private:
 	}
 
 	// pop_heap() -- 辅助函数
-	template <__is_random_access_iterator RandomAccessIterator,
+	template <__random_access_iterator RandomAccessIterator,
 			  typename Type,
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
@@ -146,7 +146,7 @@ public:
 	using __Not_quite_object::__Not_quite_object;
 
 	// pop_heap() for 仿函数 标准版
-	template <__is_random_access_iterator  RandomAccessIterator,
+	template <__random_access_iterator	   RandomAccessIterator,
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 	constexpr void operator()(RandomAccessIterator first,
@@ -165,7 +165,7 @@ public:
 	}
 
 	// pop_heap() for 容器、仿函数 强化版
-	template <__is_range Range, typename Predicate = _RANGES less, typename Projection = _STD identity>
+	template <__range Range, typename Predicate = _RANGES less, typename Projection = _STD identity>
 	constexpr void operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const
 	{
 		(*this)(__begin_for_range(rng), __end_for_range(rng), pred, proj);
@@ -182,7 +182,7 @@ public:
 	using __Not_quite_object::__Not_quite_object;
 
 	// sort_heap() for 仿函数 标准版
-	template <__is_random_access_iterator  RandomAccessIterator,
+	template <__random_access_iterator	   RandomAccessIterator,
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 	constexpr void operator()(RandomAccessIterator first,
@@ -199,7 +199,7 @@ public:
 	}
 
 	// sort_heap() for 容器、仿函数 强化版
-	template <__is_random_access_range Range, typename Predicate = _RANGES less, typename Projection = _STD identity>
+	template <__random_access_range Range, typename Predicate = _RANGES less, typename Projection = _STD identity>
 	constexpr void operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const
 	{
 		(*this)(__begin_for_range(rng), __end_for_range(rng), pred, proj);
@@ -213,7 +213,7 @@ struct __Make_heap_function: private __Not_quite_object
 {
 private:
 
-	template <__is_random_access_iterator  RandomAccessIterator,
+	template <__random_access_iterator	   RandomAccessIterator,
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 	static constexpr void
@@ -250,7 +250,7 @@ public:
 	using __Not_quite_object::__Not_quite_object;
 
 	// make_heap() for 仿函数 标准版
-	template <__is_random_access_iterator  RandomAccessIterator,
+	template <__random_access_iterator	   RandomAccessIterator,
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 	constexpr void operator()(RandomAccessIterator first,
@@ -262,7 +262,7 @@ public:
 	}
 
 	// make_heap() for 仿函数、容器 强化版
-	template <__is_random_access_range Range, typename Predicate = _RANGES less, typename Projection = _STD identity>
+	template <__random_access_range Range, typename Predicate = _RANGES less, typename Projection = _STD identity>
 	constexpr void operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const
 	{
 		(*this)(__begin_for_range_with_move(rng), __end_for_range_with_move(rng), pred, proj);

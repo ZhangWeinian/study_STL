@@ -46,6 +46,10 @@
 		#define _STD ::std::
 	#endif // !_STD
 
+	#ifndef _CSTD
+		#define _CSTD ::
+	#endif // !_CSTD
+
 	#ifndef _RANGES
 		#define _RANGES ::std::ranges::
 	#endif // !_RANGES
@@ -67,27 +71,27 @@
 	#endif // !__init_type
 
 	#ifndef __move
-		#define __move(cont) ::std::move(cont)
+		#define __move(cont) _STD move(cont)
 	#endif // !__move
 
 	#ifndef __invoke
-		#define __invoke(...) std::invoke(__VA_ARGS__)
+		#define __invoke(...) _STD invoke(__VA_ARGS__)
 	#endif // !__invoke
 
 	#ifndef __begin_for_range
-		#define __begin_for_range(cont) ::std::ranges::begin(cont)
+		#define __begin_for_range(rng) _RANGES begin(rng)
 	#endif // !__begin_for_range
 
 	#ifndef __end_for_range
-		#define __end_for_range(cont) ::std::ranges::end(cont)
+		#define __end_for_range(rng) _RANGES end(rng)
 	#endif // !__end_for_range
 
 	#ifndef __begin_for_range_with_move
-		#define __begin_for_range_with_move(cont) std::move(::std::ranges::begin(cont))
+		#define __begin_for_range_with_move(rng) __move(__begin_for_range(rng))
 	#endif // !__begin_for_range
 
 	#ifndef __end_for_range_with_move
-		#define __end_for_range_with_move(cont) std::move(::std::ranges::end(cont))
+		#define __end_for_range_with_move(rng) __move(__end_for_range(rng))
 	#endif // !__end_for_range
 
 	#ifndef __STL_TEMPLATE_NULL
@@ -133,12 +137,12 @@ constexpr Type __stl_threshold = Type(16);
 	#ifndef __max_msg_args
 
 template <typename Type>
-constexpr Type __max_msg_args = Type(127);
+constexpr inline Type __max_msg_args = Type(128);
 
 		#ifndef __limit_msg_args
 
 template <typename Type>
-constexpr Type __limit_msg_args = (__max_msg_args<Type>) >> 1;
+constexpr inline Type __limit_msg_args = (__max_msg_args<Type>) >> 1;
 
 		#endif // !__limit_msg_args
 
@@ -150,32 +154,24 @@ constexpr Type __limit_msg_args = (__max_msg_args<Type>) >> 1;
 
 
 
-// 以下是 基础型别 的要求
-template <typename Type>
-concept __is_c_array = _STD is_array_v<Type>;
-
-template <typename Type>
-concept __not_compound_type = !(_STD is_compound_v<Type>);
-
-
 // 以下是 容器型别 的基础要求
 template <typename Type>
-concept __is_range = _RANGES range<Type>;
+concept __range = _RANGES range<Type>;
 
 template <typename Type>
-concept __is_random_access_range = _RANGES random_access_range<Type>;
+concept __random_access_range = _RANGES random_access_range<Type>;
 
 template <typename Type>
-concept __is_bidirectional_range = _RANGES bidirectional_range<Type>;
+concept __bidirectional_range = _RANGES bidirectional_range<Type>;
 
 template <typename Type>
-concept __is_forward_range = _RANGES forward_range<Type>;
+concept __forward_range = _RANGES forward_range<Type>;
 
 template <typename Type>
-concept __is_output_range = _RANGES output_range<Type, _RANGES range_value_t<Type>>;
+concept __output_range = _RANGES output_range<Type, _RANGES range_value_t<Type>>;
 
 template <typename Type>
-concept __is_input_range = _RANGES input_range<Type>;
+concept __input_range = _RANGES input_range<Type>;
 
 
 // 从 基础迭代器 或 容器 获取信息
@@ -203,35 +199,40 @@ using __type_tag_for_iter = typename _STD iterator_traits<Iterator>::iterator_ca
 
 // 以下是 迭代器型别 的定义
 template <typename Type>
-concept __is_iterator = _STD input_or_output_iterator<Type>;
+concept __iterator = _STD input_or_output_iterator<Type>;
 
 template <typename Type>
-concept __is_input_iterator = _STD input_iterator<Type>;
+concept __input_iterator = _STD input_iterator<Type>;
 
 template <typename Type>
-concept __is_output_iterator = _STD output_iterator<Type, __value_type_for_iter<Type>>;
+concept __output_iterator = _STD output_iterator<Type, __value_type_for_iter<Type>>;
 
 template <typename Type>
-concept __is_bidirectional_iterator = _STD bidirectional_iterator<Type>;
+concept __bidirectional_iterator = _STD bidirectional_iterator<Type>;
 
 template <typename Type>
-concept __is_forward_iterator = _STD forward_iterator<Type>;
+concept __forward_iterator = _STD forward_iterator<Type>;
 
 template <typename Type>
-concept __is_random_access_iterator = _STD random_access_iterator<Type>;
+concept __random_access_iterator = _STD random_access_iterator<Type>;
 
 template <typename Type> // 为了使 C风格指针 和 C风格数组 被正确识别为迭代器的 特别定义
-concept __is_iter_or_array = (__is_input_iterator<Type>) || (_STD is_array_v<Type>);
+concept __iterator_or_c_array = (__iterator<Type>) || (_STD is_array_v<Type>);
 
-// Iterator 没有 _Unwrapped()
-template <typename Iterator, typename = void>
-constexpr inline bool __has_nothrow_unwrapped = false;
+// 其他可能用到的定义
 
-// Iterator 或有 _Unwrapped()
+template <typename Type>
+using __remove_cv_type = _STD remove_cv_t<Type>;
+
+template <typename Type>
+using __remove_cvref_type = _STD remove_cvref_t<Type>;
+
 template <typename Iterator>
-constexpr inline bool __has_nothrow_unwrapped<Iterator, _STD void_t<decltype(_STD declval<Iterator>()._Unwrapped())>> =
-	noexcept(_STD declval<Iterator>()._Unwrapped());
-
+concept __nothrow_unwrapped = requires(Iterator iter) {
+	{
+		iter._Unwrapped()
+	} noexcept;
+};
 
 
 /*-----------------------------------------------------------------------------------------------------*/
@@ -239,27 +240,26 @@ constexpr inline bool __has_nothrow_unwrapped<Iterator, _STD void_t<decltype(_ST
 
 // Iterator 不允许继承展开
 template <typename Iterator, typename = void>
-constexpr inline bool __is_allow_inheriting_unwrap = true;
+constexpr inline bool __allow_inheriting_unwrap = true;
 
 // Iterator 或允许继承展开
 template <typename Iterator>
-constexpr inline bool
-	__is_allow_inheriting_unwrap<Iterator, _STD void_t<typename Iterator::_Prevent_inheriting_unwrap>> =
-		(_STD is_same_v<Iterator, typename Iterator::_Prevent_inheriting_unwrap>);
+constexpr inline bool __allow_inheriting_unwrap<Iterator, _STD void_t<typename Iterator::_Prevent_inheriting_unwrap>> =
+	(_STD is_same_v<Iterator, typename Iterator::_Prevent_inheriting_unwrap>);
 
 // Wrapped 是弱展开
 template <typename Wrapped>
-concept __is_weakly_unwrappable = (__is_allow_inheriting_unwrap<_STD remove_cvref_t<Wrapped>>)&&(
+concept __weakly_unwrappable = (__allow_inheriting_unwrap<_STD remove_cvref_t<Wrapped>>)&&(
 	requires(Wrapped&& wrap) { _STD forward<Wrapped>(wrap)._Unwrapped(); });
 
 // Sentinel 是弱展开哨兵
 template <typename Sentinel>
-concept __is_weakly_unwrappable_sentinel = __is_weakly_unwrappable<const _STD remove_reference_t<Sentinel>&>;
+concept __weakly_unwrappable_sentinel = __weakly_unwrappable<const _STD remove_reference_t<Sentinel>&>;
 
 // Iterator 是弱展开迭代器
 template <typename Iterator>
-concept __is_weakly_unwrappable_iterator =
-	(__is_weakly_unwrappable<Iterator>)&&(requires(Iterator&& iterator, _STD remove_cvref_t<Iterator>& mut_iter) {
+concept __weakly_unwrappable_iterator =
+	(__weakly_unwrappable<Iterator>)&&(requires(Iterator&& iterator, _STD remove_cvref_t<Iterator>& mut_iter) {
 		mut_iter._Seek_to(_STD forward<Iterator>(iterator)._Unwrapped());
 	});
 
@@ -273,8 +273,8 @@ using __unwrap_sentinel_type = _STD remove_cvref_t<decltype(__unwrap_iterator<It
 
 // 判断弱展开哨兵
 template <typename Sentinel, typename Iterator>
-concept __is_unwrappable_sentinel_for =
-	(__is_weakly_unwrappable_sentinel<Sentinel>)&&(__is_weakly_unwrappable_iterator<Iterator>)&&(
+concept __unwrappable_sentinel_for =
+	(__weakly_unwrappable_sentinel<Sentinel>)&&(__weakly_unwrappable_iterator<Iterator>)&&(
 		requires(Iterator&& iterator, const _STD remove_reference_t<Sentinel>& sentinel) {
 			{
 				sentinel._Unwrapped()
@@ -286,8 +286,8 @@ concept __is_unwrappable_sentinel_for =
 // 展开头迭代器
 template <typename Sentinel, typename Iterator>
 _NODISCARD constexpr decltype(auto)
-	__unwrap_iterator(Iterator&& iterator) noexcept((!__is_unwrappable_sentinel_for<Sentinel, Iterator>) ||
-													(__has_nothrow_unwrapped<Iterator>))
+	__unwrap_iterator(Iterator&& iterator) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
+													(__nothrow_unwrapped<Iterator>))
 {
 	_STL_INTERNAL_STATIC_ASSERT(_STD sentinel_for<_STD remove_cvref_t<Sentinel>, _STD remove_cvref_t<Iterator>>);
 
@@ -295,7 +295,7 @@ _NODISCARD constexpr decltype(auto)
 	{
 		return iterator + 0;
 	}
-	else if constexpr (__is_unwrappable_sentinel_for<Sentinel, Iterator>)
+	else if constexpr (__unwrappable_sentinel_for<Sentinel, Iterator>)
 	{
 		return static_cast<Iterator&&>(iterator)._Unwrapped();
 	}
@@ -308,8 +308,8 @@ _NODISCARD constexpr decltype(auto)
 // 展开哨兵
 template <typename Iterator, typename Sentinel>
 _NODISCARD constexpr decltype(auto)
-	__unwrap_sentinel(Sentinel&& sentinel) noexcept((!__is_unwrappable_sentinel_for<Sentinel, Iterator>) ||
-													(__has_nothrow_unwrapped<Sentinel>))
+	__unwrap_sentinel(Sentinel&& sentinel) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
+													(__nothrow_unwrapped<Sentinel>))
 {
 	_STL_INTERNAL_STATIC_ASSERT(_STD sentinel_for<_STD remove_cvref_t<Sentinel>, _STD remove_cvref_t<Iterator>>);
 
@@ -317,7 +317,7 @@ _NODISCARD constexpr decltype(auto)
 	{
 		return sentinel + 0;
 	}
-	else if constexpr (__is_unwrappable_sentinel_for<Sentinel, Iterator>) // 如果是弱展开哨兵，返回 _Unwrapped()
+	else if constexpr (__unwrappable_sentinel_for<Sentinel, Iterator>) // 如果是弱展开哨兵，返回 _Unwrapped()
 	{
 		return static_cast<Sentinel&&>(sentinel)._Unwrapped();
 	}
@@ -328,7 +328,7 @@ _NODISCARD constexpr decltype(auto)
 }
 
 // 获取尾迭代器
-template <__is_forward_iterator Iterator, typename Sentinel>
+template <__forward_iterator Iterator, typename Sentinel>
 	requires(_STD sentinel_for<_STD remove_cvref_t<Sentinel>, Iterator>)
 _NODISCARD constexpr __unwrap_iterator_type<Iterator, Sentinel>
 	__get_last_iterator_unwrapped(const __unwrap_iterator_type<Iterator, Sentinel>& first, Sentinel&& last)
@@ -348,7 +348,7 @@ _NODISCARD constexpr __unwrap_iterator_type<Iterator, Sentinel>
 
 
 template <typename Predicate>
-struct __get_ref_function
+struct __add_ref_for_function
 {
 	// 按值传递函数对象作为引用
 	Predicate& pred;
@@ -380,7 +380,7 @@ _NODISCARD constexpr auto __check_function(Predicate& pred) noexcept
 	}
 	else
 	{
-		return __get_ref_function<Predicate> { pred }; // 通过“引用”传递函子
+		return __add_ref_for_function<Predicate> { pred }; // 通过“引用”传递函子
 	}
 }
 
