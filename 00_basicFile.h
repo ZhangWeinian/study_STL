@@ -238,14 +238,9 @@ concept __nothrow_unwrapped = requires(Iterator iter) {
 /*-----------------------------------------------------------------------------------------------------*/
 
 
-// Iterator 不允许继承展开
-template <typename Iterator, typename = void>
-constexpr inline bool __allow_inheriting_unwrap = true;
-
 // Iterator 或允许继承展开
 template <typename Iterator>
-constexpr inline bool __allow_inheriting_unwrap<Iterator, _STD void_t<typename Iterator::_Prevent_inheriting_unwrap>> =
-	(_STD is_same_v<Iterator, typename Iterator::_Prevent_inheriting_unwrap>);
+concept __allow_inheriting_unwrap = (_STD is_same_v<Iterator, typename Iterator::_Prevent_inheriting_unwrap>);
 
 // Wrapped 是弱展开
 template <typename Wrapped>
@@ -262,14 +257,6 @@ concept __weakly_unwrappable_iterator =
 	(__weakly_unwrappable<Iterator>)&&(requires(Iterator&& iterator, _STD remove_cvref_t<Iterator>& mut_iter) {
 		mut_iter._Seek_to(_STD forward<Iterator>(iterator)._Unwrapped());
 	});
-
-// 展开迭代器类型
-template <typename Iterator, typename Sentinel>
-using __unwrap_iterator_type = _STD remove_cvref_t<decltype(__unwrap_iterator<Sentinel>(_STD declval<Iterator>()))>;
-
-// 展开哨兵类型
-template <typename Sentinel, typename Iterator>
-using __unwrap_sentinel_type = _STD remove_cvref_t<decltype(__unwrap_iterator<Iterator>(_STD declval<Sentinel>()))>;
 
 // 判断弱展开哨兵
 template <typename Sentinel, typename Iterator>
@@ -304,6 +291,14 @@ _NODISCARD constexpr decltype(auto)
 		return static_cast<Iterator&&>(iterator);
 	}
 }
+
+// 展开迭代器类型
+template <typename Iterator, typename Sentinel>
+using __unwrap_iterator_type = _STD remove_cvref_t<decltype(__unwrap_iterator<Sentinel>(_STD declval<Iterator>()))>;
+
+// 展开哨兵类型
+template <typename Sentinel, typename Iterator>
+using __unwrap_sentinel_type = _STD remove_cvref_t<decltype(__unwrap_iterator<Iterator>(_STD declval<Sentinel>()))>;
 
 // 展开哨兵
 template <typename Iterator, typename Sentinel>

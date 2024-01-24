@@ -110,7 +110,7 @@ public:
 	}
 
 	template <__is_print_mode PrintMode = __zh_Print_with_delimiter>
-	void operator()(const wchar_t* msg, PrintMode mode = {}) const noexcept
+	constexpr void operator()(const wchar_t* msg, PrintMode mode = {}) const noexcept
 	{
 		_STD ios::sync_with_stdio(true);
 		_STD locale::global(_STD locale(""));

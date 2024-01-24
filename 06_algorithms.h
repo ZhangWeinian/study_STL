@@ -1792,6 +1792,7 @@ private:
 			RandomAccessIterator cut { __zh_Unguraded_partition(first, last, __move(pivot), pred, proj) };
 
 			// 对右半段 递归sort
+			__introsort_loop_sort(cut, last, depth_limit, pred, proj);
 
 			// 至此，回到 while 循环，准备对左半段递归排序
 			last = cut;
