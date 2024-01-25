@@ -457,7 +457,7 @@ public:
 	}
 };
 
-constexpr inline __Format_print_function print { __Not_quite_object::__construct_tag {} };
+constexpr inline __Format_print_function print { __Not_quite_object::__Construct_tag {} };
 
 /*-----------------------------------------------------------------------------------------------------*/
 
@@ -515,7 +515,7 @@ public:
 	}
 };
 
-constexpr inline __Format_println_function println { __Not_quite_object::__construct_tag {} };
+constexpr inline __Format_println_function println { __Not_quite_object::__Construct_tag {} };
 
 /*-----------------------------------------------------------------------------------------------------*/
 

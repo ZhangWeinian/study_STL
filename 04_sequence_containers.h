@@ -37,7 +37,7 @@ public:
 	}
 };
 
-constexpr inline __Push_heap_aux_function __zh_Push_heap_aux { __Not_quite_object::__construct_tag {} };
+constexpr inline __Push_heap_aux_function __zh_Push_heap_aux { __Not_quite_object::__Construct_tag {} };
 
 // 此处实现 push_heap() 算法
 struct __Push_heap_function: private __Not_quite_object
@@ -74,7 +74,7 @@ public:
 	}
 };
 
-constexpr inline __Push_heap_function push_heap { __Not_quite_object::__construct_tag {} };
+constexpr inline __Push_heap_function push_heap { __Not_quite_object::__Construct_tag {} };
 
 // 此处实现 pop_heap() 算法
 struct __Pop_heap_function: private __Not_quite_object
@@ -172,7 +172,7 @@ public:
 	}
 };
 
-constexpr inline __Pop_heap_function pop_heap { __Not_quite_object::__construct_tag {} };
+constexpr inline __Pop_heap_function pop_heap { __Not_quite_object::__Construct_tag {} };
 
 // 此处实现 sort_heap() 算法
 struct __Sort_heap_function: private __Not_quite_object
@@ -206,7 +206,7 @@ public:
 	}
 };
 
-constexpr inline __Sort_heap_function sort_heap { __Not_quite_object::__construct_tag {} };
+constexpr inline __Sort_heap_function sort_heap { __Not_quite_object::__Construct_tag {} };
 
 // 此处实现 make_heap() 算法
 struct __Make_heap_function: private __Not_quite_object
@@ -269,7 +269,7 @@ public:
 	}
 };
 
-constexpr inline __Make_heap_function make_heap { __Not_quite_object::__construct_tag {} };
+constexpr inline __Make_heap_function make_heap { __Not_quite_object::__Construct_tag {} };
 
 __END_NAMESPACE_ZHANG
 

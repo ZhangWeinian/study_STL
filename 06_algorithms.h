@@ -158,7 +158,7 @@ public:
 	}
 };
 
-constexpr inline __Copy_function copy { __Not_quite_object::__construct_tag {} };
+constexpr inline __Copy_function copy { __Not_quite_object::__Construct_tag {} };
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -220,7 +220,7 @@ public:
 	}
 };
 
-constexpr inline __Accumulate_function accumulate { __Not_quite_object::__construct_tag {} };
+constexpr inline __Accumulate_function accumulate { __Not_quite_object::__Construct_tag {} };
 
 // 统计 [first, last) 范围内与 value 相等的元素数量。可指定谓词 pred 与投影 proj
 struct __Count_function: private __Not_quite_object
@@ -289,7 +289,7 @@ public:
 	}
 };
 
-constexpr inline __Count_function count { __Not_quite_object::__construct_tag {} };
+constexpr inline __Count_function count { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first, last) 范围内的元素依次赋值为 value 之后的值。不可指定谓词 pred 与投影 proj
 struct __Itoa_function: private __Not_quite_object
@@ -328,7 +328,7 @@ public:
 	}
 };
 
-constexpr inline __Itoa_function itoa { __Not_quite_object::__construct_tag {} };
+constexpr inline __Itoa_function itoa { __Not_quite_object::__Construct_tag {} };
 
 // 在 [first, last) 范围内查找第一个与 value 相等的元素。可指定谓词 pred 与投影 proj
 struct __Find_function: private __Not_quite_object
@@ -391,7 +391,7 @@ public:
 	}
 };
 
-constexpr inline __Find_function find { __Not_quite_object::__construct_tag {} };
+constexpr inline __Find_function find { __Not_quite_object::__Construct_tag {} };
 
 // 在 [first1, last1) 范围内查找第一个与 [first2, last2) 范围内任意元素相等的元素。可指定谓词 pred 与投影 proj1、proj2
 struct __Find_first_of_function: private __Not_quite_object
@@ -494,7 +494,7 @@ public:
 	}
 };
 
-constexpr inline __Find_first_of_function find_first_of { __Not_quite_object::__construct_tag {} };
+constexpr inline __Find_first_of_function find_first_of { __Not_quite_object::__Construct_tag {} };
 
 // 交换 a 与 b 的值。不可指定谓词 pred 与投影 proj
 struct __Swap_function: private __Not_quite_object
@@ -513,7 +513,7 @@ public:
 	}
 };
 
-constexpr inline __Swap_function swap { __Not_quite_object::__construct_tag {} };
+constexpr inline __Swap_function swap { __Not_quite_object::__Construct_tag {} };
 
 // 交换 a 与 b 的值。不可指定谓词 pred 与投影 proj
 struct __Iter_swap_function: private __Not_quite_object
@@ -529,7 +529,7 @@ public:
 	}
 };
 
-constexpr inline __Iter_swap_function iter_swap { __Not_quite_object::__construct_tag {} };
+constexpr inline __Iter_swap_function iter_swap { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first1, last1) 范围内的元素与 [first2, first2 + (last1 - first1)) 范围内的元素互相交换。不可指定谓词 pred 与投影 proj
 struct __Swap_ranges_function: private __Not_quite_object
@@ -581,7 +581,7 @@ public:
 	}
 };
 
-constexpr inline __Swap_ranges_function swap_ranges { __Not_quite_object::__construct_tag {} };
+constexpr inline __Swap_ranges_function swap_ranges { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first, last) 范围内的元素依次调用 pred 。必须指定谓词 pred ，可指定投影 proj
 struct __For_each_function: private __Not_quite_object
@@ -640,7 +640,7 @@ public:
 	}
 };
 
-constexpr inline __For_each_function for_each { __Not_quite_object::__construct_tag {} };
+constexpr inline __For_each_function for_each { __Not_quite_object::__Construct_tag {} };
 
 // 判断 [first1, last1) 范围内的元素是否与 [first2, first2 + (last1 - first1)) 范围内的元素相等。可指定谓词 pred 与投影 proj
 struct __Equal_function: private __Not_quite_object
@@ -746,7 +746,7 @@ public:
 	}
 };
 
-constexpr inline __Equal_function equal { __Not_quite_object::__construct_tag {} };
+constexpr inline __Equal_function equal { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first, last) 范围内的元素依次赋值为 value 。不可指定谓词 pred 与投影 proj
 struct __Fill_function: private __Not_quite_object
@@ -785,7 +785,7 @@ public:
 	};
 };
 
-constexpr inline __Fill_function fill { __Not_quite_object::__construct_tag {} };
+constexpr inline __Fill_function fill { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first, first + n) 范围内的元素依次赋值为 value 。不可指定谓词 pred 与投影 proj
 struct __Fill_n_function: private __Not_quite_object
@@ -826,7 +826,7 @@ public:
 	};
 };
 
-constexpr inline __Fill_n_function fill_n { __Not_quite_object::__construct_tag {} };
+constexpr inline __Fill_n_function fill_n { __Not_quite_object::__Construct_tag {} };
 
 // 返回 a 与 b 中较大的值。可指定谓词 pred 与投影 proj
 struct __Max_function: private __Not_quite_object
@@ -888,7 +888,7 @@ public:
 	}
 };
 
-constexpr inline __Max_function max { __Not_quite_object::__construct_tag {} };
+constexpr inline __Max_function max { __Not_quite_object::__Construct_tag {} };
 
 // 返回 a 与 b 中较小的值。可指定谓词 pred 与投影 proj
 struct __Min_function: private __Not_quite_object
@@ -950,7 +950,7 @@ public:
 	}
 };
 
-constexpr inline __Min_function min { __Not_quite_object::__construct_tag {} };
+constexpr inline __Min_function min { __Not_quite_object::__Construct_tag {} };
 
 // 返回 [first, last) 范围内的最大元素。可指定谓词 pred 与投影 proj
 struct __Max_element_function: private __Not_quite_object
@@ -1024,7 +1024,7 @@ public:
 	}
 };
 
-constexpr inline __Max_element_function max_element { __Not_quite_object::__construct_tag {} };
+constexpr inline __Max_element_function max_element { __Not_quite_object::__Construct_tag {} };
 
 // 返回 [first, last) 范围内的最小元素。可指定谓词 pred 与投影 proj
 struct __Min_element_function: private __Not_quite_object
@@ -1098,7 +1098,7 @@ public:
 	}
 };
 
-constexpr inline __Min_element_function min_element { __Not_quite_object::__construct_tag {} };
+constexpr inline __Min_element_function min_element { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first1, last1) 与 [first2, last2) 保持有序合并到 result 中。可指定谓词 pred 与投影 proj1、proj2
 struct __Merge_function: private __Not_quite_object
@@ -1212,7 +1212,7 @@ public:
 	}
 };
 
-constexpr inline __Merge_function merge { __Not_quite_object::__construct_tag {} };
+constexpr inline __Merge_function merge { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first, last) 范围内的元素依次调用 pred ，并将结果保存到 result 中。可指定谓词 pred 与投影 proj
 struct __Transform_function: private __Not_quite_object
@@ -1283,7 +1283,7 @@ public:
 	}
 };
 
-constexpr inline __Transform_function transform { __Not_quite_object::__construct_tag {} };
+constexpr inline __Transform_function transform { __Not_quite_object::__Construct_tag {} };
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -1359,7 +1359,7 @@ public:
 	}
 };
 
-constexpr inline __Partial_sort_function partial_sort { __Not_quite_object::__construct_tag {} };
+constexpr inline __Partial_sort_function partial_sort { __Not_quite_object::__Construct_tag {} };
 
 // 此处实现 __zh_Unguarded_insertion_sort() ，原本服务于 insertion_sort() ，单独写出是为了在其他地方调用
 struct __zh_Unguarded_insertion_sort_function: private __Not_quite_object
@@ -1403,7 +1403,7 @@ public:
 };
 
 constexpr inline __zh_Unguarded_insertion_sort_function __zh_Unguarded_insertion_sort {
-	__Not_quite_object::__construct_tag {}
+	__Not_quite_object::__Construct_tag {}
 };
 
 // 将 [first, last) 范围内的元素插入排序。可指定谓词 pred 与投影 proj
@@ -1480,7 +1480,7 @@ public:
 	}
 };
 
-constexpr inline __Insertion_sort_function insertion_sort { __Not_quite_object::__construct_tag {} };
+constexpr inline __Insertion_sort_function insertion_sort { __Not_quite_object::__Construct_tag {} };
 
 // 此处实现 __zh_Get_median_of_three() 获取 “三点中值” 。原本服务于 quick_sort() ，单独写出是为了在其他地方调用
 struct __zh_Get_median_of_three_function: private __Not_quite_object
@@ -1528,7 +1528,7 @@ public:
 	}
 };
 
-constexpr inline __zh_Get_median_of_three_function __zh_Get_median_of_three { __Not_quite_object::__construct_tag {} };
+constexpr inline __zh_Get_median_of_three_function __zh_Get_median_of_three { __Not_quite_object::__Construct_tag {} };
 
 // 此处实现 __zh_Unguraded_partition() 进行无边界检查的 分割序列 。原本服务于 quick_sort() ，单独写出是为了在其他地方调用
 struct __zh_Unguraded_partition_function: private __Not_quite_object
@@ -1598,7 +1598,7 @@ public:
 	}
 };
 
-constexpr inline __zh_Unguraded_partition_function __zh_Unguraded_partition { __Not_quite_object::__construct_tag {} };
+constexpr inline __zh_Unguraded_partition_function __zh_Unguraded_partition { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first, last) 范围内的元素快速排序。可指定谓词 pred 与投影 proj
 struct __Quick_sort_function: private __Not_quite_object
@@ -1620,7 +1620,8 @@ private:
 				__zh_Get_median_of_three(*first, *(last - 1), *(first + (last - first) / 2), pred, proj)
 			};
 
-			RandomAccessIterator cut { __zh_Unguraded_partition(first, last, __move(pivot), pred, proj) };
+			RandomAccessIterator cut { __zh_Unguraded_partition_function {
+				__Not_quite_object::__Construct_tag {} }(first, last, __move(pivot), pred, proj) };
 
 			if ((last - cut) < (cut - first))
 			{
@@ -1668,7 +1669,7 @@ public:
 	}
 };
 
-constexpr inline __Quick_sort_function quick_sort { __Not_quite_object::__construct_tag {} };
+constexpr inline __Quick_sort_function quick_sort { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first, last) 范围内的元素归并排序。可指定谓词 pred 与投影 proj
 struct __Merge_sort_function: private __Not_quite_object
@@ -1738,7 +1739,7 @@ public:
 	}
 };
 
-constexpr inline __Merge_sort_function merge_sort { __Not_quite_object::__construct_tag {} };
+constexpr inline __Merge_sort_function merge_sort { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first, last) 范围内的元素排序。可指定谓词 pred 与投影 proj
 struct __Sort_function: private __Not_quite_object
@@ -1881,7 +1882,7 @@ public:
 	}
 };
 
-constexpr inline __Sort_function sort { __Not_quite_object::__construct_tag {} };
+constexpr inline __Sort_function sort { __Not_quite_object::__Construct_tag {} };
 
 // 将 [first, last) 范围内的元素进行分割，使得 [first, nth) 范围内的元素均小于等于 [nth, last) 范围内的元素。可指定谓词 pred 与投影 proj
 struct __Nth_element_function: private __Not_quite_object
@@ -1960,7 +1961,7 @@ public:
 	}
 };
 
-constexpr inline __Nth_element_function nth_element { __Not_quite_object::__construct_tag {} };
+constexpr inline __Nth_element_function nth_element { __Not_quite_object::__Construct_tag {} };
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -2086,7 +2087,7 @@ public:
 	}
 };
 
-constexpr inline __Upper_bound_function upper_bound { __Not_quite_object::__construct_tag {} };
+constexpr inline __Upper_bound_function upper_bound { __Not_quite_object::__Construct_tag {} };
 
 // 返回一个有序序列中第一个小于等于给定值的位置。可指定谓词 pred 与投影 proj
 struct __Lower_bound_function: private __Not_quite_object
@@ -2188,7 +2189,7 @@ public:
 	}
 };
 
-constexpr inline __Lower_bound_function lower_bound { __Not_quite_object::__construct_tag {} };
+constexpr inline __Lower_bound_function lower_bound { __Not_quite_object::__Construct_tag {} };
 
 // 返回一个有序序列中与给定值相同的 begin 位置和 end 位置。可指定谓词 pred 与投影 proj
 struct __Equal_range_function: private __Not_quite_object
@@ -2301,7 +2302,7 @@ public:
 	}
 };
 
-constexpr inline __Equal_range_function equal_range { __Not_quite_object::__construct_tag {} };
+constexpr inline __Equal_range_function equal_range { __Not_quite_object::__Construct_tag {} };
 
 // 返回一个布尔值，表示有序序列中是否存在与给定值相同的元素。可指定谓词 pred 与投影 proj
 struct __Binary_search_function: private __Not_quite_object
@@ -2362,7 +2363,7 @@ public:
 	}
 };
 
-constexpr inline __Binary_search_function binary_search { __Not_quite_object::__construct_tag {} };
+constexpr inline __Binary_search_function binary_search { __Not_quite_object::__Construct_tag {} };
 
 __END_NAMESPACE_ZHANG
 

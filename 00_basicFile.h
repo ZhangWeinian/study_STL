@@ -389,14 +389,14 @@ public:
 	 * 我们从这种类型派生出这样的函数对象，以删除一些典型的对象行为，这有助于用户避免依赖于他们未指定的对象性。
 	*/
 
-	struct __construct_tag
+	struct __Construct_tag
 	{
-		explicit __construct_tag() = default;
+		explicit __Construct_tag() = default;
 	};
 
 	__Not_quite_object() = delete;
 
-	constexpr explicit __Not_quite_object(__construct_tag) noexcept
+	constexpr explicit __Not_quite_object(__Construct_tag) noexcept
 	{
 	}
 
