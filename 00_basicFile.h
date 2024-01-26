@@ -70,29 +70,6 @@
 		#define __init_type(initCont, initType) __cove_type(initCont, initType)
 	#endif // !__init_type
 
-	#ifndef __move
-		#define __move(cont) _STD move(cont)
-	#endif // !__move
-
-	#ifndef __invoke
-		#define __invoke(...) _STD invoke(__VA_ARGS__)
-	#endif // !__invoke
-
-	#ifndef __begin_for_range
-		#define __begin_for_range(rng) _RANGES begin(rng)
-	#endif // !__begin_for_range
-
-	#ifndef __end_for_range
-		#define __end_for_range(rng) _RANGES end(rng)
-	#endif // !__end_for_range
-
-	#ifndef __begin_for_range_with_move
-		#define __begin_for_range_with_move(rng) __move(__begin_for_range(rng))
-	#endif // !__begin_for_range
-
-	#ifndef __end_for_range_with_move
-		#define __end_for_range_with_move(rng) __move(__end_for_range(rng))
-	#endif // !__end_for_range
 
 	#ifndef __STL_TEMPLATE_NULL
 		#define __STL_TEMPLATE_MULL template <>
@@ -150,94 +127,6 @@ constexpr inline Type __limit_msg_args = (__max_msg_args<Type>) >> 1;
 
 
 
-/*-----------------------------------------------------------------------------------------------------*/
-
-
-
-// 以下是 容器型别 的基础要求
-template <typename Type>
-concept __range = _RANGES range<Type>;
-
-template <typename Type>
-concept __random_access_range = _RANGES random_access_range<Type>;
-
-template <typename Type>
-concept __bidirectional_range = _RANGES bidirectional_range<Type>;
-
-template <typename Type>
-concept __forward_range = _RANGES forward_range<Type>;
-
-template <typename Type>
-concept __output_range = _RANGES output_range<Type, _RANGES range_value_t<Type>>;
-
-template <typename Type>
-concept __input_range = _RANGES input_range<Type>;
-
-
-// 从 基础迭代器 或 容器 获取信息
-template <_STD input_or_output_iterator Iterator>
-using __difference_type_for_iter = typename _STD iter_difference_t<Iterator>;
-
-template <_STD input_or_output_iterator Iterator>
-using __value_type_for_iter = typename _STD iter_value_t<Iterator>;
-
-template <_RANGES range Range>
-using __difference_type_for_range = typename _RANGES range_difference_t<Range>;
-
-template <_RANGES range Range>
-using __value_type_for_range = typename _RANGES range_value_t<Range>;
-
-template <_RANGES range Range>
-using __iterator_type_for_range = typename _RANGES iterator_t<Range>;
-
-template <_RANGES range Range>
-using __sentinel_type_for_range = typename _RANGES sentinel_t<Range>;
-
-template <_STD input_or_output_iterator Iterator>
-using __type_tag_for_iter = typename _STD iterator_traits<Iterator>::iterator_category;
-
-
-// 以下是 迭代器型别 的定义
-template <typename Type>
-concept __iterator = _STD input_or_output_iterator<Type>;
-
-template <typename Type>
-concept __input_iterator = _STD input_iterator<Type>;
-
-template <typename Type>
-concept __output_iterator = _STD output_iterator<Type, __value_type_for_iter<Type>>;
-
-template <typename Type>
-concept __bidirectional_iterator = _STD bidirectional_iterator<Type>;
-
-template <typename Type>
-concept __forward_iterator = _STD forward_iterator<Type>;
-
-template <typename Type>
-concept __random_access_iterator = _STD random_access_iterator<Type>;
-
-template <typename Type> // 为了使 C风格指针 和 C风格数组 被正确识别为迭代器的 特别定义
-concept __iterator_or_c_array = (__iterator<Type>) || (_STD is_array_v<Type>);
-
-// 其他可能用到的定义
-
-template <typename Type>
-using __remove_cv_type = _STD remove_cv_t<Type>;
-
-template <typename Type>
-using __remove_cvref_type = _STD remove_cvref_t<Type>;
-
-template <typename Iterator>
-concept __nothrow_unwrapped = requires(Iterator iter) {
-	{
-		iter._Unwrapped()
-	} noexcept;
-};
-
-
-/*-----------------------------------------------------------------------------------------------------*/
-
-
 // Iterator 或允许继承展开
 template <typename Iterator>
 concept __allow_inheriting_unwrap = (_STD is_same_v<Iterator, typename Iterator::_Prevent_inheriting_unwrap>);
@@ -270,14 +159,20 @@ concept __unwrappable_sentinel_for =
 
 /*-----------------------------------------------------------------------------------------------------*/
 
+// 迭代器是否可以弱展开
+template <typename Iterator>
+concept __nothrow_unwrapped = requires(Iterator iter) {
+	{
+		iter._Unwrapped()
+	} noexcept;
+};
+
 // 展开头迭代器
 template <typename Sentinel, typename Iterator>
 _NODISCARD constexpr auto
 	__unwrap_iterator(Iterator&& iterator) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
 													(__nothrow_unwrapped<Iterator>))
 {
-	_STL_INTERNAL_STATIC_ASSERT(_STD sentinel_for<_STD remove_cvref_t<Sentinel>, _STD remove_cvref_t<Iterator>>);
-
 	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Iterator>>)
 	{
 		return iterator + 0;
@@ -323,7 +218,7 @@ _NODISCARD constexpr decltype(auto)
 }
 
 // 获取尾迭代器
-template <__forward_iterator Iterator, typename Sentinel>
+template <_STD forward_iterator Iterator, typename Sentinel>
 	requires(_STD sentinel_for<_STD remove_cvref_t<Sentinel>, Iterator>)
 _NODISCARD constexpr __unwrap_iterator_type<Iterator, Sentinel>
 	__get_last_iterator_unwrapped(const __unwrap_iterator_type<Iterator, Sentinel>& first, Sentinel&& last)
@@ -354,7 +249,7 @@ struct __add_ref_for_function
 		// forward function call operator
 		if constexpr (_STD is_member_pointer_v<Predicate>)
 		{
-			return __invoke(pred, _STD forward<Args>(args)...);
+			return _STD invoke(pred, _STD forward<Args>(args)...);
 		}
 		else
 		{

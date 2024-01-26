@@ -34,13 +34,9 @@ int main(int argc, char* argv[])
 
 	zh::sort(nums1);
 
-	auto&& ans1 = zh::upper_bound(nums1.begin(), nums1.end(), 10);
-	println(ans1 - nums1.begin());
+	const auto& ans1 = rg::equal_range(nums1.begin(), nums1.end(), 10);
 
-	auto&& ans2 = rg::lower_bound(nums1.begin(), nums1.end(), 10);
-	println(ans2 - nums1.begin());
-
-	rg::sort;
+	rg::transform;
 
 	return 0;
 }

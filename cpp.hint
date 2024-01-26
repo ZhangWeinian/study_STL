@@ -8,14 +8,14 @@
 #define __END_NAMESPACE_ZHANG }
 #define __BEGIN_NEW_NAMESPACE(name) namespace name {
 #define __END_NEW_NAMESPACE(name) }
-#define __move(cont) ::std::move(cont)
-#define __invoke(...) std::invoke(__VA_ARGS__)
+#define _STD move(cont) ::std::move(cont)
+#define _STD invoke(...) std::invoke(__VA_ARGS__)
 #define __cove_type(cont, type) static_cast<type>(cont)
 #define __init_type(initCont, initType) __cove_type(initCont, initType)
-#define __begin_for_range(cont) ::std::ranges::begin(cont)
-#define __end_for_range(cont) ::std::ranges::end(cont)
-#define __begin_for_range_with_move(cont) std::move(::std::ranges::begin(cont))
-#define __end_for_range_with_move(cont) std::move(::std::ranges::end(cont))
+#define _RANGES begin(cont) ::std::ranges::begin(cont)
+#define _RANGES end(cont) ::std::ranges::end(cont)
+#define _RANGES begin(cont) std::move(::std::ranges::begin(cont))
+#define _RANGES end(cont) std::move(::std::ranges::end(cont))
 #define __HAS_CPP20 _MSVC_LANG
 #define _STD
 #define _RANGES ::std::ranges::
