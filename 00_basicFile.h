@@ -272,7 +272,7 @@ concept __unwrappable_sentinel_for =
 
 // 展开头迭代器
 template <typename Sentinel, typename Iterator>
-_NODISCARD constexpr decltype(auto)
+_NODISCARD constexpr auto
 	__unwrap_iterator(Iterator&& iterator) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
 													(__nothrow_unwrapped<Iterator>))
 {
