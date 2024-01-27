@@ -111,19 +111,24 @@ constexpr Type __stl_threshold = Type(16);
 	#endif // !__stl_threshold
 
 
-	#ifndef __max_msg_args
+	#ifndef __max_msg_args_constant
 
 template <typename Type>
-constexpr inline Type __max_msg_args = Type(128);
+constexpr inline Type __max_msg_args_constant = Type(128);
 
-		#ifndef __limit_msg_args
+		#ifndef __limit_msg_args_constant
 
 template <typename Type>
-constexpr inline Type __limit_msg_args = (__max_msg_args<Type>) >> 1;
+constexpr inline Type __limit_msg_args_constant = (__max_msg_args_constant<Type>) >> 1;
 
-		#endif // !__limit_msg_args
+		#endif // !__limit_msg_args_constant
 
-	#endif	   // !__max_msg_args
+	#endif	   // !__max_msg_args_constant
+
+	#ifndef __max_get_median_of_three_constant
+template <typename Type>
+constexpr inline Type __max_get_median_of_three_constant = Type(40);
+	#endif // !__max_get_median_of_three_constant
 
 
 
@@ -159,7 +164,8 @@ concept __unwrappable_sentinel_for =
 
 /*-----------------------------------------------------------------------------------------------------*/
 
-// 迭代器是否可以弱展开
+
+
 template <typename Iterator>
 concept __nothrow_unwrapped = requires(Iterator iter) {
 	{
@@ -167,35 +173,18 @@ concept __nothrow_unwrapped = requires(Iterator iter) {
 	} noexcept;
 };
 
-// 展开头迭代器
-template <typename Sentinel, typename Iterator>
-_NODISCARD constexpr auto
-	__unwrap_iterator(Iterator&& iterator) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
-													(__nothrow_unwrapped<Iterator>))
-{
-	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Iterator>>)
-	{
-		return iterator + 0;
-	}
-	else if constexpr (__unwrappable_sentinel_for<Sentinel, Iterator>)
-	{
-		return static_cast<Iterator&&>(iterator)._Unwrapped();
-	}
-	else
-	{
-		return static_cast<Iterator&&>(iterator);
-	}
-}
-
-// 展开迭代器类型
 template <typename Iterator, typename Sentinel>
 using __unwrap_iterator_type = _STD remove_cvref_t<decltype(__unwrap_iterator<Sentinel>(_STD declval<Iterator>()))>;
 
-// 展开哨兵类型
 template <typename Sentinel, typename Iterator>
 using __unwrap_sentinel_type = _STD remove_cvref_t<decltype(__unwrap_iterator<Iterator>(_STD declval<Sentinel>()))>;
 
-// 展开哨兵
+template <_RANGES range Range>
+using __unwrapped_iterator_type = __unwrap_iterator_type<_RANGES iterator_t<Range>, _RANGES sentinel_t<Range>>;
+
+template <_RANGES range Range>
+using __unwrapped_sentinel_type = __unwrap_sentinel_type<_RANGES sentinel_t<Range>, _RANGES iterator_t<Range>>;
+
 template <typename Iterator, typename Sentinel>
 _NODISCARD constexpr decltype(auto)
 	__unwrap_sentinel(Sentinel&& sentinel) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
@@ -217,11 +206,43 @@ _NODISCARD constexpr decltype(auto)
 	}
 }
 
-// 获取尾迭代器
+template <typename Sentinel, typename Iterator>
+_NODISCARD constexpr auto
+	__unwrap_iterator(Iterator&& iterator) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
+													(__nothrow_unwrapped<Iterator>))
+{
+	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Iterator>>)
+	{
+		return iterator + 0;
+	}
+	else if constexpr (__unwrappable_sentinel_for<Sentinel, Iterator>)
+	{
+		return static_cast<Iterator&&>(iterator)._Unwrapped();
+	}
+	else
+	{
+		return static_cast<Iterator&&>(iterator);
+	}
+}
+
+template <_RANGES range Range, class Iterator>
+_NODISCARD constexpr decltype(auto) __unwrap_range_iterator(Iterator&& iterator) noexcept(
+	noexcept(__unwrap_iterator<_RANGES sentinel_t<Range>>(static_cast<Iterator&&>(iterator))))
+{
+	return __unwrap_iterator<_RANGES sentinel_t<Range>>(static_cast<Iterator&&>(iterator));
+}
+
+template <_RANGES range Range, class Sentinel>
+_NODISCARD constexpr decltype(auto) __unwrap_range_sentinel(Sentinel&& sentinel) noexcept(
+	noexcept(__unwrap_sentinel<_RANGES iterator_t<Range>>(static_cast<Sentinel&&>(sentinel))))
+{
+	return __unwrap_sentinel<_RANGES iterator_t<Range>>(static_cast<Sentinel&&>(sentinel));
+}
+
 template <_STD forward_iterator Iterator, typename Sentinel>
 	requires(_STD sentinel_for<_STD remove_cvref_t<Sentinel>, Iterator>)
 _NODISCARD constexpr __unwrap_iterator_type<Iterator, Sentinel>
-	__get_last_iterator_unwrapped(const __unwrap_iterator_type<Iterator, Sentinel>& first, Sentinel&& last)
+	__get_last_iterator_with_unwrapped(const __unwrap_iterator_type<Iterator, Sentinel>& first, Sentinel&& last)
 {
 	if constexpr (_STD
 					  is_same_v<__unwrap_iterator_type<Iterator, Sentinel>, __unwrap_sentinel_type<Sentinel, Iterator>>)
@@ -234,7 +255,182 @@ _NODISCARD constexpr __unwrap_iterator_type<Iterator, Sentinel>
 	}
 }
 
+template <_RANGES forward_range Range>
+_NODISCARD constexpr auto __get_last_iterator_with_unwrapped(Range& rng)
+{
+	if constexpr (_RANGES common_range<Range>)
+	{
+		if constexpr (_STD same_as<decltype(_RANGES end(rng)),
+								   __unwrap_iterator_type<_RANGES iterator_t<Range>, _RANGES sentinel_t<Range>>>)
+		{
+			return _RANGES end(rng);
+		}
+		else
+		{
+			return __unwrap_range_sentinel<Range>(_RANGES end(rng));
+		}
+	}
+	else if constexpr (_RANGES sized_range<Range>)
+	{
+		return _RANGES next(_RANGES begin(rng), _RANGES distance(rng));
+	}
+	else
+	{
+		return _RANGES next(_RANGES begin(rng), _RANGES end(rng));
+	}
+}
+
 /*-----------------------------------------------------------------------------------------------------*/
+template <class Type>
+struct __choice_t
+{
+	Type strategy = Type {};
+	bool no_throw = false;
+};
+
+namespace _Unchecked_begin
+{
+	template <typename Type>
+	concept __has_member = requires(Type& t) {
+		{
+			t._Unchecked_begin()
+		} -> _STD input_or_output_iterator;
+	};
+
+	template <class Type>
+	concept __can_begin = requires(Type& t) { __unwrap_range_iterator<Type>(_RANGES begin(t)); };
+
+	class UncheckBegin
+	{
+	private:
+
+		enum class Start
+		{
+			None,
+			Member,
+			Unwrap
+		};
+
+		template <class Type>
+		_NODISCARD static consteval __choice_t<Start> __choose() noexcept
+		{
+			if constexpr (__has_member<Type>)
+			{
+				return { Start::Member, noexcept(_STD _Fake_copy_init(_STD declval<Type>()._Unchecked_begin())) };
+			}
+			else if constexpr (__can_begin<Type>)
+			{
+				return { Start::Unwrap,
+						 noexcept(_STD _Fake_copy_init(
+							 __unwrap_range_iterator<Type>(_RANGES begin(_STD declval<Type>())))) };
+			}
+			else
+			{
+				return { Start::None };
+			}
+		}
+
+		template <class Type>
+		static constexpr __choice_t<Start> __choice = __choose<Type>();
+
+	public:
+
+		template <_RANGES _Should_range_access Type>
+			requires(__choice<Type&>.strategy != Start::None)
+		_NODISCARD constexpr auto operator()(Type&& value) const noexcept(__choice<Type&>.no_throw)
+		{
+			constexpr Start st = __choice<Type&>.strategy;
+
+			if constexpr (st == Start::Member)
+			{
+				return value._Unchecked_begin();
+			}
+			else if constexpr (st == Start::Unwrap)
+			{
+				return __unwrap_range_iterator<Type>(_RANGES begin(value));
+			}
+			else
+			{
+				static_assert(_STD _Always_false<Type>, "Should be unreachable");
+			}
+		}
+	};
+} // namespace _Unchecked_begin
+
+constexpr inline _Unchecked_begin::UncheckBegin ubegin;
+
+namespace _Unchecked_end
+{
+	template <class Type>
+	concept __has_member = _Unchecked_begin::__has_member<Type> && requires(Type& t) {
+		t._Unchecked_begin();
+		{
+			t._Unchecked_end()
+		} -> _STD sentinel_for<decltype(t._Unchecked_begin())>;
+	};
+
+	template <class Type>
+	concept _Can_end = requires(Type& t) { __unwrap_range_sentinel<Type>(_RANGES end(t)); };
+
+	class UncheckEnd
+	{
+	private:
+
+		enum class Start
+		{
+			None,
+			Member,
+			Unwrap
+		};
+
+		template <class Type>
+		_NODISCARD static consteval __choice_t<Start> __choose() noexcept
+		{
+			if constexpr (__has_member<Type>)
+			{
+				return { Start::Member, noexcept(_STD declval<Type>()._Unchecked_end()) };
+			}
+			else if constexpr (_Can_end<Type>)
+			{
+				return { Start::Unwrap, noexcept(__unwrap_range_sentinel<Type>(_RANGES end(_STD declval<Type>()))) };
+			}
+			else
+			{
+				return { Start::None };
+			}
+		}
+
+		template <class Type>
+		static constexpr __choice_t<Start> __choice = __choose<Type>();
+
+	public:
+
+		template <_RANGES _Should_range_access Type>
+			requires(__choice<Type&>.strategy != Start::None)
+		_NODISCARD constexpr auto operator()(Type&& value) const noexcept(__choice<Type&>.no_throw)
+		{
+			constexpr Start st = __choice<Type&>.strategy;
+
+			if constexpr (st == Start::Member)
+			{
+				return value._Unchecked_end();
+			}
+			else if constexpr (st == Start::Unwrap)
+			{
+				return __unwrap_range_sentinel<Type>(_RANGES end(value));
+			}
+			else
+			{
+				static_assert(_STD _Always_false<Type>, "Should be unreachable");
+			}
+		}
+	};
+} // namespace _Unchecked_end
+
+constexpr inline _Unchecked_end::UncheckEnd uend;
+
+/*-----------------------------------------------------------------------------------------------------*/
+
 
 
 template <typename Predicate>

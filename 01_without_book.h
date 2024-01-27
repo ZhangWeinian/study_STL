@@ -427,7 +427,7 @@ public:
 			__print_with_iter(_STD move(first), _STD move(last), __check_function(pfun), __check_function(proj))))
 	{
 		auto check_first = __unwrap_iterator<Sentinel>(_STD move(first));
-		auto check_last	 = __get_last_iterator_unwrapped<InputIterator, Sentinel>(check_first, _STD move(last));
+		auto check_last	 = __get_last_iterator_with_unwrapped<InputIterator, Sentinel>(check_first, _STD move(last));
 
 		__print_with_iter(_STD move(check_first),
 						  _STD move(check_last),
@@ -455,7 +455,7 @@ public:
 	constexpr void operator()(MsgType msg, Args... args) const
 		noexcept(noexcept(__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
 	{
-		static_assert((sizeof...(args) < (__max_msg_args<uint64_t>)),
+		static_assert((sizeof...(args) < (__max_msg_args_constant<uint64_t>)),
 					  "There are too many parameters, please consider printing in an STL container.");
 
 		__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
@@ -514,7 +514,7 @@ public:
 	constexpr void operator()(MsgType msg, Args... args) const
 		noexcept(noexcept(print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
 	{
-		static_assert((sizeof...(args) < (__max_msg_args<uint64_t>)),
+		static_assert((sizeof...(args) < (__max_msg_args_constant<uint64_t>)),
 					  "There are too many parameters, please consider printing in an STL container.");
 
 		print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);

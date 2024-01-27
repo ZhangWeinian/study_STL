@@ -32,11 +32,9 @@ int main(int argc, char* argv[])
 				   2740, 10,   4578, 4836, 48,	748,  8965, 10,	  4897,	 156,	4867, 1540,	 10,  4557, 869,   4568,
 				   145,	 7421, 7412, 1022, 75,	47,	  10,	4823, 472,	 7413,	953,  10,	 237, 4869, 32767, 1 };
 
-	zh::sort(nums1);
+	zh::swap;
 
-	const auto& ans1 = rg::equal_range(nums1.begin(), nums1.end(), 10);
-
-	rg::transform;
+	rg::iter_swap;
 
 	return 0;
 }
