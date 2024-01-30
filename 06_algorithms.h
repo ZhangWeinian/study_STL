@@ -897,24 +897,54 @@ public:
 		_STD indirect_strict_weak_order<_STD projected<_RANGES iterator_t<Range>, Projection>> Predicate = _RANGES less>
 		requires(requires(Range&& rng, Predicate pred, Projection proj) {
 			{
-				*(_RANGES begin(rng) + 1)
+				*(ubegin(rng) + 1)
 			} noexcept;
 
 			{
-				_STD invoke(pred,
-							_STD invoke(proj, *(_RANGES begin(rng))),
-							_STD invoke(proj, *(_RANGES begin(rng) + 1)))
+				_STD invoke(pred, _STD invoke(proj, *(ubegin(rng))), _STD invoke(proj, *(ubegin(rng) + 1)))
 			} noexcept -> _STD convertible_to<bool>;
 		})
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr auto
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const _RANGES range_value_t<Range>&
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const
 	{
 		auto check_pred = __check_function(pred);
 		auto check_proj = __check_function(proj);
 
-		auto first				= _RANGES begin(rng);
-		auto last				= _RANGES end(rng);
-		auto				ans = first;
+		auto first = ubegin(rng);
+		auto last  = uend(rng);
+		auto ans   = first;
+
+		for (; first != last; ++first)
+		{
+			ans =
+				(_STD invoke(check_pred, _STD invoke(check_proj, *first), _STD invoke(check_proj, *ans))) ? ans : first;
+		}
+
+		return *ans;
+	}
+
+	/* function max() for initializer_list 强化版 */
+	template <_STD copyable				 Type,
+			  typename Projection																 = _STD identity,
+			  _STD indirect_strict_weak_order<_STD projected<const Type*, Projection>> Predicate = _RANGES less>
+		requires(requires(_STD initializer_list<Type> rng, Predicate pred, Projection proj) {
+			{
+				*(ubegin(rng) + 1)
+			} noexcept;
+
+			{
+				_STD invoke(pred, _STD invoke(proj, *(ubegin(rng))), _STD invoke(proj, *(ubegin(rng) + 1)))
+			} noexcept -> _STD convertible_to<bool>;
+		})
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const Type&
+		operator()(_STD initializer_list<Type> rng, Predicate pred = {}, Projection proj = {}) const
+	{
+		auto check_pred = __check_function(pred);
+		auto check_proj = __check_function(proj);
+
+		auto first = rng.begin();
+		auto last  = rng.end();
+		auto ans   = first;
 
 		for (; first != last; ++first)
 		{
@@ -960,24 +990,54 @@ public:
 				  _RANGES																			 greater>
 		requires(requires(Range&& rng, Predicate pred, Projection proj) {
 			{
-				*(_RANGES begin(rng) + 1)
+				*(ubegin(rng) + 1)
 			} noexcept;
 
 			{
-				_STD invoke(pred,
-							_STD invoke(proj, *(_RANGES begin(rng))),
-							_STD invoke(proj, *(_RANGES begin(rng) + 1)))
+				_STD invoke(pred, _STD invoke(proj, *(ubegin(rng))), _STD invoke(proj, *(ubegin(rng) + 1)))
 			} noexcept -> _STD convertible_to<bool>;
 		})
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr auto
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const _RANGES range_value_t<Range>&
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto check_pred = __check_function(pred);
 		auto check_proj = __check_function(proj);
 
-		auto first				= _RANGES begin(rng);
-		auto last				= _RANGES end(rng);
-		auto				ans = first;
+		auto first = ubegin(rng);
+		auto last  = uend(rng);
+		auto ans   = first;
+
+		for (; first != last; ++first)
+		{
+			ans =
+				(_STD invoke(check_pred, _STD invoke(check_proj, *first), _STD invoke(check_proj, *ans))) ? ans : first;
+		}
+
+		return *ans;
+	}
+
+	/* function min() for initializer_list 强化版 */
+	template <_STD copyable				 Type,
+			  typename Projection																 = _STD identity,
+			  _STD indirect_strict_weak_order<_STD projected<const Type*, Projection>> Predicate = _RANGES greater>
+		requires(requires(_STD initializer_list<Type> rng, Predicate pred, Projection proj) {
+			{
+				*(ubegin(rng) + 1)
+			} noexcept;
+
+			{
+				_STD invoke(pred, _STD invoke(proj, *(ubegin(rng))), _STD invoke(proj, *(ubegin(rng) + 1)))
+			} noexcept -> _STD convertible_to<bool>;
+		})
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const Type&
+		operator()(_STD initializer_list<Type> rng, Predicate pred = {}, Projection proj = {}) const noexcept
+	{
+		auto check_pred = __check_function(pred);
+		auto check_proj = __check_function(proj);
+
+		auto first = rng.begin();
+		auto last  = rng.end();
+		auto ans   = first;
 
 		for (; first != last; ++first)
 		{
@@ -1035,13 +1095,11 @@ public:
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr ForwardIterator
 		operator()(ForwardIterator first, Sentinel last, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		auto check_first = __unwrap_iterator<Sentinel>(_STD move(first));
-		auto check_last	 = __get_last_iterator_with_unwrapped<ForwardIterator, Sentinel>(check_first, _STD move(last));
-
-		return __default_max_element(_STD move(check_first),
-									 _STD move(check_last),
-									 __check_function(pred),
-									 __check_function(proj));
+		return __seek_wrapped(first,
+							  __default_max_element(__unwrap_iterator<Sentinel>(_STD move(first)),
+													__unwrap_sentinel<ForwardIterator, Sentinel>(_STD move(last)),
+													__check_function(pred),
+													__check_function(proj)));
 	}
 
 	/* function max_element() for 容器、仿函数 强化版 */
@@ -1051,13 +1109,15 @@ public:
 		_STD indirect_strict_weak_order<_STD projected<_RANGES iterator_t<Range>, Projection>> Predicate = _RANGES less>
 		requires(requires(Range&& rng, Predicate pred, Projection proj) {
 			{
-				_STD invoke(pred, _STD invoke(proj, *(_RANGES begin(rng))), _STD invoke(proj, *(_RANGES begin(rng))))
+				_STD invoke(pred, _STD invoke(proj, *(ubegin(rng))), _STD invoke(proj, *(ubegin(rng))))
 			} noexcept -> _STD convertible_to<bool>;
 		})
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr auto
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES borrowed_iterator_t<Range>
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		return (*this)(_RANGES begin(rng), _RANGES end(rng), pred, proj);
+		return __rewrap_iterator(
+			rng,
+			__default_max_element(ubegin(rng), uend(rng), __check_function(pred), __check_function(proj)));
 	}
 };
 
@@ -1107,13 +1167,11 @@ public:
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr ForwardIterator
 		operator()(ForwardIterator first, Sentinel last, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		auto check_first = __unwrap_iterator<Sentinel>(_STD move(first));
-		auto check_last	 = __get_last_iterator_with_unwrapped<ForwardIterator, Sentinel>(check_first, _STD move(last));
-
-		return __default_min_element(_STD move(check_first),
-									 _STD move(check_last),
-									 __check_function(pred),
-									 __check_function(proj));
+		return __seek_wrapped(first,
+							  __default_min_element(__unwrap_iterator<Sentinel>(_STD move(first)),
+													__unwrap_sentinel<ForwardIterator, Sentinel>(_STD move(last)),
+													__check_function(pred),
+													__check_function(proj)));
 	}
 
 	/* function min_element() for 容器、仿函数 强化版 */
@@ -1123,13 +1181,15 @@ public:
 				  _RANGES																			 greater>
 		requires(requires(Range&& rng, Predicate pred, Projection proj) {
 			{
-				_STD invoke(pred, _STD invoke(proj, *(_RANGES begin(rng))), _STD invoke(proj, *(_RANGES begin(rng))))
+				_STD invoke(pred, _STD invoke(proj, *(ubegin(rng))), _STD invoke(proj, *(ubegin(rng))))
 			} noexcept -> _STD convertible_to<bool>;
 		})
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr auto
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		return (*this)(_RANGES begin(rng), _RANGES end(rng), pred, proj);
+		return __rewrap_iterator(
+			rng,
+			__default_min_element(ubegin(rng), uend(rng), __check_function(pred), __check_function(proj)));
 	}
 };
 
@@ -1140,6 +1200,9 @@ struct __Merge_function: private __Not_quite_object
 {
 private:
 
+	template <typename InputIterator1, typename InputIterator2, typename OutputIterator>
+	using merge_result = _RANGES in_in_out_result<InputIterator1, InputIterator2, OutputIterator>;
+
 	// 统一调用方式
 	template <typename Iterator1,
 			  typename Iterator2,
@@ -1147,14 +1210,15 @@ private:
 			  typename Predicate,
 			  typename Projection1,
 			  typename Projection2>
-	_NODISCARD static constexpr Iterator3 __default_merge(Iterator1	  first1,
-														  Iterator1	  last1,
-														  Iterator2	  first2,
-														  Iterator2	  last2,
-														  Iterator3	  result,
-														  Predicate	  pred,
-														  Projection1 proj1,
-														  Projection2 proj2) noexcept
+	_NODISCARD static constexpr merge_result<Iterator1, Iterator2, Iterator3>
+		__default_merge(Iterator1	first1,
+						Iterator1	last1,
+						Iterator2	first2,
+						Iterator2	last2,
+						Iterator3	result,
+						Predicate	pred,
+						Projection1 proj1,
+						Projection2 proj2) noexcept
 	{
 		while ((first1 != last1) && (first2 != last2)) // 若两个序列都未完成，则继续
 		{
@@ -1172,8 +1236,19 @@ private:
 			++result; // 每记录一个元素，result 前进 1 位
 		}
 
-		// 最后剩余元素拷贝到目的端。（以下两个序列一定至少有一个为空）
-		return copy(_STD move(first2), _STD move(last2), copy(_STD move(first1), _STD move(last1), _STD move(result)));
+		// 最后剩余元素拷贝到目的端。（两个序列一定至少有一个为空）
+		if (first1 == last1)
+		{
+			auto [end_for_range1, end_for_range_2] =
+				_RANGES copy(_STD move(first2), _STD move(last2), _STD move(result));
+			return { _STD move(first1), _STD move(end_for_range1), _STD move(end_for_range_2) };
+		}
+		else // first2 == last2
+		{
+			auto [end_for_range1, end_for_range_2] =
+				_RANGES copy(_STD move(first1), _STD move(last1), _STD move(result));
+			return { _STD move(end_for_range1), _STD move(first2), _STD move(end_for_range_2) };
+		}
 	}
 
 public:
@@ -1185,65 +1260,77 @@ public:
 			  _STD input_iterator InputIterator2,
 			  _STD sentinel_for<InputIterator1> Sentinel_InputIterator1,
 			  _STD sentinel_for<InputIterator2> Sentinel_InputIterator2,
-			  _STD output_iterator<const _STD iter_value_t<InputIterator1>&> OutputIterator,
-			  typename Predicate   = _RANGES								   less,
-			  typename Projection1 = _STD									 identity,
-			  typename Projection2 = _STD									 identity>
+			  _STD weakly_incrementable			OutputIterator,
+			  typename Predicate   = _RANGES	  less,
+			  typename Projection1 = _STD		identity,
+			  typename Projection2 = _STD		identity>
 		requires(_STD mergeable<InputIterator1, InputIterator2, OutputIterator, Predicate, Projection1, Projection2>)
-	constexpr OutputIterator operator()(InputIterator1			first1,
-										Sentinel_InputIterator1 last1,
-										InputIterator2			first2,
-										Sentinel_InputIterator2 last2,
-										OutputIterator			result,
-										Predicate				pred  = {},
-										Projection1				proj1 = {},
-										Projection2				proj2 = {}) const noexcept
+	constexpr merge_result<InputIterator1, InputIterator2, OutputIterator>
+		operator()(InputIterator1		   first1,
+				   Sentinel_InputIterator1 last1,
+				   InputIterator2		   first2,
+				   Sentinel_InputIterator2 last2,
+				   OutputIterator		   result,
+				   Predicate			   pred	 = {},
+				   Projection1			   proj1 = {},
+				   Projection2			   proj2 = {}) const noexcept
 	{
-		auto check_first1 = __unwrap_iterator<Sentinel_InputIterator1>(_STD move(first1));
-		auto check_first2 = __unwrap_iterator<Sentinel_InputIterator2>(_STD move(first2));
-		auto check_last1 =
-			__get_last_iterator_with_unwrapped<InputIterator1, Sentinel_InputIterator1>(check_first1, _STD move(last1));
-		auto check_last2 =
-			__get_last_iterator_with_unwrapped<InputIterator2, Sentinel_InputIterator2>(check_first2, _STD move(last2));
+		auto [end_for_range1, end_for_range2, end_for_range3] =
+			__default_merge(__unwrap_iterator<Sentinel_InputIterator1>(_STD move(first1)),
+							__unwrap_sentinel<InputIterator1, Sentinel_InputIterator1>(_STD move(last1)),
+							__unwrap_iterator<Sentinel_InputIterator2>(_STD move(first2)),
+							__unwrap_sentinel<InputIterator2, Sentinel_InputIterator2>(_STD move(last2)),
+							_STD move(result),
+							__check_function(pred),
+							__check_function(proj1),
+							__check_function(proj2));
 
-		return __default_merge(_STD move(check_first1),
-							   _STD move(check_last1),
-							   _STD move(check_first2),
-							   _STD move(check_last2),
-							   _STD move(result),
-							   __check_function(pred),
-							   __check_function(proj1),
-							   __check_function(proj2));
+		__seek_wrapped(first1, _STD move(end_for_range1));
+		__seek_wrapped(first2, _STD move(end_for_range2));
+
+		return { _STD move(first1), _STD move(first2), _STD move(end_for_range3) };
 	}
 
 	/* function merge() for 容器、仿函数 强化版 */
-	template <_RANGES input_range InputRange1,
-			  _RANGES input_range InputRange2,
-			  _STD output_iterator<const _RANGES range_value_t<InputRange1>&> OutputIterator,
-			  typename Predicate   = _RANGES									less,
-			  typename Projection1 = _STD									  identity,
-			  typename Projection2 = _STD									  identity>
+	template <_RANGES input_range		   InputRange1,
+			  _RANGES input_range		   InputRange2,
+			  _STD weakly_incrementable	   OutputIterator,
+			  typename Predicate   = _RANGES less,
+			  typename Projection1 = _STD  identity,
+			  typename Projection2 = _STD  identity>
 		requires(_STD mergeable<_RANGES iterator_t<InputRange1>,
 								_RANGES iterator_t<InputRange2>,
 								OutputIterator,
 								Predicate,
 								Projection1,
 								Projection2>)
-	constexpr auto operator()(InputRange1&&	 rng1,
-							  InputRange2&&	 rng2,
-							  OutputIterator result,
-							  Predicate		 pred  = {},
-							  Projection1	 proj1 = {},
-							  Projection2	 proj2 = {}) const noexcept
+	constexpr merge_result<_RANGES borrowed_iterator_t<InputRange1>,
+						   _RANGES borrowed_iterator_t<InputRange2>,
+						   OutputIterator>
+		operator()(InputRange1&&  rng1,
+				   InputRange2&&  rng2,
+				   OutputIterator result,
+				   Predicate	  pred	= {},
+				   Projection1	  proj1 = {},
+				   Projection2	  proj2 = {}) const noexcept
 	{
-		return (*this)(_RANGES begin(rng1),
-					   _RANGES end(rng1),
-					   _RANGES begin(rng2),
-					   _RANGES end(rng2),
-					   _STD	   move(result),
-					   pred,
-					   proj1,
-					   proj2);
+		auto first1 = _RANGES begin(rng1);
+		auto first2 = _RANGES begin(rng2);
+
+		auto [end_for_range1, end_for_range2, end_for_range3] =
+			__default_merge(__unwrap_range_iterator<InputRange1>(_STD move(first1)),
+							uend(rng1),
+							__unwrap_range_iterator<InputRange2>(_STD move(first2)),
+							uend(rng2),
+							_STD move(result),
+							__check_function(pred),
+							__check_function(proj1),
+							__check_function(proj2));
+
+		__seek_wrapped(first1, _STD move(end_for_range1));
+		__seek_wrapped(first2, _STD move(end_for_range2));
+
+		return { _STD move(first1), _STD move(first2), _STD move(end_for_range3) };
 	}
 };
 

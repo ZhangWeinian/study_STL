@@ -32,9 +32,16 @@ int main(int argc, char* argv[])
 				   2740, 10,   4578, 4836, 48,	748,  8965, 10,	  4897,	 156,	4867, 1540,	 10,  4557, 869,   4568,
 				   145,	 7421, 7412, 1022, 75,	47,	  10,	4823, 472,	 7413,	953,  10,	 237, 4869, 32767, 1 };
 
-	zh::swap;
+	vector		test1 { 1, 3, 5, 7, 9 };
+	vector		test2 { 2, 4, 6, 8, 10 };
+	vector<int> test3(10, 0);
 
-	rg::iter_swap;
+	auto [end_for_range1, end_for_range2, end_for_range3] = zh::merge(test1, test2, test3.begin());
+
+	println(test3);
+	println(rg::iter_move(rg::prev(end_for_range1)));
+	println(rg::iter_move(rg::prev(end_for_range2)));
+	println(rg::iter_move(rg::prev(end_for_range3)));
 
 	return 0;
 }
