@@ -43,5 +43,9 @@ int main(int argc, char* argv[])
 	println(rg::iter_move(rg::prev(end_for_range2)));
 	println(rg::iter_move(rg::prev(end_for_range3)));
 
+	zh::sort(nums1);
+
+	println(nums1);
+
 	return 0;
 }
