@@ -132,7 +132,7 @@ constexpr inline Type __max_get_median_of_three_constant = Type(40);
 
 
 
-// Iterator 或允许继承展开
+// OutIter 或允许继承展开
 template <typename Iterator>
 concept __allow_inheriting_unwrap = (_STD is_same_v<Iterator, typename Iterator::_Prevent_inheriting_unwrap>);
 
@@ -145,7 +145,7 @@ concept __weakly_unwrappable = (__allow_inheriting_unwrap<_STD remove_cvref_t<Wr
 template <typename Sentinel>
 concept __weakly_unwrappable_sentinel = __weakly_unwrappable<const _STD remove_reference_t<Sentinel>&>;
 
-// Iterator 是弱展开迭代器
+// OutIter 是弱展开迭代器
 template <typename Iterator>
 concept __weakly_unwrappable_iterator =
 	(__weakly_unwrappable<Iterator>)&&(requires(Iterator&& iterator, _STD remove_cvref_t<Iterator>& mut_iter) {

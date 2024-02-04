@@ -35,10 +35,7 @@ int main(int argc, char* argv[])
 	vector		nums2 { 1, 3, 5, 7, 9, 2, 4, 6, 8, 10 };
 	vector<int> nums3(10, 0);
 
-	// rg::transform(nums2, nums3.begin(), [](auto x) { return x * 2; });
-	zh::transform(nums2, nums3.begin(), [](auto x) { return x * 2; });
-
-	println(nums3);
+	rg::equal;
 
 	return 0;
 }

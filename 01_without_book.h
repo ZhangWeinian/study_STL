@@ -92,8 +92,12 @@ struct __zh_Default_print_with_one_data_function
 {
 public:
 
-	template <__basic_msg_type MsgType, __delimiter_mode DelimiterMode>
-	constexpr void operator()(const MsgType& msg, DelimiterMode) const noexcept
+	// 此两处函数虽然拥有默认 DelimiterMode ，但是不代表在使用此两函数时，可以省略 DelimiterMode 。相反，必须显式指定 DelimiterMode 。
+	// 原因是：print()（ 或 println() ）的接口仅仅可以自定义打印函数，而不能自定义 DelimiterMode，这是一个内部的私有类型，它仅仅是配合
+	// 默认打印函数使用的。所以，如果不显式指定 DelimiterMode ，则会导致编译器无法推导出正确的类型，从而导致编译失败。
+
+	template <__basic_msg_type MsgType, __delimiter_mode DelimiterMode = __zh_Print_with_comma_space>
+	constexpr void operator()(const MsgType& msg, DelimiterMode = {}) const noexcept
 	{
 		if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_comma_space>)
 		{
@@ -109,8 +113,8 @@ public:
 		}
 	}
 
-	template <__delimiter_mode DelimiterMode>
-	constexpr void operator()(const wchar_t* msg, DelimiterMode) const noexcept
+	template <__delimiter_mode DelimiterMode = __zh_Print_with_comma_space>
+	constexpr void operator()(const wchar_t* msg, DelimiterMode = {}) const noexcept
 	{
 		_STD ios::sync_with_stdio(true);
 		_STD locale::global(_STD locale(""));
@@ -406,34 +410,32 @@ public:
 			  _STD sentinel_for<Iterator> Sentinel,
 			  typename PrintFunction = __zh_Default_print_with_one_data_function,
 			  typename Projection	 = _STD identity>
-		requires(requires(Iterator iterator, PrintFunction pfun, Projection proj) {
-			requires(_STD is_pointer_v<Iterator>);
-
+		requires(requires(Iterator iter, PrintFunction pfun, Projection proj) {
 			{
-				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), *iterator))
+				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), _RANGES iter_move(iter)))
 			} noexcept -> _STD same_as<void>;
 		})
 	constexpr void operator()(Iterator first, Sentinel last, PrintFunction pfun = {}, Projection proj = {}) const
 		noexcept(noexcept(
 			__print_with_iter(_STD move(first), _STD move(last), __check_function(pfun), __check_function(proj))))
 	{
-		__print_with_iter(__unwrap_iterator<Sentinel>(_STD move(first)),
-						  __get_last_iterator_with_unwrapped<Iterator, Sentinel>(ufirst, _STD move(last)),
-						  __check_function(pfun),
-						  __check_function(proj));
+		auto ufirst = __unwrap_iterator<Sentinel>(_STD move(first));
+		auto ulast	= __get_last_iterator_with_unwrapped<Iterator, Sentinel>(ufirst, _STD move(last));
+
+		__print_with_iter(_STD move(ufirst), _STD move(ulast), __check_function(pfun), __check_function(proj));
 	}
 
 	// 2、针对 容器 的特化
 	template <_RANGES input_range Range,
 			  typename PrintFunction = __zh_Default_print_with_one_data_function,
 			  typename Projection	 = _STD identity>
-		requires(requires(typename _RANGES range_value_t<Range> val, PrintFunction pfun, Projection proj) {
+		requires(requires(_RANGES range_value_t<Range> value, PrintFunction pfun, Projection proj) {
 			{
-				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), val))
+				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), value))
 			} noexcept -> _STD same_as<void>;
 		})
 	constexpr void operator()(Range&& rng, PrintFunction pfun = {}, Projection proj = {}) const
-		noexcept(noexcept((*this)(_RANGES begin(rng), _RANGES end(rng), pfun, proj)))
+		noexcept(noexcept(((*this)(_RANGES begin(rng), _RANGES end(rng), pfun, proj))))
 	{
 		(*this)(_RANGES begin(rng), _RANGES end(rng), pfun, proj);
 	}
@@ -470,11 +472,9 @@ public:
 			  _STD sentinel_for<Iterator> Sentinel,
 			  typename PrintFunction = __zh_Default_print_with_one_data_function,
 			  typename Projection	 = _STD identity>
-		requires(requires(Iterator iterator, PrintFunction pfun, Projection proj) {
-			requires(_STD is_pointer_v<Iterator>);
-
+		requires(requires(Iterator iter, PrintFunction pfun, Projection proj) {
 			{
-				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), *iterator))
+				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), _RANGES iter_move(iter)))
 			} noexcept -> _STD same_as<void>;
 		})
 	constexpr void operator()(Iterator first, Sentinel last, PrintFunction pfun = {}, Projection proj = {}) const
@@ -487,7 +487,7 @@ public:
 	template <_RANGES input_range Range,
 			  typename PrintFunction = __zh_Default_print_with_one_data_function,
 			  typename Projection	 = _STD identity>
-		requires(requires(typename _RANGES range_value_t<Range> value, PrintFunction pfun, Projection proj) {
+		requires(requires(_RANGES range_value_t<Range> value, PrintFunction pfun, Projection proj) {
 			{
 				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), value))
 			} noexcept -> _STD same_as<void>;
