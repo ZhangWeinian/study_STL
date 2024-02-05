@@ -85,12 +85,144 @@ constexpr void __seek_wrapped(Iterator& iterator, UIterator&& uiterauor)
 
 /*------------------------------------------------------------------------------------------------*/
 
-// 此处实现 copy() 函数
+// 此处实现 copy()
 struct __Copy_function: private __Not_quite_object
 {
+private:
+
+	template <class Iterator, class OutIter>
+	using copy_result = _RANGES in_out_result<Iterator, OutIter>;
+
+	/* function __default_copy_with_random_access_iter() -- 辅助函数 */
+	template <typename Iterator, typename OutIter>
+	static constexpr OutIter
+		__default_copy_with_random_access_iter(Iterator first, Iterator last, OutIter result) noexcept
+	{
+		using diff_t = _STD iter_difference_t<Iterator>;
+
+		for (diff_t i { last - first }; i > 0; --i, ++result, ++first) // 以 i 决定循环的次数 -- 速度快
+		{
+			*result = *first;
+		}
+
+		return result;
+	}
+
+	// 完全泛化版本
+	template <typename Iterator, typename Sentinel, typename OutIter>
+	static constexpr OutIter __default_copy_dispatch(Iterator first, Sentinel last, OutIter result) noexcept
+	{
+		// 此处兵分两路：不同种类的迭代器所使用的循环条件不同，有快慢之分
+		if constexpr (_STD is_same_v<_STD random_access_iterator_tag(), __type_tag_for_iter<Iterator>()>)
+		{
+			// 此处单独划分出一个函数，为的是其他地方也能用到
+			return __default_copy_with_random_access_iter(__move(first), __move(last), __move(result));
+		}
+		else
+		{
+			for (; first != last; ++result, ++first) // 以迭代器相同与否，决定循环是否继续 -- 速度慢
+			{
+				*result = *first;
+			}
+
+			return result;
+		}
+	}
+
+	// 偏特化版本1：第一个参数是 const Type* 指针形式，第二个参数是 Type* 指针形式
+	// 为何要分为两种情况？具体实现见书 319 页。
+	template <typename Type>
+	static constexpr Type* __default_copy_dispatch(const Type* first, Type* last, Type* result) noexcept
+	{
+		using pointer_type_tag = typename __type_traits<Type>::has_trivial_assignment_operator;
+		constexpr bool is_trivial_assignment_operator { _STD is_same_v<_STD true_type(), pointer_type_tag()> };
+
+		if (is_trivial_assignment_operator) // 以下版本适用于 “指针所指之对象，具备 trivial assignment operator ”
+		{
+			__invoke(_CSTD memmove, result, first, sizeof(Type) * (last - first));
+
+			return result + (last - first);
+		}
+		else // 以下版本适用于 “指针所指之对象，具备 non-trivial assignment operator ”
+		{
+			return __default_copy_with_random_access_iter(__move(first), __move(last), __move(result));
+		}
+	}
+
+	// 偏特化版本2：两个参数都是 Type* 类型的指针
+	template <typename Type>
+	static constexpr Type* __default_copy_dispatch(Type* first, Type* last, Type* result) noexcept
+	{
+		using pointer_type_tag = typename __type_traits<Type>::has_trivial_assignment_operator;
+		constexpr bool is_trivial_assignment_operator { _STD is_same_v<_STD true_type(), pointer_type_tag()> };
+
+		if (is_trivial_assignment_operator)
+		{
+			__invoke(_CSTD memmove, result, first, sizeof(Type) * (last - first));
+
+			return result + (last - first);
+		}
+		else
+		{
+			return __default_copy_with_random_access_iter(__move(first), __move(last), __move(result));
+		}
+	}
+
+	// 统一调用方式
+
+	/* function copy() 重载1 */
+	static constexpr char*
+		__default_cpoy(const char* first,
+					   const char* last,
+					   char* result) noexcept // 针对原生指针(可视为一种特殊的迭代器) const char* ，机型内存直接拷贝操作
+	{
+		_STD invoke(_CSTD memmove, result, first, last - first);
+
+		return result + (last - first);
+	}
+
+	/* function copy() 重载2 */
+	static constexpr wchar_t* __default_cpoy(
+		const wchar_t* first,
+		const wchar_t* last,
+		wchar_t* result) noexcept // 针对原生指针（可视为一种特殊的迭代器）const wchar_t* ，执行内存直接拷贝操作
+	{
+		_STD invoke(_CSTD memmove, result, first, sizeof(wchar_t) * (last - first));
+
+		return result + (last - first);
+	}
+
+	/* function copy() 一般泛型 */
+	template <typename Iterator,
+			  typename OutIter> // 完全泛化版本
+	static constexpr OutIter __default_cpoy(Iterator first, Iterator last, OutIter result) noexcept
+	{
+		return __default_copy_dispatch(__move(first), __move(last), __move(result));
+	}
+
+
 public:
 
 	using __Not_quite_object::__Not_quite_object;
+
+	/* function copy() 一般泛型 */
+	template <_STD input_iterator Iterator,
+			  _STD sentinel_for<Iterator> Sentinel,
+			  _STD output_iterator<const _STD iter_value_t<Iterator>&> OutIter>
+	constexpr OutIter operator()(Iterator first, Sentinel last, OutIter result) const noexcept
+	{
+		auto check_first = __unwrap_iterator<Sentinel>(__move(first));
+		auto check_last	 = __get_last_iterator_unwrapped<Iterator, Sentinel>(check_first, __move(last));
+
+		return __default_cpoy(__move(check_first), __move(check_last), __move(result));
+	}
+
+	/* function copy() for 容器 强化版 */
+	template <_RANGES input_range Range, _STD weakly_incrementable OutIter>
+	constexpr OutIter operator()(Range&& rng1, OutIter result) const noexcept
+	{
+		return __default_copy(ubegin(rng1), uend(rng1), result);
+	}
 };
 
 constexpr inline __Copy_function copy { __Not_quite_object::__Construct_tag {} };
