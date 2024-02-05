@@ -14,7 +14,7 @@ struct __zh_No_inspection_required_function
 	// 则在调用此函数的未检查版本时，只需将第一个参数设为此标识符的实例，之后再传入其他参数即可。
 };
 
-constexpr inline __zh_No_inspection_required_function __zh_Unchecked {};
+constexpr inline __zh_No_inspection_required_function __zh_No_inspection_required {};
 
 template <typename Result, typename Wrapped, typename Unwrapped>
 _NODISCARD constexpr Result __rewrap_subrange(Wrapped& value, _RANGES subrange<Unwrapped>&& result)
@@ -231,7 +231,7 @@ private:
 	{
 		while (first != last)
 		{
-			*first++ = value++;
+			*(first++) = (value++);
 		}
 	}
 
@@ -493,7 +493,7 @@ private:
 			}
 		}
 
-		return last1;
+		return first1;
 	}
 
 public:
@@ -556,9 +556,9 @@ public:
 											  uend(rng1),
 											  ubegin(rng2),
 											  uend(rng2),
-											  __check_function(_Pred),
-											  __check_function(_Proj1),
-											  __check_function(_Proj2));
+											  __check_function(pred),
+											  __check_function(proj1),
+											  __check_function(proj2));
 
 		__seek_wrapped(first1, _STD move(result));
 
@@ -954,13 +954,9 @@ public:
 		_STD indirect_strict_weak_order<_STD projected<_RANGES iterator_t<Range>, Projection>> Predicate = _RANGES less>
 		requires(requires(Range&& rng, Predicate pred, Projection proj) {
 			{
-				_RANGES iter_move(ubegin(rng) + 1)
-			} noexcept;
-
-			{
 				_STD invoke(pred,
 							_STD invoke(proj, _RANGES iter_move(ubegin(rng))),
-							_STD invoke(proj, _RANGES iter_move(ubegin(rng) + 1)))
+							_STD invoke(proj, _RANGES iter_move(ubegin(rng))))
 			} noexcept -> _STD convertible_to<bool>;
 		})
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const _RANGES range_value_t<Range>&
@@ -988,13 +984,9 @@ public:
 			  _STD indirect_strict_weak_order<_STD projected<const Type*, Projection>> Predicate = _RANGES less>
 		requires(requires(_STD initializer_list<Type> rng, Predicate pred, Projection proj) {
 			{
-				_RANGES iter_move(ubegin(rng) + 1)
-			} noexcept;
-
-			{
 				_STD invoke(pred,
 							_STD invoke(proj, _RANGES iter_move(ubegin(rng))),
-							_STD invoke(proj, _RANGES iter_move(ubegin(rng) + 1)))
+							_STD invoke(proj, _RANGES iter_move(ubegin(rng))))
 			} noexcept -> _STD convertible_to<bool>;
 		})
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const Type&
@@ -1051,13 +1043,9 @@ public:
 				  _RANGES																			 greater>
 		requires(requires(Range&& rng, Predicate pred, Projection proj) {
 			{
-				_RANGES iter_move(ubegin(rng) + 1)
-			} noexcept;
-
-			{
 				_STD invoke(pred,
 							_STD invoke(proj, _RANGES iter_move(ubegin(rng))),
-							_STD invoke(proj, _RANGES iter_move(ubegin(rng) + 1)))
+							_STD invoke(proj, _RANGES iter_move(ubegin(rng))))
 			} noexcept -> _STD convertible_to<bool>;
 		})
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const _RANGES range_value_t<Range>&
@@ -1085,13 +1073,9 @@ public:
 			  _STD indirect_strict_weak_order<_STD projected<const Type*, Projection>> Predicate = _RANGES greater>
 		requires(requires(_STD initializer_list<Type> rng, Predicate pred, Projection proj) {
 			{
-				_RANGES iter_move(ubegin(rng) + 1)
-			} noexcept;
-
-			{
 				_STD invoke(pred,
 							_STD invoke(proj, _RANGES iter_move(ubegin(rng))),
-							_STD invoke(proj, _RANGES iter_move(ubegin(rng) + 1)))
+							_STD invoke(proj, _RANGES iter_move(ubegin(rng))))
 			} noexcept -> _STD convertible_to<bool>;
 		})
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const Type&
@@ -1607,16 +1591,18 @@ private:
 	static constexpr void
 		__default_partial_sort(Iterator first, Iterator middle, Iterator last, Predicate pred, Projection proj) noexcept
 	{
-		using value_t = _STD iter_value_t<Iterator>;
+		if (first == middle) // 如果序列 1 为空，则直接返回
+		{
+			return;
+		}
 
 		_RANGES make_heap(first, middle, pred, proj);
 
-		for (Iterator i { middle }; i != last; ++i)
+		for (Iterator next { middle }; next != last; ++next)
 		{
-			if (_STD invoke(pred, *i, _STD invoke(proj, *first))) // 如果序列 2 的元素比较小
+			if (_STD invoke(pred, _STD invoke(proj, *next), _STD invoke(proj, *first))) // 如果序列 2 的元素比较小
 			{
-				value_t poivt { _RANGES iter_move(i) };
-				_RANGES _Pop_heap_hole_unchecked(first, middle, i, poivt, pred, proj, proj);
+				_RANGES _Pop_heap_hole_unchecked(first, middle, next, _RANGES iter_move(next), pred, proj, proj);
 			}
 		}
 
@@ -1636,23 +1622,66 @@ public:
 	constexpr void operator()(Iterator first, Iterator middle, Sentinel last, Predicate pred = {}, Projection proj = {})
 		const noexcept
 	{
-		auto ufirst	 = __unwrap_iterator<Sentinel>(_STD move(first));
-		auto umiddle = __unwrap_iterator<Sentinel>(_STD move(middle));
-		auto ulast	 = __get_last_iterator_with_unwrapped<Iterator>(ufirst, _STD move(last));
+		if constexpr (_STD is_same_v<Iterator, Sentinel>)
+		{
+			__default_partial_sort(__unwrap_iterator<Sentinel>(_STD move(first)),
+								   __unwrap_iterator<Sentinel>(_STD move(middle)),
+								   __unwrap_sentinel<Iterator>(last),
+								   __check_function(pred),
+								   __check_function(proj));
 
-		__default_partial_sort(_STD move(ufirst),
-							   _STD move(umiddle),
-							   _STD move(ulast),
-							   __check_function(pred),
-							   __check_function(proj));
+			return last;
+		}
+		else
+		{
+			auto umiddle = __unwrap_iterator<Sentinel>(_STD move(middle));
+			auto ulast	 = __get_last_iterator_with_unwrapped<Iterator>(umiddle, _STD move(last));
+
+			__seek_wrapped(middle, ulast);
+
+			__default_partial_sort(__unwrap_iterator<Sentinel>(_STD move(first)),
+								   _STD move(umiddle),
+								   _STD move(ulast),
+								   __check_function(pred),
+								   __check_function(proj));
+
+			return middle;
+		}
 	}
 
 	/* function partial_sort() for 容器、仿函数 强化版 */
 	template <_RANGES random_access_range Range, typename Predicate = _RANGES less, typename Projection = _STD identity>
 		requires(__basic_concept_for_sort_function<_RANGES iterator_t<Range>, Predicate, Projection>)
-	constexpr auto operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const noexcept
+	constexpr _RANGES borrowed_iterator_t<Range> operator()(Range&& rng,
+															_RANGES iterator_t<Range> middle,
+															Predicate				  pred = {},
+															Projection				  proj = {}) const noexcept
 	{
-		(*this)(_RANGES begin(rng), _RANGES end(rng), pred, proj);
+		if constexpr (_RANGES common_range<Range>)
+		{
+			__default_partial_sort(ubegin(rng),
+								   __unwrap_range_iterator<Range>(_STD move(middle)),
+								   uend(rng),
+								   __check_function(pred),
+								   __check_function(proj));
+
+			return _RANGES end(rng);
+		}
+		else
+		{
+			auto umiddle = __unwrap_range_iterator<Range>(_STD move(middle));
+			auto ulast	 = __get_last_iterator_with_unwrapped(rng, umiddle);
+
+			__seek_wrapped(middle, ulast);
+
+			__default_partial_sort(ubegin(rng),
+								   _STD move(umiddle),
+								   _STD move(ulast),
+								   __check_function(pred),
+								   __check_function(proj));
+
+			return middle;
+		}
 	}
 
 	// partial_sort() 的非检查版本
@@ -1809,18 +1838,26 @@ public:
 							  Predicate	 pred,
 							  Projection proj) const noexcept
 	{
-		using diff_t			  = _STD iter_difference_t<Iterator>;
-		const diff_t		lenth = last - first;
+		using diff_t = _STD iter_difference_t<Iterator>;
+
+		const diff_t lenth = last - first;
 
 		if ((__max_get_median_of_three_constant<diff_t>) < lenth)
 		{
 			const diff_t step1 = (lenth + 1) >> 3; // +1 不会溢出，因为在调用方中使范围包含在内
 			const diff_t step2 = step1 << 1;	   // 注意：有意丢弃低位
 
-			__default_set_median_of_three(first, first + step1, first + step2, pred, proj);
-			__default_set_median_of_three(middle - step1, middle, middle + step1, pred, proj);
-			__default_set_median_of_three(last - step2, last - step1, last, pred, proj);
-			__default_set_median_of_three(first + step1, middle, last - step1, pred, proj);
+			__default_set_median_of_three(first, _RANGES next(first, step1), _RANGES next(first, step2), pred, proj);
+
+			__default_set_median_of_three(_RANGES next(middle, -step1),
+										  middle,
+										  _RANGES next(middle, step1),
+										  pred,
+										  proj);
+
+			__default_set_median_of_three(_RANGES next(last, -step2), _RANGES next(last, -step1), last, pred, proj);
+
+			__default_set_median_of_three(_RANGES next(first, step1), middle, _RANGES next(last, -step1), pred, proj);
 		}
 		else
 		{
@@ -1851,7 +1888,7 @@ public:
 	{
 		Iterator mid = first + ((last - first) >> 1);
 
-		set_median_of_three(__zh_Unchecked, first, mid, _RANGES prev(last), pred, proj);
+		set_median_of_three(__zh_No_inspection_required, first, mid, _RANGES prev(last), pred, proj);
 
 		Iterator pfirst = mid;
 		Iterator plast	= _RANGES next(pfirst);
@@ -1967,21 +2004,21 @@ private:
 											   Predicate						pred,
 											   Projection						proj) noexcept
 	{
-		using value_t = _STD iter_value_t<Iterator>;
-
 		while (1 < lenth)
 		{
-			auto [pfirst, plast] = partition(__zh_Unchecked, first, last, pred, proj);
+			auto [pfirst, plast] = partition(__zh_No_inspection_required, first, last, pred, proj);
 
-			if ((last - plast) < (pfirst - first))
+			if ((pfirst - first) < (last - plast))
 			{
-				__default_quick_sort(plast, last, _RANGES distance(plast, last), pred, proj);
-				last = _STD move(plast);
+				__default_quick_sort(first, pfirst, _RANGES distance(first, pfirst), pred, proj);
+
+				first = _STD move(plast);
 			}
 			else
 			{
-				__default_quick_sort(first, pfirst, _RANGES distance(first, pfirst), pred, proj);
-				first = _STD move(pfirst);
+				__default_quick_sort(plast, last, _RANGES distance(plast, last), pred, proj);
+
+				last = _STD move(pfirst);
 			}
 		}
 	}
@@ -2046,18 +2083,20 @@ private:
 											   Predicate						pred,
 											   Projection						proj) noexcept
 	{
+		using diff_t = _STD iter_difference_t<Iterator>;
+
 		if ((lenth == 0) || (lenth == 1))
 		{
 			return;
 		}
 
-		auto middle = (lenth >> 1);
+		Iterator middle = _RANGES next(first, static_cast<diff_t>(lenth >> 1));
 
-		__default_merge_sort(first, first + middle, pred, proj);
-		__default_merge_sort(first + middle, last, pred, proj);
+		__default_merge_sort(first, middle, pred, proj);
+		__default_merge_sort(middle, last, pred, proj);
 
 		// TODO: 以期实现自己的 inplace_merge() ，同时，此前提到插入排序的缺点之一 “借助额外内存” ，就体现在此函数中
-		_RANGES inplace_merge(_STD move(first), _STD move(first + middle), _STD move(last), pred, proj);
+		_RANGES inplace_merge(_STD move(first), _STD move(middle), _STD move(last), pred, proj);
 	}
 
 public:
@@ -2131,14 +2170,14 @@ private:
 			if ((last - first) <
 				(__stl_threshold<_STD iter_difference_t<Iterator>>)) // 使用插入排序，如果元素数量足够少
 			{
-				insertion_sort(__zh_Unchecked, _STD move(first), _STD move(last), pred, proj);
+				insertion_sort(__zh_No_inspection_required, _STD move(first), _STD move(last), pred, proj);
 
 				return;
 			}
 
 			if (ideal == 0) // 使用堆排序，如果递归深度足够深
 			{
-				partial_sort(__zh_Unchecked, _STD move(first), last, _STD move(last), pred, proj);
+				partial_sort(__zh_No_inspection_required, _STD move(first), last, _STD move(last), pred, proj);
 
 				return;
 			}
@@ -2146,7 +2185,7 @@ private:
 			ideal = (ideal >> 1) + (ideal >> 2); // allow 1.5 log2(N) divisions
 
 			// “非 ‘几乎有序’ ” 时，首先调用 快排 -- 分割
-			auto [pfirst, plast] = partition(__zh_Unchecked, first, last, pred, proj);
+			auto [pfirst, plast] = partition(__zh_No_inspection_required, first, last, pred, proj);
 
 			// 递归调用，优先对较短的序列进行排序
 			if (pfirst - first < last - plast)
@@ -2223,7 +2262,7 @@ private:
 	{
 		while (3 < (last - first))
 		{
-			auto [pfirst, plast] = partition(__zh_Unchecked, first, last, pred, proj);
+			auto [pfirst, plast] = partition(__zh_No_inspection_required, first, last, pred, proj);
 
 			if (nth < pfirst)			   // 如果 指定位置 < 右段起点，（即 nth 位于右段）
 			{
@@ -2235,7 +2274,7 @@ private:
 			}
 		}
 
-		insertion_sort(__zh_Unchecked, _STD move(first), _STD move(last), pred, proj);
+		insertion_sort(__zh_No_inspection_required, _STD move(first), _STD move(last), pred, proj);
 	}
 
 public:
@@ -2579,13 +2618,13 @@ private:
 			}
 			else						 // 如果 中央元素 == 指定值
 			{
-				// 在前半段寻找
-				auto begin { _STD move(lower_bound(__zh_Unchecked, first, middle, value, pred, proj)) };
+				// 在前半段寻找上限
+				auto begin { _STD move(lower_bound(__zh_No_inspection_required, first, middle, value, pred, proj)) };
 
-				// 在后半段寻找
-				auto end { _STD move(upper_bound(__zh_Unchecked,
+				// 在后半段寻找下限
+				auto end { _STD move(upper_bound(__zh_No_inspection_required,
 												 _STD move(++middle),
-												 _STD move(first + lenth),
+												 _STD move(_RANGES next(first, lenth)),
 												 _STD move(value),
 												 pred,
 												 proj)) };
@@ -2661,9 +2700,9 @@ private:
 															 Predicate	 pred,
 															 Projection	 proj) noexcept
 	{
-		Iterator i { lower_bound(__zh_Unchecked, first, last, value, pred, proj) };
+		Iterator ufirst { lower_bound(__zh_No_inspection_required, first, last, value, pred, proj) };
 
-		return ((i != last) && !(_STD invoke(pred, value, _STD invoke(proj, *i))));
+		return ((ufirst != last) && !(_STD invoke(pred, value, _STD invoke(proj, *ufirst))));
 	}
 
 public:
@@ -2702,7 +2741,11 @@ public:
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr auto
 		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		return (*this)(_RANGES begin(rng), _RANGES end(rng), _STD move(value), pred, proj);
+		return __default_binary_search(ubegin(rng),
+									   uend(rng),
+									   _STD move(value),
+									   __check_function(pred),
+									   __check_function(proj));
 	}
 };
 

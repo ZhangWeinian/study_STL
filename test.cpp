@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	vector		nums2 { 1, 3, 5, 7, 9, 2, 4, 6, 8, 10 };
 	vector<int> nums3(10, 0);
 
-	rg::equal;
+	rg::binary_search;
 
 	return 0;
 }
