@@ -103,11 +103,13 @@
 
 	#ifndef __END_INLINE_NAMESPACE
 		#define __END_INLINE_NAMESPACE(name) }
-	#endif // !__END_INLINE_NAMESPACE
+	#endif				// !__END_INLINE_NAMESPACE
+
+__BEGIN_NAMESPACE_ZHANG // 此处开始，所有的代码都在命名空间 zhang 中
 
 	#ifndef __stl_threshold
-template <typename Type>
-constexpr Type __stl_threshold = Type(16);
+	template <typename Type>
+	constexpr Type __stl_threshold = Type(16);
 	#endif // !__stl_threshold
 
 
@@ -130,7 +132,8 @@ template <typename Type>
 constexpr inline Type __max_get_median_of_three_constant = Type(40);
 	#endif // !__max_get_median_of_three_constant
 
-
+template <typename>
+constexpr inline bool __always_false = false;
 
 // OutIter 或允许继承展开
 template <typename Iterator>
@@ -148,18 +151,18 @@ concept __weakly_unwrappable_sentinel = __weakly_unwrappable<const _STD remove_r
 // OutIter 是弱展开迭代器
 template <typename Iterator>
 concept __weakly_unwrappable_iterator =
-	(__weakly_unwrappable<Iterator>)&&(requires(Iterator&& iterator, _STD remove_cvref_t<Iterator>& mut_iter) {
-		mut_iter._Seek_to(_STD forward<Iterator>(iterator)._Unwrapped());
+	(__weakly_unwrappable<Iterator>)&&(requires(Iterator&& iter, _STD remove_cvref_t<Iterator>& mut_iter) {
+		mut_iter._Seek_to(_STD forward<Iterator>(iter)._Unwrapped());
 	});
 
 // 判断弱展开哨兵
 template <typename Sentinel, typename Iterator>
 concept __unwrappable_sentinel_for =
 	(__weakly_unwrappable_sentinel<Sentinel>)&&(__weakly_unwrappable_iterator<Iterator>)&&(
-		requires(Iterator&& iterator, const _STD remove_reference_t<Sentinel>& sentinel) {
+		requires(Iterator&& iter, const _STD remove_reference_t<Sentinel>& sent) {
 			{
-				sentinel._Unwrapped()
-			} -> _STD sentinel_for<decltype(_STD forward<Iterator>(iterator)._Unwrapped())>;
+				sent._Unwrapped()
+			} -> _STD sentinel_for<decltype(_STD forward<Iterator>(iter)._Unwrapped())>;
 		});
 
 /*-----------------------------------------------------------------------------------------------------*/
@@ -185,46 +188,47 @@ using __unwrapped_iterator_type = __unwrap_iterator_type<_RANGES iterator_t<Rang
 template <_RANGES range Range>
 using __unwrapped_sentinel_type = __unwrap_sentinel_type<_RANGES sentinel_t<Range>, _RANGES iterator_t<Range>>;
 
+// 此函数的作用是将 哨兵 展开为其 基础类型，即从一个迭代器返回一个裸指针
 template <typename Iterator, typename Sentinel>
 _NODISCARD constexpr decltype(auto)
-	__unwrap_sentinel(Sentinel&& sentinel) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
-													(__nothrow_unwrapped<Sentinel>))
+	__unwrap_sentinel(Sentinel&& sent) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
+												(__nothrow_unwrapped<Sentinel>))
 {
-	_STL_INTERNAL_STATIC_ASSERT(_STD sentinel_for<_STD remove_cvref_t<Sentinel>, _STD remove_cvref_t<Iterator>>);
-
 	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Sentinel>>) // 如果是指针，直接返回
 	{
-		return sentinel + 0;
+		return sent + 0;
 	}
 	else if constexpr (__unwrappable_sentinel_for<Sentinel, Iterator>) // 如果是弱展开哨兵，返回 _Unwrapped()
 	{
-		return static_cast<Sentinel&&>(sentinel)._Unwrapped();
+		return static_cast<Sentinel&&>(sent)._Unwrapped();
 	}
 	else // 否则，返回 Sentinel&&
 	{
-		return static_cast<Sentinel&&>(sentinel);
+		return static_cast<Sentinel&&>(sent);
 	}
 }
 
+// 此函数的作用是将 迭代器 展开为其 基础类型，即从一个迭代器返回一个裸指针
 template <typename Sentinel, typename Iterator>
 _NODISCARD constexpr auto
-	__unwrap_iterator(Iterator&& iterator) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
-													(__nothrow_unwrapped<Iterator>))
+	__unwrap_iterator(Iterator&& iter) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
+												(__nothrow_unwrapped<Iterator>))
 {
 	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Iterator>>)
 	{
-		return iterator + 0;
+		return iter + 0;
 	}
 	else if constexpr (__unwrappable_sentinel_for<Sentinel, Iterator>)
 	{
-		return static_cast<Iterator&&>(iterator)._Unwrapped();
+		return static_cast<Iterator&&>(iter)._Unwrapped();
 	}
 	else
 	{
-		return static_cast<Iterator&&>(iterator);
+		return static_cast<Iterator&&>(iter);
 	}
 }
 
+// 此函数的作用是将 迭代器 展开为其 基础类型，即从一个迭代器返回一个裸指针
 template <_RANGES range Range, class Iterator>
 _NODISCARD constexpr decltype(auto) __unwrap_range_iterator(Iterator&& iterator) noexcept(
 	noexcept(__unwrap_iterator<_RANGES sentinel_t<Range>>(static_cast<Iterator&&>(iterator))))
@@ -232,6 +236,7 @@ _NODISCARD constexpr decltype(auto) __unwrap_range_iterator(Iterator&& iterator)
 	return __unwrap_iterator<_RANGES sentinel_t<Range>>(static_cast<Iterator&&>(iterator));
 }
 
+// 此函数的作用是将 哨兵 展开为其 基础类型，即从一个迭代器返回一个裸指针
 template <_RANGES range Range, class Sentinel>
 _NODISCARD constexpr decltype(auto) __unwrap_range_sentinel(Sentinel&& sentinel) noexcept(
 	noexcept(__unwrap_sentinel<_RANGES iterator_t<Range>>(static_cast<Sentinel&&>(sentinel))))
@@ -351,7 +356,7 @@ namespace _Unchecked_begin
 			}
 			else
 			{
-				static_assert(_STD _Always_false<Type>, "Should be unreachable");
+				static_assert(__always_false<Type>, "Should be unreachable");
 			}
 		}
 	};
@@ -421,7 +426,7 @@ namespace _Unchecked_end
 			}
 			else
 			{
-				static_assert(_STD _Always_false<Type>, "Should be unreachable");
+				static_assert(__always_false<Type>, "Should be unreachable");
 			}
 		}
 	};
@@ -500,5 +505,7 @@ protected:
 
 	~__Not_quite_object() = default;
 };
+
+__END_NAMESPACE_ZHANG
 
 #endif // __HAS_CPP20

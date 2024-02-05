@@ -16,6 +16,7 @@ struct __zh_No_inspection_required_function
 
 constexpr inline __zh_No_inspection_required_function __zh_No_inspection_required {};
 
+// 此函数的作用是将一个迭代器解包，返回一个裸指针
 template <typename Result, typename Wrapped, typename Unwrapped>
 _NODISCARD constexpr Result __rewrap_subrange(Wrapped& value, _RANGES subrange<Unwrapped>&& result)
 {
@@ -49,18 +50,19 @@ _NODISCARD constexpr Result __rewrap_subrange(Wrapped& value, _RANGES subrange<U
 	}
 }
 
+// 此函数的作用是将一个迭代器解包，返回一个裸指针
 template <_RANGES forward_range Range, class Iterator>
-_NODISCARD constexpr _RANGES iterator_t<Range> __rewrap_iterator(Range&& rng, Iterator&& iterator)
+_NODISCARD constexpr _RANGES iterator_t<Range> __rewrap_iterator(Range&& rng, Iterator&& iter)
 {
 	if constexpr (_STD is_same_v<_STD remove_cvref_t<Iterator>, _RANGES iterator_t<Range>>)
 	{
-		return _STD forward<Iterator>(iterator);
+		return _STD forward<Iterator>(iter);
 	}
 	else
 	{
 		auto result = _RANGES begin(rng);
 
-		result._Seek_to(_STD forward<Iterator>(iterator));
+		result._Seek_to(_STD forward<Iterator>(iter));
 
 		return result;
 	}
@@ -70,16 +72,17 @@ template <typename Iterator, typename UIterator>
 concept __wrapped_seekable =
 	requires(Iterator iter, UIterator uiter) { iter._Seek_to(_STD forward<UIterator>(uiter)); };
 
+// 此函数的作用是将 uiter（通常是一个裸指针） 的信息，装载到 iter（通常是一个迭代器）
 template <typename Iterator, typename UIterator>
-constexpr void __seek_wrapped(Iterator& iterator, UIterator&& uiterauor)
+constexpr void __seek_wrapped(Iterator& iter, UIterator&& uiter)
 {
 	if constexpr (__wrapped_seekable<Iterator, UIterator>)
 	{
-		iterator._Seek_to(_STD forward<UIterator>(uiterauor));
+		iter._Seek_to(_STD forward<UIterator>(uiter));
 	}
 	else
 	{
-		iterator = _STD forward<UIterator>(uiterauor);
+		iter = _STD forward<UIterator>(uiter);
 	}
 }
 
@@ -93,32 +96,58 @@ private:
 	template <class Iterator, class OutIter>
 	using copy_result = _RANGES in_out_result<Iterator, OutIter>;
 
-	/* function __default_copy_with_random_access_iter() -- 辅助函数 */
-	template <typename Iterator, typename OutIter>
-	static constexpr OutIter
-		__default_copy_with_random_access_iter(Iterator first, Iterator last, OutIter result) noexcept
-	{
-		using diff_t = _STD iter_difference_t<Iterator>;
-
-		for (diff_t i { last - first }; i > 0; --i, ++result, ++first) // 以 i 决定循环的次数 -- 速度快
-		{
-			*result = *first;
-		}
-
-		return result;
-	}
-
-	// 完全泛化版本
+	// 统一调用方式
 	template <typename Iterator, typename Sentinel, typename OutIter>
-	static constexpr OutIter __default_copy_dispatch(Iterator first, Sentinel last, OutIter result) noexcept
+	static constexpr OutIter __default_cpoy(Iterator first, Sentinel last, OutIter result) noexcept
 	{
-		// 此处兵分两路：不同种类的迭代器所使用的循环条件不同，有快慢之分
-		if constexpr (_STD is_same_v<_STD random_access_iterator_tag(), __type_tag_for_iter<Iterator>()>)
+		using value_t = _STD iter_value_t<Iterator>;
+		using diff_t  = _STD  iter_difference_t<Iterator>;
+
+		if constexpr ((_STD is_same_v<_STD remove_cvref_t<Iterator>, _STD remove_cvref_t<OutIter>>)&&(
+						  (_STD is_same_v<_STD remove_cv_t<Iterator>,
+										  _STD conditional_t<_STD is_const_v<Iterator>, const char*, char*>>) ||
+						  (_STD is_same_v<
+							  _STD remove_cv_t<Iterator>,
+							  _STD conditional_t<
+								  _STD is_const_v<Iterator>,
+								  const wchar_t*,
+								  wchar_t*>>))) // 如果是 char* 或 wchar_t* 或它们的 const 形式，则调用 memmove()
 		{
-			// 此处单独划分出一个函数，为的是其他地方也能用到
-			return __default_copy_with_random_access_iter(__move(first), __move(last), __move(result));
+			_STD invoke(_CSTD memmove, result, first, sizeof(value_t) * (last - first));
+
+			return result + (last - first);
 		}
-		else
+		else if constexpr ((_STD is_pointer_v<Iterator>)&&(_STD is_same_v<Iterator, Sentinel>)&&(
+							   _STD is_same_v<Iterator, OutIter>)) // 如果 first 、last 与 result 是同类型的指针
+		{
+			if constexpr (_STD is_trivially_assignable_v<
+							  _STD iter_value_t<OutIter>,
+							  _STD iter_value_t<
+								  Iterator>>) // 以下版本适用于 “指针所指之对象，具备 trivial assignment operator ”
+			{
+				__invoke(_CSTD memmove, result, first, sizeof(value_t) * (last - first));
+
+				return result + (last - first);
+			}
+
+			// 以下版本适用于 “指针所指之对象，具备 non-trivial assignment operator ”
+			for (diff_t i { last - first }; i > 0; --i, ++result, ++first) // 以 i 决定循环的次数 -- 速度快
+			{
+				*result = *first;
+			}
+
+			return result;
+		}
+		else if constexpr (_STD random_access_iterator<Iterator>)		   // 如果是随机访问迭代器
+		{
+			for (diff_t i { last - first }; i > 0; --i, ++result, ++first) // 以 i 决定循环的次数 -- 速度快
+			{
+				*result = *first;
+			}
+
+			return result;
+		}
+		else										 // 这是兜底手段
 		{
 			for (; first != last; ++result, ++first) // 以迭代器相同与否，决定循环是否继续 -- 速度慢
 			{
@@ -127,77 +156,6 @@ private:
 
 			return result;
 		}
-	}
-
-	// 偏特化版本1：第一个参数是 const Type* 指针形式，第二个参数是 Type* 指针形式
-	// 为何要分为两种情况？具体实现见书 319 页。
-	template <typename Type>
-	static constexpr Type* __default_copy_dispatch(const Type* first, Type* last, Type* result) noexcept
-	{
-		using pointer_type_tag = typename __type_traits<Type>::has_trivial_assignment_operator;
-		constexpr bool is_trivial_assignment_operator { _STD is_same_v<_STD true_type(), pointer_type_tag()> };
-
-		if (is_trivial_assignment_operator) // 以下版本适用于 “指针所指之对象，具备 trivial assignment operator ”
-		{
-			__invoke(_CSTD memmove, result, first, sizeof(Type) * (last - first));
-
-			return result + (last - first);
-		}
-		else // 以下版本适用于 “指针所指之对象，具备 non-trivial assignment operator ”
-		{
-			return __default_copy_with_random_access_iter(__move(first), __move(last), __move(result));
-		}
-	}
-
-	// 偏特化版本2：两个参数都是 Type* 类型的指针
-	template <typename Type>
-	static constexpr Type* __default_copy_dispatch(Type* first, Type* last, Type* result) noexcept
-	{
-		using pointer_type_tag = typename __type_traits<Type>::has_trivial_assignment_operator;
-		constexpr bool is_trivial_assignment_operator { _STD is_same_v<_STD true_type(), pointer_type_tag()> };
-
-		if (is_trivial_assignment_operator)
-		{
-			__invoke(_CSTD memmove, result, first, sizeof(Type) * (last - first));
-
-			return result + (last - first);
-		}
-		else
-		{
-			return __default_copy_with_random_access_iter(__move(first), __move(last), __move(result));
-		}
-	}
-
-	// 统一调用方式
-
-	/* function copy() 重载1 */
-	static constexpr char*
-		__default_cpoy(const char* first,
-					   const char* last,
-					   char* result) noexcept // 针对原生指针(可视为一种特殊的迭代器) const char* ，机型内存直接拷贝操作
-	{
-		_STD invoke(_CSTD memmove, result, first, last - first);
-
-		return result + (last - first);
-	}
-
-	/* function copy() 重载2 */
-	static constexpr wchar_t* __default_cpoy(
-		const wchar_t* first,
-		const wchar_t* last,
-		wchar_t* result) noexcept // 针对原生指针（可视为一种特殊的迭代器）const wchar_t* ，执行内存直接拷贝操作
-	{
-		_STD invoke(_CSTD memmove, result, first, sizeof(wchar_t) * (last - first));
-
-		return result + (last - first);
-	}
-
-	/* function copy() 一般泛型 */
-	template <typename Iterator,
-			  typename OutIter> // 完全泛化版本
-	static constexpr OutIter __default_cpoy(Iterator first, Iterator last, OutIter result) noexcept
-	{
-		return __default_copy_dispatch(__move(first), __move(last), __move(result));
 	}
 
 

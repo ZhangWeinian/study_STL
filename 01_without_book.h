@@ -420,7 +420,7 @@ public:
 			__print_with_iter(_STD move(first), _STD move(last), __check_function(pfun), __check_function(proj))))
 	{
 		auto ufirst = __unwrap_iterator<Sentinel>(_STD move(first));
-		auto ulast	= __get_last_iterator_with_unwrapped<Iterator, Sentinel>(ufirst, _STD move(last));
+		auto ulast	= __get_last_iterator_with_unwrapped<Iterator>(ufirst, _STD move(last));
 
 		__print_with_iter(_STD move(ufirst), _STD move(ulast), __check_function(pfun), __check_function(proj));
 	}
