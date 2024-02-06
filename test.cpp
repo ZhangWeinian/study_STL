@@ -35,13 +35,12 @@ int main(int argc, char* argv[])
 	vector		nums2 { 1, 3, 5, 7, 9, 2, 4, 6, 8, 10 };
 	vector<int> nums3(10, 0);
 
-	const char* p {};
+	auto p1 = nums2.begin();
+	auto p2 = rg::next(p1, 3);
+	auto p3 = nums2.end();
 
-	static_assert(_STD is_same_v<_STD remove_cvref_t<const char*>, const char*>);
-
-	const int a = 0;
-
-	static_assert(_STD is_same_v<_STD remove_cvref_t<const int&>, int>);
+	println(*(rg::prev(p2, 3)));
+	println(*p1);
 
 	return 0;
 }
