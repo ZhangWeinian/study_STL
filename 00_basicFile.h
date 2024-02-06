@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string_view>
-#include <type_traits>
-
 #include <algorithm>
 #include <climits>
 #include <functional>
@@ -11,6 +8,8 @@
 #include <memory>
 #include <new>
 #include <string>
+#include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 #include <version>
@@ -21,13 +20,13 @@
 
 	#ifndef __HAS_CPP20
 		#define __HAS_CPP20 __cplusplus
-	#endif // !__HAS_CPP20
+	#endif	// !__HAS_CPP20
 
 #elif !(_MSVC_LANG < 202002L)
 
 	#ifndef __HAS_CPP20
 		#define __HAS_CPP20 _MSVC_LANG
-	#endif // !__HAS_CPP20
+	#endif	// !__HAS_CPP20
 
 #endif
 
@@ -44,73 +43,73 @@
 
 	#ifndef _STD
 		#define _STD ::std::
-	#endif // !_STD
+	#endif	// !_STD
 
 	#ifndef _CSTD
 		#define _CSTD ::
-	#endif // !_CSTD
+	#endif	// !_CSTD
 
 	#ifndef _RANGES
 		#define _RANGES ::std::ranges::
-	#endif // !_RANGES
+	#endif	// !_RANGES
 
 	#ifndef _NODISCARD
 		#define _NODISCARD [[nodiscard]]
-	#endif // !_NODISCARD
+	#endif	// !_NODISCARD
 
 	#ifndef _NORETURN
 		#define _NORETURN [[noreturn]]
-	#endif // !_NORETURN
+	#endif	// !_NORETURN
 
 	#ifndef __cove_type
 		#define __cove_type(cont, type) static_cast<type>(cont)
-	#endif // !__cove_type
+	#endif	// !__cove_type
 
 	#ifndef __init_type
 		#define __init_type(initCont, initType) __cove_type(initCont, initType)
-	#endif // !__init_type
+	#endif	// !__init_type
 
 
 	#ifndef __STL_TEMPLATE_NULL
 		#define __STL_TEMPLATE_MULL template <>
-	#endif // !__STL_TEMPLATE_NULL
+	#endif	// !__STL_TEMPLATE_NULL
 
 	#ifndef __BEGIN_NAMESPACE_ZHANG
 		#define __BEGIN_NAMESPACE_ZHANG \
 			namespace zhang             \
 			{
-	#endif // !__BEGIN_NAMESPACE_ZHANG
+	#endif	// !__BEGIN_NAMESPACE_ZHANG
 
 	#ifndef __END_NAMESPACE_ZHANG
 		#define __END_NAMESPACE_ZHANG }
-	#endif // !__END_NAMESPACE_ZHANG
+	#endif	// !__END_NAMESPACE_ZHANG
 
 	#ifndef __BEGIN_NEW_NAMESPACE
 		#define __BEGIN_NEW_NAMESPACE(name) \
 			namespace name                  \
 			{
-	#endif // !__BEGIN_NEW_NAMESPACE
+	#endif	// !__BEGIN_NEW_NAMESPACE
 
 	#ifndef __END_NEW_NAMESPACE
 		#define __END_NEW_NAMESPACE(name) }
-	#endif // !__END_NEW_NAMESPACE
+	#endif	// !__END_NEW_NAMESPACE
 
 	#ifndef __BEGIN_INLINE_NAMESPACE
 		#define __BEGIN_INLINE_NAMESPACE(name) \
 			inline namespace name              \
 			{
-	#endif // !__BEGIN_INLINE_NAMESPACE
+	#endif	// !__BEGIN_INLINE_NAMESPACE
 
 	#ifndef __END_INLINE_NAMESPACE
 		#define __END_INLINE_NAMESPACE(name) }
-	#endif				// !__END_INLINE_NAMESPACE
+	#endif	// !__END_INLINE_NAMESPACE
 
-__BEGIN_NAMESPACE_ZHANG // 此处开始，所有的代码都在命名空间 zhang 中
+__BEGIN_NAMESPACE_ZHANG	 // 此处开始，所有的代码都在命名空间 zhang 中
 
 	#ifndef __stl_threshold
 	template <typename Type>
 	constexpr Type __stl_threshold = Type(16);
-	#endif // !__stl_threshold
+	#endif	// !__stl_threshold
 
 
 	#ifndef __max_msg_args_constant
@@ -123,14 +122,14 @@ constexpr inline Type __max_msg_args_constant = Type(128);
 template <typename Type>
 constexpr inline Type __limit_msg_args_constant = (__max_msg_args_constant<Type>) >> 1;
 
-		#endif // !__limit_msg_args_constant
+		#endif	// !__limit_msg_args_constant
 
-	#endif	   // !__max_msg_args_constant
+	#endif	// !__max_msg_args_constant
 
 	#ifndef __max_get_median_of_three_constant
 template <typename Type>
 constexpr inline Type __max_get_median_of_three_constant = Type(40);
-	#endif // !__max_get_median_of_three_constant
+	#endif	// !__max_get_median_of_three_constant
 
 template <typename>
 constexpr inline bool __always_false = false;
@@ -190,19 +189,18 @@ using __unwrapped_sentinel_type = __unwrap_sentinel_type<_RANGES sentinel_t<Rang
 
 // 此函数的作用是将 哨兵 展开为其 基础类型，即从一个迭代器返回一个裸指针
 template <typename Iterator, typename Sentinel>
-_NODISCARD constexpr decltype(auto)
-	__unwrap_sentinel(Sentinel&& sent) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
-												(__nothrow_unwrapped<Sentinel>))
+_NODISCARD constexpr decltype(auto) __unwrap_sentinel(Sentinel&& sent) noexcept(
+	(!__unwrappable_sentinel_for<Sentinel, Iterator>) || (__nothrow_unwrapped<Sentinel>))
 {
-	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Sentinel>>) // 如果是指针，直接返回
+	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Sentinel>>)	 // 如果是指针，直接返回
 	{
 		return sent + 0;
 	}
-	else if constexpr (__unwrappable_sentinel_for<Sentinel, Iterator>) // 如果是弱展开哨兵，返回 _Unwrapped()
+	else if constexpr (__unwrappable_sentinel_for<Sentinel, Iterator>)	// 如果是弱展开哨兵，返回 _Unwrapped()
 	{
 		return static_cast<Sentinel&&>(sent)._Unwrapped();
 	}
-	else // 否则，返回 Sentinel&&
+	else  // 否则，返回 Sentinel&&
 	{
 		return static_cast<Sentinel&&>(sent);
 	}
@@ -210,9 +208,8 @@ _NODISCARD constexpr decltype(auto)
 
 // 此函数的作用是将 迭代器 展开为其 基础类型，即从一个迭代器返回一个裸指针
 template <typename Sentinel, typename Iterator>
-_NODISCARD constexpr auto
-	__unwrap_iterator(Iterator&& iter) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>) ||
-												(__nothrow_unwrapped<Iterator>))
+_NODISCARD constexpr auto __unwrap_iterator(Iterator&& iter) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>)
+																	  || (__nothrow_unwrapped<Iterator>))
 {
 	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Iterator>>)
 	{
@@ -360,7 +357,7 @@ namespace _Unchecked_begin
 			}
 		}
 	};
-} // namespace _Unchecked_begin
+}  // namespace _Unchecked_begin
 
 constexpr inline _Unchecked_begin::UncheckBegin ubegin;
 
@@ -430,7 +427,7 @@ namespace _Unchecked_end
 			}
 		}
 	};
-} // namespace _Unchecked_end
+}  // namespace _Unchecked_end
 
 constexpr inline _Unchecked_end::UncheckEnd uend;
 
@@ -471,7 +468,7 @@ _NODISCARD constexpr auto __check_function(Predicate& pred) noexcept
 	}
 	else
 	{
-		return __add_ref_for_function<Predicate> { pred }; // 通过“引用”传递函子
+		return __add_ref_for_function<Predicate> { pred };	// 通过“引用”传递函子
 	}
 }
 
@@ -492,9 +489,7 @@ public:
 
 	__Not_quite_object() = delete;
 
-	constexpr explicit __Not_quite_object(__Construct_tag) noexcept
-	{
-	}
+	constexpr explicit __Not_quite_object(__Construct_tag) noexcept {}
 
 	__Not_quite_object(const __Not_quite_object&)			 = delete;
 	__Not_quite_object& operator=(const __Not_quite_object&) = delete;
@@ -508,4 +503,4 @@ protected:
 
 __END_NAMESPACE_ZHANG
 
-#endif // __HAS_CPP20
+#endif	// __HAS_CPP20

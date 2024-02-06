@@ -105,25 +105,25 @@ private:
 
 		if constexpr ((_STD is_same_v<_STD remove_cvref_t<Iterator>, _STD remove_cvref_t<OutIter>>)&&(
 						  (_STD is_same_v<_STD remove_cv_t<Iterator>,
-										  _STD conditional_t<_STD is_const_v<Iterator>, const char*, char*>>) ||
-						  (_STD is_same_v<
+										  _STD conditional_t<_STD is_const_v<Iterator>, const char*, char*>>)
+						  || (_STD is_same_v<
 							  _STD remove_cv_t<Iterator>,
 							  _STD conditional_t<
 								  _STD is_const_v<Iterator>,
 								  const wchar_t*,
-								  wchar_t*>>))) // 如果是 char* 或 wchar_t* 或它们的 const 形式，则调用 memmove()
+								  wchar_t*>>)))	 // 如果是 char* 或 wchar_t* 或它们的 const 形式，则调用 memmove()
 		{
 			_STD invoke(_CSTD memmove, result, first, sizeof(value_t) * (last - first));
 
 			return result + (last - first);
 		}
 		else if constexpr ((_STD is_pointer_v<Iterator>)&&(_STD is_same_v<Iterator, Sentinel>)&&(
-							   _STD is_same_v<Iterator, OutIter>)) // 如果 first 、last 与 result 是同类型的指针
+							   _STD is_same_v<Iterator, OutIter>))	// 如果 first 、last 与 result 是同类型的指针
 		{
 			if constexpr (_STD is_trivially_assignable_v<
 							  _STD iter_value_t<OutIter>,
 							  _STD iter_value_t<
-								  Iterator>>) // 以下版本适用于 “指针所指之对象，具备 trivial assignment operator ”
+								  Iterator>>)  // 以下版本适用于 “指针所指之对象，具备 trivial assignment operator ”
 			{
 				__invoke(_CSTD memmove, result, first, sizeof(value_t) * (last - first));
 
@@ -131,25 +131,25 @@ private:
 			}
 
 			// 以下版本适用于 “指针所指之对象，具备 non-trivial assignment operator ”
-			for (diff_t i { last - first }; i > 0; --i, ++result, ++first) // 以 i 决定循环的次数 -- 速度快
+			for (diff_t i { last - first }; i > 0; --i, ++result, ++first)	// 以 i 决定循环的次数 -- 速度快
 			{
 				*result = *first;
 			}
 
 			return result;
 		}
-		else if constexpr (_STD random_access_iterator<Iterator>)		   // 如果是随机访问迭代器
+		else if constexpr (_STD random_access_iterator<Iterator>)  // 如果是随机访问迭代器
 		{
-			for (diff_t i { last - first }; i > 0; --i, ++result, ++first) // 以 i 决定循环的次数 -- 速度快
+			for (diff_t i { last - first }; i > 0; --i, ++result, ++first)	// 以 i 决定循环的次数 -- 速度快
 			{
 				*result = *first;
 			}
 
 			return result;
 		}
-		else										 // 这是兜底手段
+		else  // 这是兜底手段
 		{
-			for (; first != last; ++result, ++first) // 以迭代器相同与否，决定循环是否继续 -- 速度慢
+			for (; first != last; ++result, ++first)  // 以迭代器相同与否，决定循环是否继续 -- 速度慢
 			{
 				*result = *first;
 			}
@@ -576,7 +576,7 @@ private:
 			{
 				if (_STD invoke(pred,
 								_STD invoke(proj1, *first1),
-								_STD invoke(proj2, *i))) // 如果序列 1 的元素与序列 2 中元素相等
+								_STD invoke(proj2, *i)))  // 如果序列 1 的元素与序列 2 中元素相等
 				{
 					return first1;
 				}
@@ -730,10 +730,10 @@ public:
 	constexpr swap_ranges_result<Iterator1, Iterator2>
 		operator()(Iterator1 first1, Sentinel1 last1, Iterator2 first2, Sentinel2 last2) const noexcept
 	{
-		auto [end_for_range1, end_for_range2] = __default_swap_ranges(__unwrap_iterator<Sentinel1>(_STD move(first1)),
-																	  __unwrap_sentinel<Iterator1>(_STD move(last1)),
-																	  __unwrap_iterator<Sentinel2>(_STD move(first2)),
-																	  __unwrap_sentinel<Iterator2>(_STD move(last2)));
+		auto [ end_for_range1, end_for_range2 ] = __default_swap_ranges(__unwrap_iterator<Sentinel1>(_STD move(first1)),
+																		__unwrap_sentinel<Iterator1>(_STD move(last1)),
+																		__unwrap_iterator<Sentinel2>(_STD move(first2)),
+																		__unwrap_sentinel<Iterator2>(_STD move(last2)));
 
 		__seek_wrapped(first1, _STD move(end_for_range1));
 		__seek_wrapped(first2, _STD move(end_for_range2));
@@ -750,7 +750,7 @@ public:
 		auto first1 = _RANGES begin(rng1);
 		auto first2 = _RANGES begin(rng2);
 
-		auto [end_for_range1, end_for_range2] =
+		auto [ end_for_range1, end_for_range2 ] =
 			__default_swap_ranges(__unwrap_range_iterator<Range1>(_STD move(first1)),
 								  uend(rng1),
 								  __unwrap_range_iterator<Range2>(_STD move(first2)),
@@ -804,7 +804,7 @@ public:
 		auto ufirst = __unwrap_iterator<Sentinel>(_STD move(first));
 		auto ulast	= __get_last_iterator_with_unwrapped<Iterator>(ufirst, _STD move(last));
 
-		auto [end_for_range, upred] =
+		auto [ end_for_range, upred ] =
 			__default_for_each(_STD move(ufirst), _STD move(ulast), __check_function(pred), __check_function(proj));
 
 		__seek_wrapped(first, _STD move(end_for_range));
@@ -824,10 +824,10 @@ public:
 	{
 		auto first = _RANGES begin(rng);
 
-		auto [end_for_range, upred] = __default_for_each(__unwrap_range_iterator<Range>(_STD move(first)),
-														 uend(rng),
-														 _STD move(pred),
-														 __check_function(proj));
+		auto [ end_for_range, upred ] = __default_for_each(__unwrap_range_iterator<Range>(_STD move(first)),
+														   uend(rng),
+														   _STD move(pred),
+														   __check_function(proj));
 
 		__seek_wrapped(first, _STD move(end_for_range));
 
@@ -852,12 +852,12 @@ private:
 													 Projection1 proj1,
 													 Projection2 proj2) noexcept
 	{
-		if ((last1 - first1) != (last2 - first2)) // 如果序列 1 的元素数量与序列 2 的元素数量不相等, 返回 false
+		if ((last1 - first1) != (last2 - first2))  // 如果序列 1 的元素数量与序列 2 的元素数量不相等, 返回 false
 		{
 			return false;
 		}
 
-		for (; first1 != last1; ++first1, ++first2) // 如果序列 1 的元素数量多于序列 2 的元素数量，顺次比较
+		for (; first1 != last1; ++first1, ++first2)	 // 如果序列 1 的元素数量多于序列 2 的元素数量，顺次比较
 		{
 			if (!(_STD invoke(pred, _STD invoke(proj1, *first1), _STD invoke(proj2, *first2))))
 			{
@@ -1366,33 +1366,33 @@ private:
 																							Projection1 proj1,
 																							Projection2 proj2) noexcept
 	{
-		while ((first1 != last1) && (first2 != last2)) // 若两个序列都未完成，则继续
+		while ((first1 != last1) && (first2 != last2))	// 若两个序列都未完成，则继续
 		{
-			if (_STD invoke(pred, _STD invoke(proj2, *first2), _STD invoke(proj1, *first1))) // 若序列 2 的元素比较小
+			if (_STD invoke(pred, _STD invoke(proj2, *first2), _STD invoke(proj1, *first1)))  // 若序列 2 的元素比较小
 			{
-				*result = *first2; // 则记录序列 2 的元素
-				++first2;		   // 同时序列 2 前进 1 位
+				*result = *first2;	// 则记录序列 2 的元素
+				++first2;			// 同时序列 2 前进 1 位
 			}
-			else				   // 反之同理
+			else  // 反之同理
 			{
 				*result = *first1;
 				++first1;
 			}
 
-			++result; // 每记录一个元素，result 前进 1 位
+			++result;  // 每记录一个元素，result 前进 1 位
 		}
 
 		// 最后剩余元素拷贝到目的端。（两个序列一定至少有一个为空）
 		if (first1 == last1)
 		{
-			auto [end_for_range1, end_for_range_2] =
+			auto [ end_for_range1, end_for_range_2 ] =
 				_RANGES copy(_STD move(first2), _STD move(last2), _STD move(result));
 
 			return { _STD move(first1), _STD move(end_for_range1), _STD move(end_for_range_2) };
 		}
-		else // first2 == last2
+		else  // first2 == last2
 		{
-			auto [end_for_range1, end_for_range_2] =
+			auto [ end_for_range1, end_for_range_2 ] =
 				_RANGES copy(_STD move(first1), _STD move(last1), _STD move(result));
 
 			return { _STD move(end_for_range1), _STD move(first2), _STD move(end_for_range_2) };
@@ -1422,7 +1422,7 @@ public:
 																	 Projection1 proj1 = {},
 																	 Projection2 proj2 = {}) const noexcept
 	{
-		auto [end_for_range1, end_for_range2, end_for_range3] =
+		auto [ end_for_range1, end_for_range2, end_for_range3 ] =
 			__default_merge(__unwrap_iterator<Sentinel1>(_STD move(first1)),
 							__unwrap_sentinel<Iterator1, Sentinel1>(_STD move(last1)),
 							__unwrap_iterator<Sentinel2>(_STD move(first2)),
@@ -1462,7 +1462,7 @@ public:
 		auto first1 = _RANGES begin(rng1);
 		auto first2 = _RANGES begin(rng2);
 
-		auto [end_for_range1, end_for_range2, end_for_range3] =
+		auto [ end_for_range1, end_for_range2, end_for_range3 ] =
 			__default_merge(__unwrap_range_iterator<Range1>(_STD move(first1)),
 							uend(rng1),
 							__unwrap_range_iterator<Range2>(_STD move(first2)),
@@ -1547,11 +1547,11 @@ public:
 	constexpr unary_transform_result<Iterator, OutIter>
 		operator()(Iterator first, Sentinel last, OutIter result, Predicate pred, Projection proj = {}) const noexcept
 	{
-		auto [end_for_range1, end_for_range2] = __default_transform(__unwrap_iterator<Sentinel>(_STD move(first)),
-																	__unwrap_sentinel<Iterator>(_STD move(last)),
-																	_STD move(result),
-																	__check_function(pred),
-																	__check_function(proj));
+		auto [ end_for_range1, end_for_range2 ] = __default_transform(__unwrap_iterator<Sentinel>(_STD move(first)),
+																	  __unwrap_sentinel<Iterator>(_STD move(last)),
+																	  _STD move(result),
+																	  __check_function(pred),
+																	  __check_function(proj));
 
 		__seek_wrapped(first, _STD move(end_for_range1));
 
@@ -1571,11 +1571,11 @@ public:
 	{
 		auto first = _RANGES begin(rng);
 
-		auto [end_for_range1, end_for_range2] = __default_transform(__unwrap_range_iterator<Range>(_STD move(first)),
-																	uend(rng),
-																	_STD move(result),
-																	__check_function(pred),
-																	__check_function(proj));
+		auto [ end_for_range1, end_for_range2 ] = __default_transform(__unwrap_range_iterator<Range>(_STD move(first)),
+																	  uend(rng),
+																	  _STD move(result),
+																	  __check_function(pred),
+																	  __check_function(proj));
 
 		__seek_wrapped(first, _STD move(end_for_range1));
 
@@ -1604,7 +1604,7 @@ public:
 																				Projection1 proj1 = {},
 																				Projection2 proj2 = {}) const
 	{
-		auto [end_for_range1, end_for_range2, end_for_range3] =
+		auto [ end_for_range1, end_for_range2, end_for_range3 ] =
 			__default_transform(__unwrap_iterator<Sentinle1>(_STD move(first1)),
 								__unwrap_sentinel<Iterator1>(_STD move(last1)),
 								__unwrap_iterator<Sentinel2>(_STD move(first2)),
@@ -1643,7 +1643,7 @@ public:
 		auto first1 = _RANGES begin(rng1);
 		auto first2 = _RANGES begin(rng2);
 
-		auto [end_for_range1, end_for_range2, end_for_range3] =
+		auto [ end_for_range1, end_for_range2, end_for_range3 ] =
 			__default_transform(__unwrap_range_iterator<Range1>(_STD move(first1)),
 								uend(rng1),
 								__unwrap_range_iterator<Range2>(_STD move(first2)),
@@ -1681,7 +1681,7 @@ private:
 	static constexpr void
 		__default_partial_sort(Iterator first, Iterator middle, Iterator last, Predicate pred, Projection proj) noexcept
 	{
-		if (first == middle) // 如果序列 1 为空，则直接返回
+		if (first == middle)  // 如果序列 1 为空，则直接返回
 		{
 			return;
 		}
@@ -1690,7 +1690,7 @@ private:
 
 		for (Iterator next { middle }; next != last; ++next)
 		{
-			if (_STD invoke(pred, _STD invoke(proj, *next), _STD invoke(proj, *first))) // 如果序列 2 的元素比较小
+			if (_STD invoke(pred, _STD invoke(proj, *next), _STD invoke(proj, *first)))	 // 如果序列 2 的元素比较小
 			{
 				_RANGES _Pop_heap_hole_unchecked(first, middle, next, _RANGES iter_move(next), pred, proj, proj);
 			}
@@ -1934,8 +1934,8 @@ public:
 
 		if ((__max_get_median_of_three_constant<diff_t>) < lenth)
 		{
-			const diff_t step1 = (lenth + 1) >> 3; // +1 不会溢出，因为在调用方中使范围包含在内
-			const diff_t step2 = step1 << 1;	   // 注意：有意丢弃低位
+			const diff_t step1 = (lenth + 1) >> 3;	// +1 不会溢出，因为在调用方中使范围包含在内
+			const diff_t step2 = step1 << 1;		// 注意：有意丢弃低位
 
 			__default_set_median_of_three(first, _RANGES next(first, step1), _RANGES next(first, step2), pred, proj);
 
@@ -1983,15 +1983,15 @@ public:
 		Iterator pfirst = mid;
 		Iterator plast	= _RANGES next(pfirst);
 
-		while ((first < pfirst) &&
-			   (!(_STD invoke(pred, _STD invoke(proj, *(_RANGES prev(pfirst))), _STD invoke(proj, *pfirst)))) &&
-			   (!(_STD invoke(pred, _STD invoke(proj, *pfirst), _STD invoke(proj, *(_RANGES prev(pfirst)))))))
+		while ((first < pfirst)
+			   && (!(_STD invoke(pred, _STD invoke(proj, *(_RANGES prev(pfirst))), _STD invoke(proj, *pfirst))))
+			   && (!(_STD invoke(pred, _STD invoke(proj, *pfirst), _STD invoke(proj, *(_RANGES prev(pfirst)))))))
 		{
 			--pfirst;
 		}
 
-		while ((plast < last) && (!(_STD invoke(pred, _STD invoke(proj, *plast), _STD invoke(proj, *pfirst)))) &&
-			   (!(_STD invoke(pred, _STD invoke(proj, *pfirst), _STD invoke(proj, *plast)))))
+		while ((plast < last) && (!(_STD invoke(pred, _STD invoke(proj, *plast), _STD invoke(proj, *pfirst))))
+			   && (!(_STD invoke(pred, _STD invoke(proj, *pfirst), _STD invoke(proj, *plast)))))
 		{
 			++plast;
 		}
@@ -2096,7 +2096,7 @@ private:
 	{
 		while (1 < lenth)
 		{
-			auto [pfirst, plast] = partition(__zh_No_inspection_required, first, last, pred, proj);
+			auto [ pfirst, plast ] = partition(__zh_No_inspection_required, first, last, pred, proj);
 
 			if ((pfirst - first) < (last - plast))
 			{
@@ -2257,25 +2257,25 @@ private:
 	{
 		while (true)
 		{
-			if ((last - first) <
-				(__stl_threshold<_STD iter_difference_t<Iterator>>)) // 使用插入排序，如果元素数量足够少
+			if ((last - first)
+				< (__stl_threshold<_STD iter_difference_t<Iterator>>))	// 使用插入排序，如果元素数量足够少
 			{
 				insertion_sort(__zh_No_inspection_required, _STD move(first), _STD move(last), pred, proj);
 
 				return;
 			}
 
-			if (ideal == 0) // 使用堆排序，如果递归深度足够深
+			if (ideal == 0)	 // 使用堆排序，如果递归深度足够深
 			{
 				partial_sort(__zh_No_inspection_required, _STD move(first), last, _STD move(last), pred, proj);
 
 				return;
 			}
 
-			ideal = (ideal >> 1) + (ideal >> 2); // allow 1.5 log2(N) divisions
+			ideal = (ideal >> 1) + (ideal >> 2);  // allow 1.5 log2(N) divisions
 
 			// “非 ‘几乎有序’ ” 时，首先调用 快排 -- 分割
-			auto [pfirst, plast] = partition(__zh_No_inspection_required, first, last, pred, proj);
+			auto [ pfirst, plast ] = partition(__zh_No_inspection_required, first, last, pred, proj);
 
 			// 递归调用，优先对较短的序列进行排序
 			if (pfirst - first < last - plast)
@@ -2352,15 +2352,15 @@ private:
 	{
 		while (3 < (last - first))
 		{
-			auto [pfirst, plast] = partition(__zh_No_inspection_required, first, last, pred, proj);
+			auto [ pfirst, plast ] = partition(__zh_No_inspection_required, first, last, pred, proj);
 
-			if (nth < pfirst)			   // 如果 指定位置 < 右段起点，（即 nth 位于右段）
+			if (nth < pfirst)  // 如果 指定位置 < 右段起点，（即 nth 位于右段）
 			{
-				first = _STD move(pfirst); // 对右段实施分割
+				first = _STD move(pfirst);	// 对右段实施分割
 			}
-			else						   // 否则（nth 位于左段）
+			else  // 否则（nth 位于左段）
 			{
-				last = _STD move(plast);   // 对左段实施分割
+				last = _STD move(plast);  // 对左段实施分割
 			}
 		}
 
@@ -2404,7 +2404,7 @@ public:
 	constexpr auto operator()(Range&& rng, Iterator nth, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto unth  = __unwrap_range_iterator<Range>(_STD move(nth));
-		auto ulast = [&]
+		auto ulast = [ & ]
 		{
 			if constexpr (_RANGES common_range<Range>)
 			{
@@ -2689,24 +2689,24 @@ private:
 
 		Iterator middle { first };
 
-		while (0 < lenth)											  // 如果整个区间尚未迭代完毕
+		while (0 < lenth)  // 如果整个区间尚未迭代完毕
 		{
-			half = lenth >> 1;										  // 找出中间位置
+			half = lenth >> 1;	// 找出中间位置
 
-			middle = _RANGES next(first, half);						  // 设定中央迭代器
+			middle = _RANGES next(first, half);	 // 设定中央迭代器
 
-			if (_STD invoke(pred, _STD invoke(proj, *middle), value)) // 如果 中央元素 < 指定值
+			if (_STD invoke(pred, _STD invoke(proj, *middle), value))  // 如果 中央元素 < 指定值
 			{
 				first = _STD move(middle);
-				++first; // 将区间缩小（移至后半段），以提高效率
+				++first;  // 将区间缩小（移至后半段），以提高效率
 
 				lenth -= static_cast<diff_t>(half + 1);
 			}
-			else if (_STD invoke(pred, value, _STD invoke(proj, *middle))) // 如果 中央元素 > 指定值
+			else if (_STD invoke(pred, value, _STD invoke(proj, *middle)))	// 如果 中央元素 > 指定值
 			{
-				lenth = _STD move(half); // 将区间缩小（移至前半段），以提高效率
+				lenth = _STD move(half);  // 将区间缩小（移至前半段），以提高效率
 			}
-			else						 // 如果 中央元素 == 指定值
+			else  // 如果 中央元素 == 指定值
 			{
 				// 在前半段寻找上限
 				auto begin { _STD move(lower_bound(__zh_No_inspection_required, first, middle, value, pred, proj)) };
@@ -2843,4 +2843,4 @@ constexpr inline __Binary_search_function binary_search { __Not_quite_object::__
 
 __END_NAMESPACE_ZHANG
 
-#endif // __HAS_CPP20
+#endif	// __HAS_CPP20

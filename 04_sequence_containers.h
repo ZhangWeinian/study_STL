@@ -275,4 +275,4 @@ constexpr inline __Make_heap_function make_heap { __Not_quite_object::__Construc
 
 __END_NAMESPACE_ZHANG
 
-#endif // __HAS_CPP20
+#endif	// __HAS_CPP20

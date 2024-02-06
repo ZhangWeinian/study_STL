@@ -14,13 +14,9 @@ struct pair
 	FirstType  first_value;
 	SecondType second_value;
 
-	pair(void): first_value(FirstType()), second_value(SecondType())
-	{
-	}
+	pair(void): first_value(FirstType()), second_value(SecondType()) {}
 
-	pair(const FirstType& value1, const SecondType& value2): first_value(value1), second_value(value2)
-	{
-	}
+	pair(const FirstType& value1, const SecondType& value2): first_value(value1), second_value(value2) {}
 
 	template <typename Type>
 	explicit pair(_STD initializer_list<Type> init_list):
@@ -36,8 +32,8 @@ struct pair
 	template <typename Type1, typename Type2>
 	constexpr bool operator==(const pair<Type1, Type2>& p) const noexcept
 	{
-		return (_STD invoke(_RANGES equal_to {}, p.first_value, this->first_value) &&
-				_STD invoke(_RANGES equal_to {}, p.second_value, this->second_value));
+		return (_STD	invoke(_RANGES equal_to {}, p.first_value, this->first_value)
+				&& _STD invoke(_RANGES equal_to {}, p.second_value, this->second_value));
 	}
 };
 
@@ -60,9 +56,9 @@ pair(FirstType, SecondType) -> pair<FirstType, SecondType>;
 
 // 工作1、定义基础输出类型
 template <typename MsgType>
-concept __basic_msg_type = (_STD is_fundamental_v<_STD remove_cvref_t<MsgType>>) ||
-						   (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD string>) ||
-						   (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD wstring>);
+concept __basic_msg_type = (_STD is_fundamental_v<_STD remove_cvref_t<MsgType>>)
+						|| (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD string>)
+						|| (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD wstring>);
 
 // 工作2、定义：使用默认打印函数时，输出的格式
 
@@ -83,9 +79,9 @@ struct __zh_Print_with_comma_space
 
 // 工作3、约束：使用默认打印函数时，打印格式能且仅能以上三种方式之一
 template <typename DelimiterMode>
-concept __delimiter_mode = (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_none>) ||
-						   (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_space>) ||
-						   (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_comma_space>);
+concept __delimiter_mode = (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_none>)
+						|| (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_space>)
+						|| (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_comma_space>);
 
 // 工作4、对于基础数据类型，采用如下的输出方式，称此方式为 基础输出方式
 struct __zh_Default_print_with_one_data_function
@@ -148,22 +144,22 @@ private:
 
 	// 当 [first, last) 区间中元素类型是 char 或 wchar_t 时的特化版本
 	template <typename Iterator, typename PrintFunction, typename Projection>
-		requires(_STD is_same_v<_STD remove_cvref_t<typename _STD iter_value_t<Iterator>>, char> ||
-				 _STD is_same_v<_STD remove_cvref_t<typename _STD iter_value_t<Iterator>>, wchar_t>)
+		requires(_STD	 is_same_v<_STD remove_cvref_t<typename _STD iter_value_t<Iterator>>, char>
+				 || _STD is_same_v<_STD remove_cvref_t<typename _STD iter_value_t<Iterator>>, wchar_t>)
 	static constexpr void
 		__print_with_char_or_wchar(Iterator first, Iterator last, PrintFunction pfun, Projection proj) noexcept(true)
 	{
 		using value_type = typename _STD iter_value_t<Iterator>;
 
 		if constexpr (_STD is_same_v<_STD remove_cvref_t<value_type>,
-									 char>) // 如果是字符类型，转为 string ，调用 fputs 输出
+									 char>)	 // 如果是字符类型，转为 string ，调用 fputs 输出
 		{
 			if constexpr ((_STD is_same_v<_STD remove_cvref_t<Projection>, _STD identity>)&&(
-							  noexcept(_STD string(first, last)))) // 如果没有自定义的投影函数 proj ，直接输出
+							  noexcept(_STD string(first, last))))	// 如果没有自定义的投影函数 proj ，直接输出
 			{
 				fputs(_STD string(first, last).c_str(), stdout);
 			}
-			else // 如果有自定义的投影函数 proj ，先投影，再输出
+			else  // 如果有自定义的投影函数 proj ，先投影，再输出
 			{
 				// 使用 std::cout 作为标准输出目的地
 				auto standard_output_destination_with_char { _STD ostreambuf_iterator<char> { _STD cout } };
@@ -178,17 +174,17 @@ private:
 		}
 		else if constexpr (_STD is_same_v<
 							   _STD remove_cvref_t<value_type>,
-							   wchar_t>) // 如果是宽字符类型且设置模式不失败，转为 wstring ，调用 std::wcout 输出
+							   wchar_t>)  // 如果是宽字符类型且设置模式不失败，转为 wstring ，调用 std::wcout 输出
 		{
 			_STD ios::sync_with_stdio(true);
 			_STD locale::global(_STD locale(""));
 
 			if constexpr ((_STD is_same_v<_STD remove_cvref_t<Projection>, _STD identity>)&&(
-							  noexcept(_STD wstring(first, last)))) // 如果没有自定义的投影函数 proj ，直接输出
+							  noexcept(_STD wstring(first, last))))	 // 如果没有自定义的投影函数 proj ，直接输出
 			{
 				_STD wcout << _STD move(_STD wstring(first, last));
 			}
-			else // 如果有自定义的投影函数 proj ，先投影，再输出
+			else  // 如果有自定义的投影函数 proj ，先投影，再输出
 			{
 				// 使用 std::wcout 作为标准输出目的地
 				auto standard_output_destination_with_wchar_t { _STD ostreambuf_iterator<wchar_t> { _STD wcout } };
@@ -207,8 +203,8 @@ private:
 	template <typename Iterator, typename PrintFunction, typename Projection>
 	static constexpr void
 		__print_with_format_iter(Iterator first, Iterator last, PrintFunction pfun, Projection proj) noexcept(
-			(noexcept(_STD invoke(pfun, _STD invoke(proj, *first)))) ||
-			(noexcept(_STD invoke(pfun, _STD invoke(proj, *first), __zh_Print_with_comma_space {}))))
+			(noexcept(_STD invoke(pfun, _STD invoke(proj, *first))))
+			|| (noexcept(_STD invoke(pfun, _STD invoke(proj, *first), __zh_Print_with_comma_space {}))))
 	{
 		if constexpr (_STD is_same_v<_STD remove_cvref_t<PrintFunction>, __zh_Default_print_with_one_data_function>)
 		{
@@ -237,7 +233,7 @@ private:
 		requires(_STD is_same_v<_STD remove_cvref_t<PrintFunction>, __zh_Default_print_with_one_data_function>)
 	static constexpr void __print_with_args(PrintFunction pfun, DelimiterMode mode, Arg&& arg, Args&&... args) noexcept
 	{
-		if constexpr (sizeof...(args) == 0) // 参包为空，即只有一个待输出的参数，直接输出，不加任何修饰
+		if constexpr (sizeof...(args) == 0)	 // 参包为空，即只有一个待输出的参数，直接输出，不加任何修饰
 		{
 			if constexpr (_STD is_null_pointer_v<Arg>)
 			{
@@ -250,7 +246,7 @@ private:
 
 			return;
 		}
-		else // 参包不为空，即有多个待输出的参数，顺次输出，一般情况下是在每个参数之间用逗号和空格分隔
+		else  // 参包不为空，即有多个待输出的参数，顺次输出，一般情况下是在每个参数之间用逗号和空格分隔
 		{
 			if constexpr (_STD is_null_pointer_v<Arg>)
 			{
@@ -276,15 +272,15 @@ private:
 		using value_type	  = typename _STD	   iter_value_t<Iterator>;
 
 		// 如果是字符类型的指针，调用 __print_with_char_or_wchar() 。特别注意，字符类型的判断必须放在前面，否则会被误判为算术类型
-		if constexpr (((_STD is_same_v<_STD remove_cvref_t<value_type>, char>) ||
-					   (_STD is_same_v<_STD remove_cvref_t<value_type>, wchar_t>)) &&
-					  ((_STD is_pointer_v<Iterator>) || (_STD is_array_v<Iterator>)))
+		if constexpr (((_STD is_same_v<_STD remove_cvref_t<value_type>, char>)
+					   || (_STD is_same_v<_STD remove_cvref_t<value_type>, wchar_t>))
+					  && ((_STD is_pointer_v<Iterator>) || (_STD is_array_v<Iterator>)))
 		{
-			if (0 < (last - first)) // 如果 first，last 指向同一个字符串，输出这个字符串的信息
+			if (0 < (last - first))	 // 如果 first，last 指向同一个字符串，输出这个字符串的信息
 			{
 				__print_with_char_or_wchar(_STD move(first), _STD move(last), pfun, proj);
 			}
-			else // 如果 first，last 指向不同的字符串，使用格式化输出
+			else  // 如果 first，last 指向不同的字符串，使用格式化输出
 			{
 				__print_with_basic_msg(_STD move(first), _STD move(last));
 			}
@@ -292,10 +288,10 @@ private:
 			return;
 		}
 		else if constexpr (
-			(_STD is_compound_v<value_type>) ||
-			(!(_STD is_same_v<
-				_STD remove_cvref_t<PrintFunction>,
-				__zh_Default_print_with_one_data_function>))) // 如果是复合类型 或 已有自定义的打印函数 pfun ，则使用自定义打印函数 pfun ，顺次输出所有元素
+			(_STD is_compound_v<value_type>)
+			|| (!(_STD is_same_v<
+				  _STD remove_cvref_t<PrintFunction>,
+				  __zh_Default_print_with_one_data_function>)))	 // 如果是复合类型 或 已有自定义的打印函数 pfun ，则使用自定义打印函数 pfun ，顺次输出所有元素
 		{
 			if constexpr (_STD is_pointer_v<value_type>)
 			{
@@ -315,7 +311,7 @@ private:
 				return;
 			}
 		}
-		else if constexpr (_STD is_arithmetic_v<value_type>) // 如果是算术类型，适当美化后输出
+		else if constexpr (_STD is_arithmetic_v<value_type>)  // 如果是算术类型，适当美化后输出
 		{
 			// 判断经过投影的数据是 整数类型 还是 浮点类型（判断仅做一次）
 			constexpr bool is_float_type { _STD is_floating_point_v<decltype(_STD invoke(proj, *first))> };
@@ -354,7 +350,7 @@ private:
 	template <typename MsgType, typename... Args>
 	static constexpr void __print_with_basic_msg(MsgType&& msg, Args&&... args) noexcept
 	{
-		if constexpr (_STD is_fundamental_v<MsgType>) // 如果是基本类型的组合，直接输出
+		if constexpr (_STD is_fundamental_v<MsgType>)  // 如果是基本类型的组合，直接输出
 		{
 			__print_with_args(__zh_Default_print_with_one_data_function {},
 							  __zh_Print_with_comma_space {},
@@ -363,26 +359,26 @@ private:
 
 			return;
 		}
-		else // 否则，尝试格式化输出
+		else  // 否则，尝试格式化输出
 		{
 			// 使用 std::cout 作为标准输出目的地
 			auto standard_output_destination_with_char { _STD ostreambuf_iterator<char> { _STD cout } };
 
-			if (const auto& len_for_args { sizeof...(args) }; len_for_args == 0) // 如果格式化参包 args 为空，直接输出
+			if (const auto& len_for_args { sizeof...(args) }; len_for_args == 0)  // 如果格式化参包 args 为空，直接输出
 			{
 				_STD format_to(standard_output_destination_with_char, "{}", msg);
 			}
 			else
 			{
-				_STD string fmt_msg(msg);									  // 用于格式化的字符串
+				_STD string fmt_msg(msg);  // 用于格式化的字符串
 				_STD string new_fmt_msg { _STD move(
-					_STD vformat(fmt_msg, _STD make_format_args(args...))) }; // 格式化后的字符串
+					_STD vformat(fmt_msg, _STD make_format_args(args...))) };  // 格式化后的字符串
 
-				if (fmt_msg != new_fmt_msg) // 如果格式化成功，输出格式化后的字符串
+				if (fmt_msg != new_fmt_msg)	 // 如果格式化成功，输出格式化后的字符串
 				{
 					_STD format_to(standard_output_destination_with_char, "{}", new_fmt_msg);
 				}
-				else // 否则，顺次输出 msg 和参数包 args 中的所有参数
+				else  // 否则，顺次输出 msg 和参数包 args 中的所有参数
 				{
 					__print_with_args(__zh_Default_print_with_one_data_function {},
 									  __zh_Print_with_comma_space {},
@@ -520,15 +516,13 @@ struct __Take_msg
 {
 	const char* info;
 
-	constexpr explicit(false) __Take_msg(const char* str) noexcept: info(str)
-	{
-	}
+	constexpr explicit(false) __Take_msg(const char* str) noexcept: info(str) {}
 };
 
 template <__Take_msg msg>
 consteval _STD string operator""_f() noexcept
 {
-	return [=]<typename... Type>(Type... Args) constexpr
+	return [ = ]<typename... Type>(Type... Args) constexpr
 	{
 		return _STD format(msg.info, _STD forward<Type&&>(Args)...);
 	};
@@ -543,4 +537,4 @@ inline _STD string ads(const Type p) noexcept
 
 __END_NAMESPACE_ZHANG
 
-#endif // __HAS_CPP20
+#endif	// __HAS_CPP20

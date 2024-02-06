@@ -37,7 +37,7 @@ struct random_access_iterator_tag: bidirectional_iterator_tag
 {
 };
 
-	#endif // !__use_myself_allocator__
+	#endif	// !__use_myself_allocator__
 
 // 为避免自定义时类型少写，自行开发的迭代器最好继承自如下所示的 _STD iterator
 template <typename Category,
@@ -141,7 +141,7 @@ inline typename iterator_traits<InputIterator>::difference_type distance(InputIt
 }
 
 template <typename InputIterator,
-		  typename Distance> // 注意，这个函数书中未给出实现，但却有这样的用法，故在此处自定义实现
+		  typename Distance>  // 注意，这个函数书中未给出实现，但却有这样的用法，故在此处自定义实现
 inline void distance(InputIterator first, InputIterator last, Distance& result)
 {
 	result = __cove_type(distance(first, last), Distance);
@@ -363,4 +363,4 @@ struct __type_traits<Type*>
 
 __END_NAMESPACE_ZHANG
 
-#endif // __HAS_CPP20
+#endif	// __HAS_CPP20
