@@ -7,7 +7,7 @@
 # No.[3], 本文件配置在 Vs Code 中使用 MSYS2 Llvm clang-format.exe（版本：17.0.6 ）中测试通过。
 # No.[4], 为了方便阅读，本文件中的配置项是按照 https://clang-format.netlify.app/BasedOnStyle/ 的配置项顺序进行排列的。
 # No.[5], 为了方便阅读，本文件中的每一项配置项均以 vvvvvv 开头，^^^^^^ 结尾，中间是配置项的说明和配置值，包括正在阅读的 文件说明 。
-
+#
 # * 最后修改日期：2024-02-15 *
 # * 最后修改人：威年 *
 #
@@ -387,7 +387,7 @@ BreakInheritanceList: AfterColon
 
 # vvvvvv
 # No.[35], BreakStringLiterals (Boolean)
-# 如果为 true，则在字符串文字中断。
+# 如果为 true，则允许在格式化时中断字符串文字。
 
 BreakStringLiterals: true
 # ^^^^^^
@@ -417,7 +417,7 @@ CompactNamespaces: false
 # No.[39], ConstructorInitializerIndentWidth (Unsigned)
 # 构造函数初始化列表的缩进宽度。
 
-ConstructorInitializerIndentWidth: 0
+ConstructorInitializerIndentWidth: 4
 # ^^^^^^
 
 # vvvvvv
@@ -725,7 +725,7 @@ NamespaceIndentation: All
 # No.[72], NamespaceMacros (List of Strings)
 # 字符串的向量，应该被解释为名称空间宏而不是标识符。这对于语言扩展或静态分析器注释很有用。
 
-NamespaceMacros: [NAMESPACE, BEGIN_NAMESPACE, END_NAMESPACE, BEGIN_NAMESPACE_ZHANG, END_NAMESPACE_ZHANG]
+NamespaceMacros: [BEGIN_NAMESPACE, END_NAMESPACE]
 # ^^^^^^
 
 # vvvvvv
@@ -824,8 +824,7 @@ PointerAlignment: Left
 # vvvvvv
 # No.[85], QualifierAlignment (QualifierAlignmentStyle)
 # 排列说明符和限定符的不同方式（例如 const/volatile）。
-# Waring
-# 将 QualifierAlignment 设置为 Leave 以外的其他内容，可能会导致错误的代码格式，这是由于 clang-format 缺乏完整的语义信息而做出的错误决定。因此，应格外小心地审查使用此选项所做的代码更改。
+# Waring: 将 QualifierAlignment 设置为 Leave 以外的其他内容，可能会导致错误的代码格式，这是由于 clang-format 缺乏完整的语义信息而做出的错误决定。因此，应格外小心地审查使用此选项所做的代码更改。
 # 可能的值：
 # Left: 说明符和限定符左对齐。
 # Right: 说明符和限定符右对齐。
@@ -1144,7 +1143,7 @@ TypenameMacros: []
 # No.[120], UseCRLF (Boolean)
 # 用 \r\n 代替 \n 换行。如果 (DeriveLineEnding)(../DeriveLineEnding) 为 true，也用作回退。
 
-UseCRLF: false
+UseCRLF: true
 # ^^^^^^
 
 # vvvvvv

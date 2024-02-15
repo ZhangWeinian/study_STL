@@ -9,14 +9,14 @@ __BEGIN_NAMESPACE_ZHANG
 
 struct __zh_No_inspection_required_function
 {
-	// 这是一个特别的标识符，如果某个函数具有未检查版本（即 不检查迭代器型别是否满足最低要求、
+	// 这是一个特别的标识符。如果某个函数具有未检查版本（即 不检查迭代器型别是否满足最低要求、
 	// 不检查谓词是否满足要求、不检查投影是否满足要求、不检查是否满足自身的 requires （如果有））
 	// 则在调用此函数的未检查版本时，只需将第一个参数设为此标识符的实例，之后再传入其他参数即可。
 };
 
 constexpr inline __zh_No_inspection_required_function __zh_No_inspection_required {};
 
-// 此函数的作用是将一个迭代器解包，返回一个裸指针
+//
 template <typename Result, typename Wrapped, typename Unwrapped>
 _NODISCARD constexpr Result __rewrap_subrange(Wrapped& value, _RANGES subrange<Unwrapped>&& result)
 {
@@ -50,8 +50,8 @@ _NODISCARD constexpr Result __rewrap_subrange(Wrapped& value, _RANGES subrange<U
 	}
 }
 
-// 此函数的作用是将一个迭代器解包，返回一个裸指针
-template <_RANGES forward_range Range, class Iterator>
+//
+template <_RANGES forward_range Range, typename Iterator>
 _NODISCARD constexpr _RANGES iterator_t<Range> __rewrap_iterator(Range&& rng, Iterator&& iter)
 {
 	if constexpr (_STD is_same_v<_STD remove_cvref_t<Iterator>, _RANGES iterator_t<Range>>)
@@ -93,7 +93,7 @@ struct __Copy_function: private __Not_quite_object
 {
 private:
 
-	template <class Iterator, class OutIter>
+	template <typename Iterator, typename OutIter>
 	using copy_result = _RANGES in_out_result<Iterator, OutIter>;
 
 	// 统一调用方式
@@ -669,9 +669,29 @@ public:
 	constexpr void operator()(Type& a, Type& b) const
 		noexcept((_STD is_nothrow_move_constructible_v<Type>)&&(_STD is_nothrow_move_assignable_v<Type>))
 	{
-		Type tmp = _STD move(static_cast<Type&&>(a));
-		a		 = _STD		   move(static_cast<Type&&>(b));
-		b		 = _STD		   move(static_cast<Type&&>(tmp));
+		Type tmp = static_cast<Type&&>(a);
+		a		 = static_cast<Type&&>(b);
+		b		 = static_cast<Type&&>(tmp);
+	}
+
+	template <typename Type1, typename Type2>
+		requires((_STD convertible_to<Type1 &&, Type2 &&>) && (_STD convertible_to<Type2 &&, Type1 &&>))
+	constexpr void operator()(Type1&& a, Type2&& b) const
+		noexcept((_STD is_nothrow_constructible_v<Type1, Type2>)&&(_STD is_nothrow_constructible_v<Type2, Type1>)&&(
+			_STD is_nothrow_assignable_v<Type1, Type2>)&&(_STD is_nothrow_assignable_v<Type2, Type1>))
+	{
+		(*this)<_STD common_type_t<Type1, Type2>>(a, b);
+	}
+
+	template <typename Type1, typename Type2, size_t size>
+	constexpr void operator()(Type1 (&t1)[ size ], Type2 (&t2)[ size ]) const
+		noexcept(noexcept((*this)(t1[ 0 ], t2[ 0 ])))
+		requires(requires() { (*this)(t1[ 0 ], t2[ 0 ]); })
+	{
+		for (size_t i = 0; i < size; ++i)
+		{
+			(*this)(t1[ i ], t2[ i ]);
+		}
 	}
 };
 
@@ -684,9 +704,14 @@ public:
 
 	using __Not_quite_object::__Not_quite_object;
 
+	template <typename Iterator>
+	constexpr void operator()(Iterator a, Iterator b) const noexcept(noexcept(swap(*a, *b)))
+	{
+		swap(*a, *b);
+	}
+
 	template <typename Iterator1, typename Iterator2>
 	constexpr void operator()(Iterator1 a, Iterator2 b) const
-		noexcept(noexcept(swap(*(static_cast<Iterator1&&>(a)), *(static_cast<Iterator2&&>(b)))))
 	{
 		Iterator1 tmp = _STD move(a);
 		*a			  = _STD			move(_RANGES iter_move(b));
@@ -770,7 +795,7 @@ struct __For_each_function: private __Not_quite_object
 {
 private:
 
-	template <class Iterator, class Predicate>
+	template <typename Iterator, typename Predicate>
 	using for_each_result = _RANGES in_fun_result<Iterator, Predicate>;
 
 	// 统一调用方式
@@ -1621,12 +1646,12 @@ public:
 	}
 
 	// function transform() for 容器 强化版 2
-	template <_RANGES input_range		Range1,
-			  _RANGES input_range		Range2,
-			  _STD weakly_incrementable OutIter,
-			  _STD copy_constructible	Predicate,
-			  class Projection1 = _STD	identity,
-			  class Projection2 = _STD	identity>
+	template <_RANGES input_range		  Range1,
+			  _RANGES input_range		  Range2,
+			  _STD weakly_incrementable	  OutIter,
+			  _STD copy_constructible	  Predicate,
+			  typename Projection1 = _STD identity,
+			  typename Projection2 = _STD identity>
 		requires(
 			_STD indirectly_writable<OutIter,
 									 _STD indirect_result_t<Predicate&,
@@ -2278,7 +2303,7 @@ private:
 			auto [ pfirst, plast ] = partition(__zh_No_inspection_required, first, last, pred, proj);
 
 			// 递归调用，优先对较短的序列进行排序
-			if (pfirst - first < last - plast)
+			if ((pfirst - first) < (last - plast))
 			{
 				__default_sort(first, _STD move(pfirst), ideal, pred, proj);
 
@@ -2442,17 +2467,17 @@ constexpr inline __Nth_element_function nth_element { __Not_quite_object::__Cons
 
 template <typename Iterator, typename Type, typename Predicate, typename Projection>
 concept __basic_concept_for_binary_search_function =
-	requires(Iterator first, Iterator last, const Type& value, Predicate pred, Projection proj) {
+	requires(Iterator iter, const Type& value, Predicate pred, Projection proj) {
 		{
-			_STD invoke(pred, _STD invoke(proj, _RANGES iter_move(first)), value)
+			_STD invoke(pred, _STD invoke(proj, _RANGES iter_move(iter)), value)
 		} noexcept -> _STD convertible_to<bool>;
 
 		{
-			_STD invoke(pred, value, _STD invoke(proj, _RANGES iter_move(first)))
+			_STD invoke(pred, value, _STD invoke(proj, _RANGES iter_move(iter)))
 		} noexcept -> _STD convertible_to<bool>;
 
 		{
-			_STD invoke(pred, _STD invoke(proj, _RANGES iter_move(first)), _STD invoke(proj, _RANGES iter_move(first)))
+			_STD invoke(pred, _RANGES iter_move(iter), _RANGES iter_move(iter))
 		} noexcept -> _STD convertible_to<bool>;
 	};
 
@@ -2709,15 +2734,15 @@ private:
 			else  // 如果 中央元素 == 指定值
 			{
 				// 在前半段寻找上限
-				auto begin { _STD move(lower_bound(__zh_No_inspection_required, first, middle, value, pred, proj)) };
+				auto begin { lower_bound(__zh_No_inspection_required, first, middle, value, pred, proj) };
 
 				// 在后半段寻找下限
-				auto end { _STD move(upper_bound(__zh_No_inspection_required,
-												 _STD move(++middle),
-												 _STD move(_RANGES next(first, lenth)),
-												 _STD move(value),
-												 pred,
-												 proj)) };
+				auto end { upper_bound(__zh_No_inspection_required,
+									   _STD move(++middle),
+									   _STD move(_RANGES next(first, lenth)),
+									   _STD move(value),
+									   pred,
+									   proj) };
 
 				return { _STD move(begin), _STD move(end) };
 			}

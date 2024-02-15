@@ -4,14 +4,14 @@
 #define _NODISCARD_MSG(_Msg)
 #define _NODISCARD_MSG(_Msg) [[nodiscard(_Msg)]]
 #define _NODISCARD_MSG(_Msg) [[nodiscard]]
-#define __BEGIN_NAMESPACE_ZHANG namespace zhang {
-#define __END_NAMESPACE_ZHANG }
-#define __BEGIN_NEW_NAMESPACE(name) namespace name {
-#define __END_NEW_NAMESPACE(name) }
+#define BEGIN_NAMESPACE_ZHANG namespace zhang {
+#define END_NAMESPACE_ZHANG }
+#define BEGIN_NEW_NAMESPACE(name) namespace name {
+#define END_NEW_NAMESPACE(name) }
 #define _STD move(cont) ::std::move(cont)
 #define _STD invoke(...) std::invoke(__VA_ARGS__)
-#define __cove_type(cont, type) static_cast<type>(cont)
-#define __init_type(initCont, initType) __cove_type(initCont, initType)
+#define cove_type(cont, type) static_cast<type>(cont)
+#define init_type(initCont, initType) __cove_type(initCont, initType)
 #define _RANGES begin(cont) ::std::ranges::begin(cont)
 #define _RANGES end(cont) ::std::ranges::end(cont)
 #define _RANGES begin(cont) std::move(::std::ranges::begin(cont))

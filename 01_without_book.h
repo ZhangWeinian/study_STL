@@ -20,7 +20,7 @@ struct pair
 
 	template <typename Type>
 	explicit pair(_STD initializer_list<Type> init_list):
-	first_value(*(init_list.begin())), second_value(*(init_list.begin() + 1))
+		first_value(*(init_list.begin())), second_value(*(init_list.begin() + 1))
 	{
 	}
 
@@ -56,9 +56,9 @@ pair(FirstType, SecondType) -> pair<FirstType, SecondType>;
 
 // 工作1、定义基础输出类型
 template <typename MsgType>
-concept __basic_msg_type = (_STD is_fundamental_v<_STD remove_cvref_t<MsgType>>)
-						|| (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD string>)
-						|| (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD wstring>);
+concept __basic_msg_type = ((_STD is_fundamental_v<_STD remove_cvref_t<MsgType>>)
+							|| (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD string>)
+							|| (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD wstring>));
 
 // 工作2、定义：使用默认打印函数时，输出的格式
 
@@ -79,14 +79,14 @@ struct __zh_Print_with_comma_space
 
 // 工作3、约束：使用默认打印函数时，打印格式能且仅能以上三种方式之一
 template <typename DelimiterMode>
-concept __delimiter_mode = (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_none>)
-						|| (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_space>)
-						|| (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_comma_space>);
+concept __delimiter_mode = ((_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_none>)
+							|| (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_space>)
+							|| (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_comma_space>));
 
 // 工作4、对于基础数据类型，采用如下的输出方式，称此方式为 基础输出方式
 struct __zh_Default_print_with_one_data_function
 {
-public:
+   public:
 
 	// 此两处函数虽然拥有默认 DelimiterMode ，但是不代表在使用此两函数时，可以省略 DelimiterMode 。相反，必须显式指定 DelimiterMode 。
 	// 原因是：print()（ 或 println() ）的接口仅仅可以自定义打印函数，而不能自定义 DelimiterMode，这是一个内部的私有类型，它仅仅是配合
@@ -140,18 +140,18 @@ using default_print = __zh_Default_print_with_one_data_function;
 // 此处实现 print() （ 此函数不属于 STL ，只是基于 C++20 标准封装的 多功能打印函数 print() ）
 struct __Format_print_function: private __Not_quite_object
 {
-private:
+   private:
 
 	// 当 [first, last) 区间中元素类型是 char 或 wchar_t 时的特化版本
 	template <typename Iterator, typename PrintFunction, typename Projection>
-		requires(_STD	 is_same_v<_STD remove_cvref_t<typename _STD iter_value_t<Iterator>>, char>
-				 || _STD is_same_v<_STD remove_cvref_t<typename _STD iter_value_t<Iterator>>, wchar_t>)
+		requires((_STD is_same_v<_STD remove_cvref_t<typename _STD iter_value_t<Iterator>>, char>)
+				 || (_STD is_same_v<_STD remove_cvref_t<typename _STD iter_value_t<Iterator>>, wchar_t>))
 	static constexpr void
 		__print_with_char_or_wchar(Iterator first, Iterator last, PrintFunction pfun, Projection proj) noexcept(true)
 	{
-		using value_type = typename _STD iter_value_t<Iterator>;
+		using value_t = typename _STD iter_value_t<Iterator>;
 
-		if constexpr (_STD is_same_v<_STD remove_cvref_t<value_type>,
+		if constexpr (_STD is_same_v<_STD remove_cvref_t<value_t>,
 									 char>)	 // 如果是字符类型，转为 string ，调用 fputs 输出
 		{
 			if constexpr ((_STD is_same_v<_STD remove_cvref_t<Projection>, _STD identity>)&&(
@@ -173,7 +173,7 @@ private:
 			return;
 		}
 		else if constexpr (_STD is_same_v<
-							   _STD remove_cvref_t<value_type>,
+							   _STD remove_cvref_t<value_t>,
 							   wchar_t>)  // 如果是宽字符类型且设置模式不失败，转为 wstring ，调用 std::wcout 输出
 		{
 			_STD ios::sync_with_stdio(true);
@@ -266,14 +266,13 @@ private:
 	// 顶级输出语句之二。使用迭代器 first 和 last ，顺次输出 [first, last) 区间内的所有元素
 	template <typename Iterator, typename PrintFunction, typename Projection>
 	static constexpr void __print_with_iter(Iterator first, Iterator last, PrintFunction pfun, Projection proj) noexcept
-
 	{
-		using difference_type = typename _STD iter_difference_t<Iterator>;
-		using value_type	  = typename _STD	   iter_value_t<Iterator>;
+		using diff_t  = typename _STD  iter_difference_t<Iterator>;
+		using value_t = typename _STD iter_value_t<Iterator>;
 
 		// 如果是字符类型的指针，调用 __print_with_char_or_wchar() 。特别注意，字符类型的判断必须放在前面，否则会被误判为算术类型
-		if constexpr (((_STD is_same_v<_STD remove_cvref_t<value_type>, char>)
-					   || (_STD is_same_v<_STD remove_cvref_t<value_type>, wchar_t>))
+		if constexpr (((_STD is_same_v<_STD remove_cvref_t<value_t>, char>)
+					   || (_STD is_same_v<_STD remove_cvref_t<value_t>, wchar_t>))
 					  && ((_STD is_pointer_v<Iterator>) || (_STD is_array_v<Iterator>)))
 		{
 			if (0 < (last - first))	 // 如果 first，last 指向同一个字符串，输出这个字符串的信息
@@ -288,14 +287,14 @@ private:
 			return;
 		}
 		else if constexpr (
-			(_STD is_compound_v<value_type>)
+			(_STD is_compound_v<value_t>)
 			|| (!(_STD is_same_v<
 				  _STD remove_cvref_t<PrintFunction>,
 				  __zh_Default_print_with_one_data_function>)))	 // 如果是复合类型 或 已有自定义的打印函数 pfun ，则使用自定义打印函数 pfun ，顺次输出所有元素
 		{
-			if constexpr (_STD is_pointer_v<value_type>)
+			if constexpr (_STD is_pointer_v<value_t>)
 			{
-				using value_value_type = typename _STD iter_value_t<value_type>;
+				using value_value_type = typename _STD iter_value_t<value_t>;
 
 				if (_STD is_fundamental_v<value_value_type>)
 				{
@@ -311,7 +310,7 @@ private:
 				return;
 			}
 		}
-		else if constexpr (_STD is_arithmetic_v<value_type>)  // 如果是算术类型，适当美化后输出
+		else if constexpr (_STD is_arithmetic_v<value_t>)  // 如果是算术类型，适当美化后输出
 		{
 			// 判断经过投影的数据是 整数类型 还是 浮点类型（判断仅做一次）
 			constexpr bool is_float_type { _STD is_floating_point_v<decltype(_STD invoke(proj, *first))> };
@@ -391,7 +390,7 @@ private:
 		}
 	}
 
-public:
+   public:
 
 	using __Not_quite_object::__Not_quite_object;
 
@@ -455,7 +454,7 @@ constexpr inline __Format_print_function print { __Not_quite_object::__Construct
 // 此处实现 println<...>(...)
 struct __Format_println_function: private __Not_quite_object
 {
-public:
+   public:
 
 	using __Not_quite_object::__Not_quite_object;
 
@@ -526,13 +525,6 @@ consteval _STD string operator""_f() noexcept
 	{
 		return _STD format(msg.info, _STD forward<Type&&>(Args)...);
 	};
-}
-
-template <typename Type>
-	requires(_STD is_pointer_v<Type>)
-inline _STD string ads(const Type p) noexcept
-{
-	return _STD format("{}", p);
 }
 
 __END_NAMESPACE_ZHANG

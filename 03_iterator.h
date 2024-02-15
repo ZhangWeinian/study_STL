@@ -99,14 +99,14 @@ inline typename iterator_traits<Iterator>::iterator_category iterator_category(c
 template <typename Iterator>
 inline typename iterator_traits<Iterator>::difference_type* distance_type(const Iterator&)
 {
-	return __cove_type(0, iterator_traits<Iterator>::difference_type*);
+	return static_cast<iterator_traits<Iterator>::difference_type*>(0);
 }
 
 // 此函数用于 -- 快速决定某个迭代器的 value type
 template <typename Iterator>
 inline typename iterator_traits<Iterator>::value_type* value_type(const Iterator&)
 {
-	return __cove_type(0, iterator_traits<Iterator>::value_type*);
+	return static_cast<iterator_traits<Iterator>::value_type*>(0);
 }
 
 // 以下是整组 distance 函数
@@ -144,7 +144,7 @@ template <typename InputIterator,
 		  typename Distance>  // 注意，这个函数书中未给出实现，但却有这样的用法，故在此处自定义实现
 inline void distance(InputIterator first, InputIterator last, Distance& result)
 {
-	result = __cove_type(distance(first, last), Distance);
+	result = static_cast<Distance>(distance(first, last));
 }
 
 // 以下是整组 advance 函数

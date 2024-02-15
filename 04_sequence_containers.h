@@ -59,9 +59,9 @@ public:
 		using difference_type = typename _STD iter_difference_t<RandomAccessIterator>;
 
 		__zh_Push_heap_aux(first,
-						   __cove_type((last - first) - 1, difference_type),
-						   __init_type(0, difference_type),
-						   __cove_type(*(last - 1), value_type),
+						   static_cast<difference_type>((last - first) - 1),
+						   static_cast<difference_type>(0),
+						   static_cast<value_type>(*(last - 1)),
 						   __check_function(pred),
 						   proj);
 	}
@@ -136,8 +136,8 @@ private:
 		*result = *first;
 
 		__adjust_heap(first,
-					  __init_type(0, difference_type),
-					  __cove_type(last - first, difference_type),
+					  static_cast<difference_type>(0),
+					  static_cast<difference_type>(last - first),
 					  value,
 					  pred,
 					  proj);
@@ -161,7 +161,7 @@ public:
 		__default_pop_heap(first,
 						   last - 1,
 						   last - 1,
-						   __cove_type(*(last - 1), value_type),
+						   static_cast<value_type>(*(last - 1)),
 						   __check_function(pred),
 						   proj);
 	}
@@ -236,7 +236,7 @@ private:
 
 		while (true)
 		{
-			__adjust_heap(first, parent, len, __cove_type(*(first + parent), value_type), pred, proj);
+			__adjust_heap(first, parent, len, static_cast<value_type>(*(first + parent)), pred, proj);
 
 			if (parent == 0)
 			{

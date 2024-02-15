@@ -61,14 +61,6 @@
 		#define _NORETURN [[noreturn]]
 	#endif	// !_NORETURN
 
-	#ifndef __cove_type
-		#define __cove_type(cont, type) static_cast<type>(cont)
-	#endif	// !__cove_type
-
-	#ifndef __init_type
-		#define __init_type(initCont, initType) __cove_type(initCont, initType)
-	#endif	// !__init_type
-
 
 	#ifndef __STL_TEMPLATE_NULL
 		#define __STL_TEMPLATE_MULL template <>
@@ -477,10 +469,10 @@ class __Not_quite_object
 public:
 
 	/*
-	 * 库中的一些重载集具有这样的特性，即它们的组成函数模板对参数相关名称查找（ADL）不可见，
-	 * 并且当通过非限定名称查找找到 ADL 时，它们会禁止 ADL 。此属性允许将这些重载集实现为函数对象。
-	 * 我们从这种类型派生出这样的函数对象，以删除一些典型的对象行为，这有助于用户避免依赖于他们未指定的对象性。
-	*/
+		 * 库中的一些重载集具有这样的特性，即它们的组成函数模板对参数相关名称查找（ADL）不可见，
+		 * 并且当通过非限定名称查找找到 ADL 时，它们会禁止 ADL 。此属性允许将这些重载集实现为函数对象。
+		 * 我们从这种类型派生出这样的函数对象，以删除一些典型的对象行为，这有助于用户避免依赖于他们未指定的对象性。
+		*/
 
 	struct __Construct_tag
 	{
