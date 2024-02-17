@@ -8,8 +8,7 @@
 __BEGIN_NAMESPACE_ZHANG
 
 // 此处实现 pair<...>(...)
-template <typename FirstType, typename SecondType>
-struct pair
+template <typename FirstType, typename SecondType> struct pair
 {
 	FirstType  first_value;
 	SecondType second_value;
@@ -29,8 +28,7 @@ struct pair
 	{
 	}
 
-	template <typename Type1, typename Type2>
-	constexpr bool operator==(const pair<Type1, Type2>& p) const noexcept
+	template <typename Type1, typename Type2> constexpr bool operator==(const pair<Type1, Type2>& p) const noexcept
 	{
 		return (_STD	invoke(_RANGES equal_to {}, p.first_value, this->first_value)
 				&& _STD invoke(_RANGES equal_to {}, p.second_value, this->second_value));
@@ -45,8 +43,7 @@ static constexpr pair<FirstType, SecondType> make_pair(const FirstType& value1, 
 }
 
 // pair 推断指引
-template <typename FirstType, typename SecondType>
-pair(FirstType, SecondType) -> pair<FirstType, SecondType>;
+template <typename FirstType, typename SecondType> pair(FirstType, SecondType) -> pair<FirstType, SecondType>;
 
 /*-----------------------------------------------------------------------------------------------------*/
 
@@ -63,75 +60,84 @@ concept __basic_msg_type = ((_STD is_fundamental_v<_STD remove_cvref_t<MsgType>>
 // 工作2、定义：使用默认打印函数时，输出的格式
 
 // a）只输出数据
-struct __zh_Print_with_none
+struct __zh_Delimiter_mode_with_None
 {
 };
+
+constexpr inline __zh_Delimiter_mode_with_None delimiter_mode_with_None {};
 
 // b）在数据之后加上空格
-struct __zh_Print_with_space
+struct __zh_Delimiter_mode_with_Space
 {
 };
 
+constexpr inline __zh_Delimiter_mode_with_Space delimiter_mode_with_Space {};
+
 // c）在数据之后加上逗号和空格
-struct __zh_Print_with_comma_space
+struct __zh_Delimiter_mode_with_comma_and_space
 {
 };
+
+constexpr inline __zh_Delimiter_mode_with_comma_and_space delimiter_mode_with_Comma_and_Space {};
 
 // 工作3、约束：使用默认打印函数时，打印格式能且仅能以上三种方式之一
 template <typename DelimiterMode>
-concept __delimiter_mode = ((_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_none>)
-							|| (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_space>)
-							|| (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_comma_space>));
+concept __delimiter_mode =
+	((_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_None>)
+	 || (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_Space>)
+	 || (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_comma_and_space>));
 
 // 工作4、对于基础数据类型，采用如下的输出方式，称此方式为 基础输出方式
-struct __zh_Default_print_with_one_data_function
+struct __zh_Print_with_one_data_function
 {
-   public:
+public:
 
 	// 此两处函数虽然拥有默认 DelimiterMode ，但是不代表在使用此两函数时，可以省略 DelimiterMode 。相反，必须显式指定 DelimiterMode 。
 	// 原因是：print()（ 或 println() ）的接口仅仅可以自定义打印函数，而不能自定义 DelimiterMode，这是一个内部的私有类型，它仅仅是配合
 	// 默认打印函数使用的。所以，如果不显式指定 DelimiterMode ，则会导致编译器无法推导出正确的类型，从而导致编译失败。
 
-	template <__basic_msg_type MsgType, __delimiter_mode DelimiterMode = __zh_Print_with_comma_space>
+	template <__basic_msg_type MsgType, __delimiter_mode DelimiterMode = __zh_Delimiter_mode_with_comma_and_space>
 	constexpr void operator()(const MsgType& msg, DelimiterMode = {}) const noexcept
 	{
-		if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_comma_space>)
+		if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_comma_and_space>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}, ", msg);
 		}
-		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_space>)
+		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_Space>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{} ", msg);
 		}
-		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_none>)
+		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_None>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}", msg);
 		}
 	}
 
-	template <__delimiter_mode DelimiterMode = __zh_Print_with_comma_space>
+	template <__delimiter_mode DelimiterMode = __zh_Delimiter_mode_with_comma_and_space>
 	constexpr void operator()(const wchar_t* msg, DelimiterMode = {}) const noexcept
 	{
 		_STD ios::sync_with_stdio(true);
 		_STD locale::global(_STD locale(""));
 
-		if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_comma_space>)
+		if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_comma_and_space>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{}, ", msg);
 		}
-		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_space>)
+		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_Space>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{} ", msg);
 		}
-		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Print_with_none>)
+		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_None>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{}", msg);
 		}
 	}
 };
 
+constexpr inline __zh_Print_with_one_data_function print_with_one_data {};
+
 // 工作5、定义别名：是为了方便使用者快速定义投影函数的同时，不改变默认的打印方式
-using default_print = __zh_Default_print_with_one_data_function;
+using default_print = __zh_Print_with_one_data_function;
 
 // 以上是准备工作
 
@@ -140,7 +146,7 @@ using default_print = __zh_Default_print_with_one_data_function;
 // 此处实现 print() （ 此函数不属于 STL ，只是基于 C++20 标准封装的 多功能打印函数 print() ）
 struct __Format_print_function: private __Not_quite_object
 {
-   private:
+private:
 
 	// 当 [first, last) 区间中元素类型是 char 或 wchar_t 时的特化版本
 	template <typename Iterator, typename PrintFunction, typename Projection>
@@ -157,7 +163,7 @@ struct __Format_print_function: private __Not_quite_object
 			if constexpr ((_STD is_same_v<_STD remove_cvref_t<Projection>, _STD identity>)&&(
 							  noexcept(_STD string(first, last))))	// 如果没有自定义的投影函数 proj ，直接输出
 			{
-				fputs(_STD string(first, last).c_str(), stdout);
+				_CSTD fputs(_STD string(first, last).c_str(), stdout);
 			}
 			else  // 如果有自定义的投影函数 proj ，先投影，再输出
 			{
@@ -172,9 +178,9 @@ struct __Format_print_function: private __Not_quite_object
 
 			return;
 		}
-		else if constexpr (_STD is_same_v<
-							   _STD remove_cvref_t<value_t>,
-							   wchar_t>)  // 如果是宽字符类型且设置模式不失败，转为 wstring ，调用 std::wcout 输出
+		else if constexpr (
+			_STD is_same_v<_STD remove_cvref_t<value_t>,
+						   wchar_t>)  // 如果是宽字符类型且设置模式不失败，转为 wstring ，调用 std::wcout 输出
 		{
 			_STD ios::sync_with_stdio(true);
 			_STD locale::global(_STD locale(""));
@@ -204,20 +210,20 @@ struct __Format_print_function: private __Not_quite_object
 	static constexpr void
 		__print_with_format_iter(Iterator first, Iterator last, PrintFunction pfun, Projection proj) noexcept(
 			(noexcept(_STD invoke(pfun, _STD invoke(proj, *first))))
-			|| (noexcept(_STD invoke(pfun, _STD invoke(proj, *first), __zh_Print_with_comma_space {}))))
+			|| (noexcept(_STD invoke(pfun, _STD invoke(proj, *first), delimiter_mode_with_Comma_and_Space))))
 	{
-		if constexpr (_STD is_same_v<_STD remove_cvref_t<PrintFunction>, __zh_Default_print_with_one_data_function>)
+		if constexpr (_STD is_same_v<_STD remove_cvref_t<PrintFunction>, __zh_Print_with_one_data_function>)
 		{
-			fputs("[ ", stdout);
+			_CSTD fputs("[ ", stdout);
 
 			for (; first != (last - 1); ++first)
 			{
-				_STD invoke(pfun, _STD invoke(proj, *first), __zh_Print_with_comma_space {});
+				_STD invoke(pfun, _STD invoke(proj, *first), delimiter_mode_with_Comma_and_Space);
 			}
 
-			_STD invoke(pfun, _STD invoke(proj, *first), __zh_Print_with_none {});
+			_STD invoke(pfun, _STD invoke(proj, *first), delimiter_mode_with_None);
 
-			fputs(" ]", stdout);
+			_CSTD fputs(" ]", stdout);
 		}
 		else
 		{
@@ -230,18 +236,18 @@ struct __Format_print_function: private __Not_quite_object
 
 	// 顶级输出语句之一。使用默认打印函数 pfun ，按预定义打印方式顺次输出参数包 args 中的所有参数
 	template <typename PrintFunction, typename DelimiterMode, typename Arg, typename... Args>
-		requires(_STD is_same_v<_STD remove_cvref_t<PrintFunction>, __zh_Default_print_with_one_data_function>)
+		requires(_STD is_same_v<_STD remove_cvref_t<PrintFunction>, __zh_Print_with_one_data_function>)
 	static constexpr void __print_with_args(PrintFunction pfun, DelimiterMode mode, Arg&& arg, Args&&... args) noexcept
 	{
 		if constexpr (sizeof...(args) == 0)	 // 参包为空，即只有一个待输出的参数，直接输出，不加任何修饰
 		{
 			if constexpr (_STD is_null_pointer_v<Arg>)
 			{
-				_STD invoke(pfun, "nullptr", __zh_Print_with_none {});
+				_STD invoke(pfun, "nullptr", delimiter_mode_with_None);
 			}
 			else
 			{
-				_STD invoke(pfun, _STD forward<Arg&&>(arg), __zh_Print_with_none {});
+				_STD invoke(pfun, _STD forward<Arg&&>(arg), delimiter_mode_with_None);
 			}
 
 			return;
@@ -290,13 +296,13 @@ struct __Format_print_function: private __Not_quite_object
 			(_STD is_compound_v<value_t>)
 			|| (!(_STD is_same_v<
 				  _STD remove_cvref_t<PrintFunction>,
-				  __zh_Default_print_with_one_data_function>)))	 // 如果是复合类型 或 已有自定义的打印函数 pfun ，则使用自定义打印函数 pfun ，顺次输出所有元素
+				  __zh_Print_with_one_data_function>)))	 // 如果是复合类型 或 已有自定义的打印函数 pfun ，则使用自定义打印函数 pfun ，顺次输出所有元素
 		{
 			if constexpr (_STD is_pointer_v<value_t>)
 			{
-				using value_value_type = typename _STD iter_value_t<value_t>;
+				using value_value_t = typename _STD iter_value_t<value_t>;
 
-				if (_STD is_fundamental_v<value_value_type>)
+				if (_STD is_fundamental_v<value_value_t>)
 				{
 					__print_with_format_iter(_STD move(first), _STD move(last), pfun, proj);
 
@@ -318,7 +324,7 @@ struct __Format_print_function: private __Not_quite_object
 			// 使用 std::cout 作为标准输出目的地
 			auto standard_output_destination_with_char { _STD ostreambuf_iterator<char> { _STD cout } };
 
-			fputs("[ ", stdout);
+			_CSTD fputs("[ ", stdout);
 
 			for (; first != (last - 1); ++first)
 			{
@@ -351,8 +357,8 @@ struct __Format_print_function: private __Not_quite_object
 	{
 		if constexpr (_STD is_fundamental_v<MsgType>)  // 如果是基本类型的组合，直接输出
 		{
-			__print_with_args(__zh_Default_print_with_one_data_function {},
-							  __zh_Print_with_comma_space {},
+			__print_with_args(print_with_one_data,
+							  delimiter_mode_with_Comma_and_Space,
 							  _STD forward<MsgType&&>(msg),
 							  _STD forward<Args&&>(args)...);
 
@@ -369,9 +375,10 @@ struct __Format_print_function: private __Not_quite_object
 			}
 			else
 			{
-				_STD string fmt_msg(msg);  // 用于格式化的字符串
-				_STD string new_fmt_msg { _STD move(
-					_STD vformat(fmt_msg, _STD make_format_args(args...))) };  // 格式化后的字符串
+				_STD string fmt_msg(msg);	 // 用于格式化的字符串
+				_STD string new_fmt_msg {
+					_STD move(_STD vformat(fmt_msg, _STD make_format_args(args...)))
+				};							 // 格式化后的字符串
 
 				if (fmt_msg != new_fmt_msg)	 // 如果格式化成功，输出格式化后的字符串
 				{
@@ -379,8 +386,8 @@ struct __Format_print_function: private __Not_quite_object
 				}
 				else  // 否则，顺次输出 msg 和参数包 args 中的所有参数
 				{
-					__print_with_args(__zh_Default_print_with_one_data_function {},
-									  __zh_Print_with_comma_space {},
+					__print_with_args(print_with_one_data,
+									  delimiter_mode_with_Comma_and_Space,
 									  _STD forward<MsgType&&>(msg),
 									  _STD forward<Args&&>(args)...);
 				}
@@ -390,26 +397,29 @@ struct __Format_print_function: private __Not_quite_object
 		}
 	}
 
-   public:
+public:
 
 	using __Not_quite_object::__Not_quite_object;
 
 	// 0.1、输出空行
 	void operator()(void) const noexcept(true)
 	{
-		fputs("\n", stdout);
+		_CSTD fputs("\n", stdout);
+
+		return;
 	}
 
 	// 1、针对 迭代器 的一般泛化
 	template <_STD input_iterator Iterator,
 			  _STD sentinel_for<Iterator> Sentinel,
-			  typename PrintFunction = __zh_Default_print_with_one_data_function,
+			  typename PrintFunction = __zh_Print_with_one_data_function,
 			  typename Projection	 = _STD identity>
 		requires(requires(Iterator iter, PrintFunction pfun, Projection proj) {
-			{
-				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), _RANGES iter_move(iter)))
-			} noexcept -> _STD same_as<void>;
-		})
+					 {
+						 _STD invoke(__check_function(pfun),
+									 _STD invoke(__check_function(proj), _RANGES iter_move(iter)))
+					 } noexcept -> _STD same_as<void>;
+				 })
 	constexpr void operator()(Iterator first, Sentinel last, PrintFunction pfun = {}, Projection proj = {}) const
 		noexcept(noexcept(
 			__print_with_iter(_STD move(first), _STD move(last), __check_function(pfun), __check_function(proj))))
@@ -418,21 +428,25 @@ struct __Format_print_function: private __Not_quite_object
 		auto ulast	= __get_last_iterator_with_unwrapped<Iterator>(ufirst, _STD move(last));
 
 		__print_with_iter(_STD move(ufirst), _STD move(ulast), __check_function(pfun), __check_function(proj));
+
+		return;
 	}
 
 	// 2、针对 容器 的特化
 	template <_RANGES input_range Range,
-			  typename PrintFunction = __zh_Default_print_with_one_data_function,
+			  typename PrintFunction = __zh_Print_with_one_data_function,
 			  typename Projection	 = _STD identity>
 		requires(requires(_RANGES range_value_t<Range> value, PrintFunction pfun, Projection proj) {
-			{
-				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), value))
-			} noexcept -> _STD same_as<void>;
-		})
+					 {
+						 _STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), value))
+					 } noexcept -> _STD same_as<void>;
+				 })
 	constexpr void operator()(Range&& rng, PrintFunction pfun = {}, Projection proj = {}) const
-		noexcept(noexcept(((*this)(_RANGES begin(rng), _RANGES end(rng), pfun, proj))))
+		noexcept(noexcept((*this)(_RANGES begin(rng), _RANGES end(rng), pfun, proj)))
 	{
 		(*this)(_RANGES begin(rng), _RANGES end(rng), pfun, proj);
+
+		return;
 	}
 
 	// 3、针对 format() 格式的 一般泛化
@@ -444,6 +458,8 @@ struct __Format_print_function: private __Not_quite_object
 					  "There are too many parameters, please consider printing in an STL container.");
 
 		__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
+
+		return;
 	}
 };
 
@@ -454,43 +470,51 @@ constexpr inline __Format_print_function print { __Not_quite_object::__Construct
 // 此处实现 println<...>(...)
 struct __Format_println_function: private __Not_quite_object
 {
-   public:
+public:
 
 	using __Not_quite_object::__Not_quite_object;
 
 	void operator()(void) const noexcept(true)
 	{
-		fputs("\n", stdout);
+		_CSTD fputs("\n", stdout);
+
+		return;
 	}
 
 	template <_STD input_iterator Iterator,
 			  _STD sentinel_for<Iterator> Sentinel,
-			  typename PrintFunction = __zh_Default_print_with_one_data_function,
+			  typename PrintFunction = __zh_Print_with_one_data_function,
 			  typename Projection	 = _STD identity>
 		requires(requires(Iterator iter, PrintFunction pfun, Projection proj) {
-			{
-				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), _RANGES iter_move(iter)))
-			} noexcept -> _STD same_as<void>;
-		})
+					 {
+						 _STD invoke(__check_function(pfun),
+									 _STD invoke(__check_function(proj), _RANGES iter_move(iter)))
+					 } noexcept -> _STD same_as<void>;
+				 })
 	constexpr void operator()(Iterator first, Sentinel last, PrintFunction pfun = {}, Projection proj = {}) const
 		noexcept(noexcept(print(_STD move(first), _STD move(last), pfun, proj)))
 	{
 		print(_STD move(first), _STD move(last), pfun, proj);
-		fputs("\n", stdout);
+
+		_CSTD fputs("\n", stdout);
+
+		return;
 	}
 
 	template <_RANGES input_range Range,
-			  typename PrintFunction = __zh_Default_print_with_one_data_function,
+			  typename PrintFunction = __zh_Print_with_one_data_function,
 			  typename Projection	 = _STD identity>
 		requires(requires(_RANGES range_value_t<Range> value, PrintFunction pfun, Projection proj) {
-			{
-				_STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), value))
-			} noexcept -> _STD same_as<void>;
-		})
+					 {
+						 _STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), value))
+					 } noexcept -> _STD same_as<void>;
+				 })
 	constexpr void operator()(Range&& rng, PrintFunction pfun = {}, Projection proj = {}) const
 		noexcept(noexcept((*this)(_RANGES begin(rng), _RANGES end(rng), pfun, proj)))
 	{
 		(*this)(_RANGES begin(rng), _RANGES end(rng), pfun, proj);
+
+		return;
 	}
 
 	template <__basic_msg_type MsgType, __basic_msg_type... Args>
@@ -501,7 +525,10 @@ struct __Format_println_function: private __Not_quite_object
 					  "There are too many parameters, please consider printing in an STL container.");
 
 		print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
-		fputs("\n", stdout);
+
+		_CSTD fputs("\n", stdout);
+
+		return;
 	}
 };
 
@@ -510,6 +537,7 @@ constexpr inline __Format_println_function println { __Not_quite_object::__Const
 /*-----------------------------------------------------------------------------------------------------*/
 
 
+// 此处实现 format<...>(...)
 
 struct __Take_msg
 {
@@ -518,10 +546,9 @@ struct __Take_msg
 	constexpr explicit(false) __Take_msg(const char* str) noexcept: info(str) {}
 };
 
-template <__Take_msg msg>
-consteval _STD string operator""_f() noexcept
+template <__Take_msg msg> consteval _STD string operator""_f() noexcept
 {
-	return [ = ]<typename... Type>(Type... Args) constexpr
+	return [=]<typename... Type>(Type... Args) constexpr
 	{
 		return _STD format(msg.info, _STD forward<Type&&>(Args)...);
 	};

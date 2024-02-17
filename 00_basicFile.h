@@ -16,13 +16,13 @@
 
 
 
-#if !(__cplusplus < 202002L)
+#if !(__cplusplus < 202'002L)
 
 	#ifndef __HAS_CPP20
 		#define __HAS_CPP20 __cplusplus
 	#endif	// !__HAS_CPP20
 
-#elif !(_MSVC_LANG < 202002L)
+#elif !(_MSVC_LANG < 202'002L)
 
 	#ifndef __HAS_CPP20
 		#define __HAS_CPP20 _MSVC_LANG
@@ -94,7 +94,7 @@
 
 	#ifndef __END_INLINE_NAMESPACE
 		#define __END_INLINE_NAMESPACE(name) }
-	#endif	// !__END_INLINE_NAMESPACE
+	#endif				 // !__END_INLINE_NAMESPACE
 
 __BEGIN_NAMESPACE_ZHANG	 // 此处开始，所有的代码都在命名空间 zhang 中
 
@@ -116,7 +116,7 @@ constexpr inline Type __limit_msg_args_constant = (__max_msg_args_constant<Type>
 
 		#endif	// !__limit_msg_args_constant
 
-	#endif	// !__max_msg_args_constant
+	#endif		// !__max_msg_args_constant
 
 	#ifndef __max_get_median_of_three_constant
 template <typename Type>
@@ -132,8 +132,10 @@ concept __allow_inheriting_unwrap = (_STD is_same_v<Iterator, typename Iterator:
 
 // Wrapped 是弱展开
 template <typename Wrapped>
-concept __weakly_unwrappable = (__allow_inheriting_unwrap<_STD remove_cvref_t<Wrapped>>)&&(
-	requires(Wrapped&& wrap) { _STD forward<Wrapped>(wrap)._Unwrapped(); });
+concept __weakly_unwrappable =
+	(__allow_inheriting_unwrap<_STD remove_cvref_t<Wrapped>>)&&(requires(Wrapped&& wrap) {
+																	_STD forward<Wrapped>(wrap)._Unwrapped();
+																});
 
 // Sentinel 是弱展开哨兵
 template <typename Sentinel>
@@ -143,8 +145,8 @@ concept __weakly_unwrappable_sentinel = __weakly_unwrappable<const _STD remove_r
 template <typename Iterator>
 concept __weakly_unwrappable_iterator =
 	(__weakly_unwrappable<Iterator>)&&(requires(Iterator&& iter, _STD remove_cvref_t<Iterator>& mut_iter) {
-		mut_iter._Seek_to(_STD forward<Iterator>(iter)._Unwrapped());
-	});
+										   mut_iter._Seek_to(_STD forward<Iterator>(iter)._Unwrapped());
+									   });
 
 // 判断弱展开哨兵
 template <typename Sentinel, typename Iterator>
@@ -162,10 +164,10 @@ concept __unwrappable_sentinel_for =
 
 template <typename Iterator>
 concept __nothrow_unwrapped = requires(Iterator iter) {
-	{
-		iter._Unwrapped()
-	} noexcept;
-};
+								  {
+									  iter._Unwrapped()
+								  } noexcept;
+							  };
 
 template <typename Iterator, typename Sentinel>
 using __unwrap_iterator_type = _STD remove_cvref_t<decltype(__unwrap_iterator<Sentinel>(_STD declval<Iterator>()))>;
@@ -200,8 +202,8 @@ _NODISCARD constexpr decltype(auto) __unwrap_sentinel(Sentinel&& sent) noexcept(
 
 // 此函数的作用是将 迭代器 展开为其 基础类型，即从一个迭代器返回一个裸指针
 template <typename Sentinel, typename Iterator>
-_NODISCARD constexpr auto __unwrap_iterator(Iterator&& iter) noexcept((!__unwrappable_sentinel_for<Sentinel, Iterator>)
-																	  || (__nothrow_unwrapped<Iterator>))
+_NODISCARD constexpr auto __unwrap_iterator(Iterator&& iter) noexcept(
+	(!__unwrappable_sentinel_for<Sentinel, Iterator>) || (__nothrow_unwrapped<Iterator>))
 {
 	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Iterator>>)
 	{
@@ -238,8 +240,8 @@ template <_STD forward_iterator Iterator, typename Sentinel>
 _NODISCARD constexpr __unwrap_iterator_type<Iterator, Sentinel>
 	__get_last_iterator_with_unwrapped(const __unwrap_iterator_type<Iterator, Sentinel>& first, Sentinel&& last)
 {
-	if constexpr (_STD
-					  is_same_v<__unwrap_iterator_type<Iterator, Sentinel>, __unwrap_sentinel_type<Sentinel, Iterator>>)
+	if constexpr (
+		_STD is_same_v<__unwrap_iterator_type<Iterator, Sentinel>, __unwrap_sentinel_type<Sentinel, Iterator>>)
 	{
 		return __unwrap_sentinel<Iterator>(_STD forward<Sentinel>(last));
 	}
@@ -286,10 +288,10 @@ namespace _Unchecked_begin
 {
 	template <typename Type>
 	concept __has_member = requires(Type& t) {
-		{
-			t._Unchecked_begin()
-		} -> _STD input_or_output_iterator;
-	};
+							   {
+								   t._Unchecked_begin()
+							   } -> _STD input_or_output_iterator;
+						   };
 
 	template <class Type>
 	concept __can_begin = requires(Type& t) { __unwrap_range_iterator<Type>(_RANGES begin(t)); };
@@ -314,9 +316,10 @@ namespace _Unchecked_begin
 			}
 			else if constexpr (__can_begin<Type>)
 			{
-				return { Start::Unwrap,
-						 noexcept(_STD _Fake_copy_init(
-							 __unwrap_range_iterator<Type>(_RANGES begin(_STD declval<Type>())))) };
+				return {
+					Start::Unwrap,
+					noexcept(_STD _Fake_copy_init(__unwrap_range_iterator<Type>(_RANGES begin(_STD declval<Type>()))))
+				};
 			}
 			else
 			{
@@ -356,12 +359,13 @@ constexpr inline _Unchecked_begin::UncheckBegin ubegin;
 namespace _Unchecked_end
 {
 	template <class Type>
-	concept __has_member = _Unchecked_begin::__has_member<Type> && requires(Type& t) {
-		t._Unchecked_begin();
-		{
-			t._Unchecked_end()
-		} -> _STD sentinel_for<decltype(t._Unchecked_begin())>;
-	};
+	concept __has_member =
+		(_Unchecked_begin::__has_member<Type>)&&(requires(Type& t) {
+													 t._Unchecked_begin();
+													 {
+														 t._Unchecked_end()
+													 } -> _STD sentinel_for<decltype(t._Unchecked_begin())>;
+												 });
 
 	template <class Type>
 	concept _Can_end = requires(Type& t) { __unwrap_range_sentinel<Type>(_RANGES end(t)); };
