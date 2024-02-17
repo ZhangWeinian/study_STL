@@ -21,23 +21,6 @@ using ::zh::operator""_f;
 namespace rg = ::std::ranges;
 namespace vi = ::std::ranges::views;
 
-namespace Test__
-{
-	struct test_basic
-	{
-	};
-
-	struct test_st1: private test_basic
-	{
-	};
-
-	template <typename Type>
-	Type test_add(Type a, Type b)
-	{
-		return a + b;
-	}
-}  // namespace Test__
-
 int main(int argc, char* argv[])
 {
 	vector nums1 { 15,	 56,   10,	 4582, 15,	5927, 77,	10,	  12308, 4,		110,  101,	 6,	  890,	29,	   4,
