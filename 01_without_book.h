@@ -3,12 +3,13 @@
 #include "./00_basicFile.h"
 
 
-#ifdef __HAS_CPP20
+#ifdef _HAS_CXX20
 
-__BEGIN_NAMESPACE_ZHANG
+_BEGIN_NAMESPACE_ZHANG
 
 // 此处实现 pair<...>(...)
-template <typename FirstType, typename SecondType> struct pair
+template <typename FirstType, typename SecondType>
+struct pair
 {
 	FirstType  first_value;
 	SecondType second_value;
@@ -19,7 +20,8 @@ template <typename FirstType, typename SecondType> struct pair
 
 	template <typename Type>
 	explicit pair(_STD initializer_list<Type> init_list):
-		first_value(*(init_list.begin())), second_value(*(init_list.begin() + 1))
+		first_value(*(init_list.begin())),
+		second_value(*(init_list.begin() + 1))
 	{
 	}
 
@@ -28,7 +30,8 @@ template <typename FirstType, typename SecondType> struct pair
 	{
 	}
 
-	template <typename Type1, typename Type2> constexpr bool operator==(const pair<Type1, Type2>& p) const noexcept
+	template <typename Type1, typename Type2>
+	constexpr bool operator==(const pair<Type1, Type2>& p) const noexcept
 	{
 		return (_STD	invoke(_RANGES equal_to {}, p.first_value, this->first_value)
 				&& _STD invoke(_RANGES equal_to {}, p.second_value, this->second_value));
@@ -43,7 +46,8 @@ static constexpr pair<FirstType, SecondType> make_pair(const FirstType& value1, 
 }
 
 // pair 推断指引
-template <typename FirstType, typename SecondType> pair(FirstType, SecondType) -> pair<FirstType, SecondType>;
+template <typename FirstType, typename SecondType>
+pair(FirstType, SecondType) -> pair<FirstType, SecondType>;
 
 /*-----------------------------------------------------------------------------------------------------*/
 
@@ -53,42 +57,42 @@ template <typename FirstType, typename SecondType> pair(FirstType, SecondType) -
 
 // 工作1、定义基础输出类型
 template <typename MsgType>
-concept __basic_msg_type = ((_STD is_fundamental_v<_STD remove_cvref_t<MsgType>>)
-							|| (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD string>)
-							|| (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD wstring>));
+concept _basic_msg_type = ((_STD is_fundamental_v<_STD remove_cvref_t<MsgType>>)
+						   || (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD string>)
+						   || (_STD is_convertible_v<_STD remove_cvref_t<MsgType>, _STD wstring>));
 
 // 工作2、定义：使用默认打印函数时，输出的格式
 
 // a）只输出数据
-struct __zh_Delimiter_mode_with_None
+struct zh_Delimiter_mode_with_None
 {
 };
 
-constexpr inline __zh_Delimiter_mode_with_None delimiter_mode_with_None {};
+constexpr inline zh_Delimiter_mode_with_None delimiter_mode_with_None {};
 
 // b）在数据之后加上空格
-struct __zh_Delimiter_mode_with_Space
+struct zh_Delimiter_mode_with_Space
 {
 };
 
-constexpr inline __zh_Delimiter_mode_with_Space delimiter_mode_with_Space {};
+constexpr inline zh_Delimiter_mode_with_Space delimiter_mode_with_Space {};
 
 // c）在数据之后加上逗号和空格
-struct __zh_Delimiter_mode_with_comma_and_space
+struct zh_Delimiter_mode_with_comma_and_space
 {
 };
 
-constexpr inline __zh_Delimiter_mode_with_comma_and_space delimiter_mode_with_Comma_and_Space {};
+constexpr inline zh_Delimiter_mode_with_comma_and_space delimiter_mode_with_Comma_and_Space {};
 
 // 工作3、约束：使用默认打印函数时，打印格式能且仅能以上三种方式之一
 template <typename DelimiterMode>
-concept __delimiter_mode =
-	((_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_None>)
-	 || (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_Space>)
-	 || (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_comma_and_space>));
+concept _delimiter_mode =
+	((_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, zh_Delimiter_mode_with_None>)
+	 || (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, zh_Delimiter_mode_with_Space>)
+	 || (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, zh_Delimiter_mode_with_comma_and_space>));
 
 // 工作4、对于基础数据类型，采用如下的输出方式，称此方式为 基础输出方式
-struct __zh_Print_with_one_data_function
+struct zh_Print_with_one_data_function
 {
 public:
 
@@ -96,48 +100,48 @@ public:
 	// 原因是：print()（ 或 println() ）的接口仅仅可以自定义打印函数，而不能自定义 DelimiterMode，这是一个内部的私有类型，它仅仅是配合
 	// 默认打印函数使用的。所以，如果不显式指定 DelimiterMode ，则会导致编译器无法推导出正确的类型，从而导致编译失败。
 
-	template <__basic_msg_type MsgType, __delimiter_mode DelimiterMode = __zh_Delimiter_mode_with_comma_and_space>
+	template <_basic_msg_type MsgType, _delimiter_mode DelimiterMode = zh_Delimiter_mode_with_comma_and_space>
 	constexpr void operator()(const MsgType& msg, DelimiterMode = {}) const noexcept
 	{
-		if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_comma_and_space>)
+		if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, zh_Delimiter_mode_with_comma_and_space>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}, ", msg);
 		}
-		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_Space>)
+		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, zh_Delimiter_mode_with_Space>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{} ", msg);
 		}
-		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_None>)
+		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, zh_Delimiter_mode_with_None>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<char> { _STD cout }, "{}", msg);
 		}
 	}
 
-	template <__delimiter_mode DelimiterMode = __zh_Delimiter_mode_with_comma_and_space>
+	template <_delimiter_mode DelimiterMode = zh_Delimiter_mode_with_comma_and_space>
 	constexpr void operator()(const wchar_t* msg, DelimiterMode = {}) const noexcept
 	{
 		_STD ios::sync_with_stdio(true);
 		_STD locale::global(_STD locale(""));
 
-		if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_comma_and_space>)
+		if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, zh_Delimiter_mode_with_comma_and_space>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{}, ", msg);
 		}
-		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_Space>)
+		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, zh_Delimiter_mode_with_Space>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{} ", msg);
 		}
-		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, __zh_Delimiter_mode_with_None>)
+		else if constexpr (_STD is_same_v<_STD remove_cvref_t<DelimiterMode>, zh_Delimiter_mode_with_None>)
 		{
 			_STD format_to(_STD ostreambuf_iterator<wchar_t> { _STD wcout }, L"{}", msg);
 		}
 	}
 };
 
-constexpr inline __zh_Print_with_one_data_function print_with_one_data {};
+constexpr inline zh_Print_with_one_data_function print_with_one_data {};
 
 // 工作5、定义别名：是为了方便使用者快速定义投影函数的同时，不改变默认的打印方式
-using default_print = __zh_Print_with_one_data_function;
+using default_print = zh_Print_with_one_data_function;
 
 // 以上是准备工作
 
@@ -212,7 +216,7 @@ private:
 			(noexcept(_STD invoke(pfun, _STD invoke(proj, *first))))
 			|| (noexcept(_STD invoke(pfun, _STD invoke(proj, *first), delimiter_mode_with_Comma_and_Space))))
 	{
-		if constexpr (_STD is_same_v<_STD remove_cvref_t<PrintFunction>, __zh_Print_with_one_data_function>)
+		if constexpr (_STD is_same_v<_STD remove_cvref_t<PrintFunction>, zh_Print_with_one_data_function>)
 		{
 			_CSTD fputs("[ ", stdout);
 
@@ -236,7 +240,7 @@ private:
 
 	// 顶级输出语句之一。使用默认打印函数 pfun ，按预定义打印方式顺次输出参数包 args 中的所有参数
 	template <typename PrintFunction, typename DelimiterMode, typename Arg, typename... Args>
-		requires(_STD is_same_v<_STD remove_cvref_t<PrintFunction>, __zh_Print_with_one_data_function>)
+		requires(_STD is_same_v<_STD remove_cvref_t<PrintFunction>, zh_Print_with_one_data_function>)
 	static constexpr void __print_with_args(PrintFunction pfun, DelimiterMode mode, Arg&& arg, Args&&... args) noexcept
 	{
 		if constexpr (sizeof...(args) == 0)	 // 参包为空，即只有一个待输出的参数，直接输出，不加任何修饰
@@ -296,7 +300,7 @@ private:
 			(_STD is_compound_v<value_t>)
 			|| (!(_STD is_same_v<
 				  _STD remove_cvref_t<PrintFunction>,
-				  __zh_Print_with_one_data_function>)))	 // 如果是复合类型 或 已有自定义的打印函数 pfun ，则使用自定义打印函数 pfun ，顺次输出所有元素
+				  zh_Print_with_one_data_function>)))  // 如果是复合类型 或 已有自定义的打印函数 pfun ，则使用自定义打印函数 pfun ，顺次输出所有元素
 		{
 			if constexpr (_STD is_pointer_v<value_t>)
 			{
@@ -412,33 +416,32 @@ public:
 	// 1、针对 迭代器 的一般泛化
 	template <_STD input_iterator Iterator,
 			  _STD sentinel_for<Iterator> Sentinel,
-			  typename PrintFunction = __zh_Print_with_one_data_function,
+			  typename PrintFunction = zh_Print_with_one_data_function,
 			  typename Projection	 = _STD identity>
 		requires(requires(Iterator iter, PrintFunction pfun, Projection proj) {
 					 {
-						 _STD invoke(__check_function(pfun),
-									 _STD invoke(__check_function(proj), _RANGES iter_move(iter)))
+						 _STD invoke(_check_function(pfun), _STD invoke(_check_function(proj), _RANGES iter_move(iter)))
 					 } noexcept -> _STD same_as<void>;
 				 })
 	constexpr void operator()(Iterator first, Sentinel last, PrintFunction pfun = {}, Projection proj = {}) const
 		noexcept(noexcept(
-			__print_with_iter(_STD move(first), _STD move(last), __check_function(pfun), __check_function(proj))))
+			__print_with_iter(_STD move(first), _STD move(last), _check_function(pfun), _check_function(proj))))
 	{
-		auto ufirst = __unwrap_iterator<Sentinel>(_STD move(first));
-		auto ulast	= __get_last_iterator_with_unwrapped<Iterator>(ufirst, _STD move(last));
+		auto ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
+		auto ulast	= _get_last_iterator_unwrapped<Iterator>(ufirst, _STD move(last));
 
-		__print_with_iter(_STD move(ufirst), _STD move(ulast), __check_function(pfun), __check_function(proj));
+		__print_with_iter(_STD move(ufirst), _STD move(ulast), _check_function(pfun), _check_function(proj));
 
 		return;
 	}
 
 	// 2、针对 容器 的特化
 	template <_RANGES input_range Range,
-			  typename PrintFunction = __zh_Print_with_one_data_function,
+			  typename PrintFunction = zh_Print_with_one_data_function,
 			  typename Projection	 = _STD identity>
 		requires(requires(_RANGES range_value_t<Range> value, PrintFunction pfun, Projection proj) {
 					 {
-						 _STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), value))
+						 _STD invoke(_check_function(pfun), _STD invoke(_check_function(proj), value))
 					 } noexcept -> _STD same_as<void>;
 				 })
 	constexpr void operator()(Range&& rng, PrintFunction pfun = {}, Projection proj = {}) const
@@ -450,11 +453,11 @@ public:
 	}
 
 	// 3、针对 format() 格式的 一般泛化
-	template <__basic_msg_type MsgType, __basic_msg_type... Args>
+	template <_basic_msg_type MsgType, _basic_msg_type... Args>
 	constexpr void operator()(MsgType msg, Args... args) const
 		noexcept(noexcept(__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
 	{
-		static_assert((sizeof...(args) < (__max_msg_args_constant<uint64_t>)),
+		static_assert((sizeof...(args) < (_max_msg_args_constant<uint64_t>)),
 					  "There are too many parameters, please consider printing in an STL container.");
 
 		__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
@@ -483,12 +486,11 @@ public:
 
 	template <_STD input_iterator Iterator,
 			  _STD sentinel_for<Iterator> Sentinel,
-			  typename PrintFunction = __zh_Print_with_one_data_function,
+			  typename PrintFunction = zh_Print_with_one_data_function,
 			  typename Projection	 = _STD identity>
 		requires(requires(Iterator iter, PrintFunction pfun, Projection proj) {
 					 {
-						 _STD invoke(__check_function(pfun),
-									 _STD invoke(__check_function(proj), _RANGES iter_move(iter)))
+						 _STD invoke(_check_function(pfun), _STD invoke(_check_function(proj), _RANGES iter_move(iter)))
 					 } noexcept -> _STD same_as<void>;
 				 })
 	constexpr void operator()(Iterator first, Sentinel last, PrintFunction pfun = {}, Projection proj = {}) const
@@ -502,11 +504,11 @@ public:
 	}
 
 	template <_RANGES input_range Range,
-			  typename PrintFunction = __zh_Print_with_one_data_function,
+			  typename PrintFunction = zh_Print_with_one_data_function,
 			  typename Projection	 = _STD identity>
 		requires(requires(_RANGES range_value_t<Range> value, PrintFunction pfun, Projection proj) {
 					 {
-						 _STD invoke(__check_function(pfun), _STD invoke(__check_function(proj), value))
+						 _STD invoke(_check_function(pfun), _STD invoke(_check_function(proj), value))
 					 } noexcept -> _STD same_as<void>;
 				 })
 	constexpr void operator()(Range&& rng, PrintFunction pfun = {}, Projection proj = {}) const
@@ -517,11 +519,11 @@ public:
 		return;
 	}
 
-	template <__basic_msg_type MsgType, __basic_msg_type... Args>
+	template <_basic_msg_type MsgType, _basic_msg_type... Args>
 	constexpr void operator()(MsgType msg, Args... args) const
 		noexcept(noexcept(print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
 	{
-		static_assert((sizeof...(args) < (__max_msg_args_constant<uint64_t>)),
+		static_assert((sizeof...(args) < (_max_msg_args_constant<uint64_t>)),
 					  "There are too many parameters, please consider printing in an STL container.");
 
 		print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
@@ -546,7 +548,8 @@ struct __Take_msg
 	constexpr explicit(false) __Take_msg(const char* str) noexcept: info(str) {}
 };
 
-template <__Take_msg msg> consteval _STD string operator""_f() noexcept
+template <__Take_msg msg>
+consteval _STD string operator""_f() noexcept
 {
 	return [=]<typename... Type>(Type... Args) constexpr
 	{
@@ -554,6 +557,6 @@ template <__Take_msg msg> consteval _STD string operator""_f() noexcept
 	};
 }
 
-__END_NAMESPACE_ZHANG
+_END_NAMESPACE_ZHANG
 
-#endif	// __HAS_CPP20
+#endif	// _HAS_CXX20

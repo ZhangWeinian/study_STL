@@ -2,7 +2,7 @@
 
 #include "./00_basicFile.h"
 
-#if __HAS_CPP20
+#if _HAS_CXX20
 
 
 

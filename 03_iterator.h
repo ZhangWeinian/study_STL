@@ -1,8 +1,8 @@
 #include "./00_basicFile.h"
 
-#if __HAS_CPP20
+#if _HAS_CXX20
 
-__BEGIN_NAMESPACE_ZHANG
+_BEGIN_NAMESPACE_ZHANG
 
 // 五种迭代器类型
 
@@ -361,6 +361,6 @@ struct __type_traits<Type*>
 	using is_POD_type					  = _STD					 true_type;
 };
 
-__END_NAMESPACE_ZHANG
+_END_NAMESPACE_ZHANG
 
-#endif	// __HAS_CPP20
+#endif	// _HAS_CXX20

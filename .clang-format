@@ -2,49 +2,55 @@
 
 # vvvvvv
 # 重要信息:
-# * 最后修改日期: 2024-02-16 *
-# * 最后修改人: 张威年 *
+#     文件内部版本: FILE-VERSION-1.1.3
+#     文件编码格式: UTF-8
+#     最后修改日期: 2024-02-21
+#     最后修改人: 张威年
 # ^^^^^^
 
 # vvvvvv
-# 文件说明:
+# 文件说明（1）:
 #
-### No.[一]  在不致混淆的情况下，本文件中，除非明确说明或指示（例如:关键词 clang-format.exe 明确的表示它代指 Windows 平台上一个名为 clang-format 的可执行文件），关键词 clang-format（或 .clang-format ）的含义可以是以下几种: a) 指代 clang-format.exe 可执行文件；b) 指代 .clang-format 配置文件；c) 指代 clang-format 有关的其他条款。在这种情况下，读者应根据上下文来理解它的含义。本文件最大可能保证关键词 clang-format（或 .clang-format ）避免在上下文出现歧义。
+### No.[一]  在不致混淆的情况下，本文件中，除非明确说明或指示（例如: 关键词 clang-format.exe 明确的表示它代指 Windows 平台上一个名为 clang-format 的可执行文件），关键词 clang-format（或 .clang-format ）的含义可以是以下几种: a) 指代 clang-format.exe 可执行文件；b) 指代 .clang-format 配置文件；c) 指代 clang-format 有关的其他条款。在这种情况下，读者应根据上下文来理解它的含义。本配置文件最大可能保证关键词 clang-format（或 .clang-format ）避免在上下文出现歧义。
 #
 ### No.[二]  本文件是 clang-format 的配置文件，目的是用于格式化 C/C++ 代码，并未列出或定义与 C++ 完全无关的配置项，所以本文件列出的针对 C/C++ 的有效配置项（不含已声明为 弃置 的项）共 146 项 少于 官方文档（https://clang.llvm.org/docs/ClangFormatStyleOptions.html）（以下简称 官方文档）中列出的配置项。
 #
 ### No.[三]  本文件中的配置项是基于 官方文档 列出的配置项进行修改的（其中已经声明为 弃置 的项没有在此定义）。
 #
-### No.[四]  本文件配置在 Windows 11 64-bit 平台中，分别使用 Vs Code + MSYS2 clang64 clang-format.exe（ 版本: 17.0.6 ）与 Visual Studio 2022 + Visual Studio 附带的可选 Clang 编译器中的 clang-format.exe （ 版本: 17.0.3 ）（以上两环境，以下简称 笔者环境 ），均测试通过。
+### No.[四]  本文件在 Windows 11 64-bit 平台中，分别使用 Vs Code + MSYS2 clang64 clang-format.exe（ 版本: 17.0.6 ）与 Visual Studio 2022 + Visual Studio 附带的可选 Clang 编译器中的 clang-format.exe （ 版本: 17.0.3 ）（以上两环境，以下简称 笔者环境 ），均测试通过。
 #
-### No.[五]  为了方便查找与设置，本文件中的配置项是按照 参考网站 列出的的配置项顺序进行排列的（只有一个例外项 -- 本文件中编号 No.[80]-Language-(LanguageKind) 的配置项 -- 它被提前定义在所有配置项之前。但仅仅是定义，配置详细说明所处的的相对位置不变）。
+### No.[五]  为了方便查找与设置，本文件中的配置项是按照 官方文档 列出的的配置项顺序进行排列的（只有一个例外项 -- 本文件中编号 No.[80]-Language-(LanguageKind) 的配置项 -- 它被提前定义在所有配置项之前。但仅仅是定义，配置详细说明所处的的相对位置不变）。
 #
-### No.[六]  为了方便查找与设置，本文件中的每一项配置项均以 # vvvvvv 开头，# ^^^^^^ 结尾，中间是配置项的说明和配置值，包括正在阅读的 文件说明 。
+### No.[六]  为了方便查找与设置，本文件中的每一项配置项均以 # vvvvvv 开头，# ^^^^^^ 结尾，中间是配置项的说明和配置值，包括正在阅读的 文件说明（1） 。
 #
-### No.[七]  为了方便查找与设置，本文件中出现的一些含义不明确的关键字（例如: 最佳选项 -- 仅此关键词不能指明 何为最佳、是哪个平台上的最佳、基于何种比较而得出的最佳等），均在关键字后面加上了注释（例如: 最佳选项（ Windows 平台上的最佳选项））或注释编号指示标识（例如: 最佳选项<1> ，（此处会另起一行）## <1>  此处指 Windows 平台上的最佳选项 的形式解释说明）来指明它的含义。
+### No.[七]  为了方便查找与设置，本文件中出现的一些含义不明确的关键字（例如: 最佳选项 -- 仅此关键词不能指明何为最佳、是哪个平台上的最佳、基于何种比较而得出的最佳等），均在关键字后面加上了注释（例如: 最佳选项（ Windows 平台上的最佳选项））或注释编号指示标识（例如: 最佳选项<1> ，（此处会另起一行）## <1>  此处指 Windows 平台上的最佳选项）来指明它的含义。
 #
-### No.[八] 受限于文本格式，本文件中的配置项的说明可能不够详细（尤其是某配置项不同的值带来的实际效果差异的对比），如果需要更详细的说明，请参考 官方文档 与 参考网站 或其它任何你认为有益的资源。
+### No.[八] 受限于文本格式，本文件中的配置项的说明可能不够详细（尤其是某配置项不同的值带来的实际效果差异的对比），如果需要更详细的说明，请参考 官方文档 或其它任何你认为有益的资源。
 #
-### No.[九]  始终推荐以最新版本的 Llvm clang-format 运行本文件配置。如果你使用的是旧版本的 Llvm clang-format ，可能会有一些配置项不适用或者效果不如预期，甚至出现错误。对此，你可以尝试升级你的 Llvm clang-format 版本，或者在本文件中注释掉不适用的配置项。
+### No.[九]  始终推荐以最新版本的 Llvm clang-format 搭配运行本文件。如果你使用的是旧版本的 Llvm clang-format ，可能会有一些配置项不适用或者效果不如预期，甚至出现错误。对此，你可以尝试升级你的 Llvm clang-format 版本，或者在本文件中注释掉不适用的配置项。
 #
-### No.[十]  本文件中的某些配置项在 笔者环境 中不可用，怀疑是笔者的 Llvm clang-format 版本过低。笔者在 Windows 上通过 MSYS2 安装并维护 Llvm 相关组件，目前的 Llvm clang-format 版本是 17.0.6 。这与官方文档中，一些配置项的要求版本不符。故此处定义标识符 THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS ，以便在笔者环境中注释掉不可用的配置项。
+### No.[十]  本文件中的某些配置项是 Llvm clang-format 为下一个版本（calng-format 19）预留的配置项，它们可能在下一个版本中被添加到 Llvm clang-format 中并正式启用。故而这些配置项不适合在当前版本（clang-format 17）的 Llvm clang-format 中使用。基于对官方文档的尊重，这些配置项被列出；基于对现实的考虑，它们被注释掉了，并在注释后面添加了一个特殊的标识符 -- THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS -- 以作提示 。你可以在下一个版本的 Llvm clang-format 中尝试启用它们。
+#
+### No.[十一] 在 FILE-VERSION-1.1.0 版本中，每一个配置项名称的最后，以大括号的形式标明了此配置项是从 Llvm clang-format 的那个主要版本开始支持的。例如: { clang-format 3.3 } 表示此配置项是从 Llvm clang-format 3.3 版本开始支持的。这样做一是为了方便你在使用旧版本的 Llvm clang-format 时，可以快速定位到你可以使用的配置项；二是为了方便你在使用本文件之前，可以根据你的 Llvm clang-format 版本来决定是否需要注释掉一些配置项，而不必等到出错的时候再挨个注释或删除（例如: 你使用了 Llvm ckang-format 17 ，那么可以快速浏览所有配置项，将那些版本要求高于 17 的配置项注释或删除）。
+#
+### No.[十二] 即使出现了不合适或不可用的配置项（通常是版本要求过高的配置项），本文件也不会删除它们，而是注释掉它们（除非它被明确声明为 弃置 ）。推荐你也这样做。这是为了保持本文件的完整性，以及为了方便你在使用新版本的 Llvm clang-format 时，可以快速找到并启用它们。
 #
 # ^^^^^^
 
 # vvvvvv
-# 文件说明2:
-### No.[一]  此格式文件是可行的最低标准<1>文件。这意味着它没有任何针对特殊项目的配置（尤其是关于静态检测的宏的设置。可以在本文件中搜索关键词 List of Strings 快速定位它们）。这是一个很好的起点，但是对于大多数项目来说，你可能需要添加一些额外的配置。
+# 文件说明（2）:
+### No.[一]  此格式文件应该被视为可行的最低标准<1>文件（即使本文件可以直接使用而不做任何修改）。这意味着它没有任何针对特殊项目的配置（尤其是关于静态检测的宏的设置。可以在本文件中搜索关键词 List of Strings 快速定位它们）。这是一个很好的起点，当然可以直接使用本文件而不做任何修改，但是对于大多数项目来说，你可能需要添加一些额外的配置。
 ### No.[二]  如果没有特殊说明，此文件中配置项的值均是推荐值<2>。除非你明确正在修改的配置的含义，否则请勿更改预设值。
 #
 ## <1>  最低标准 的含义是: 经笔者测试，可以最大限度避免配置项在不同环境、不同平台、不同目标文件格式中出现歧义。实际上是尽可能明确定义出所有有用的配置项，即使定义出的配置项已经是 clang-format 的默认值。
-## <2>  推荐值 的含义是: 经笔者测试经笔者测试效果良好的值。
+## <2>  推荐值 的含义是: 经笔者测试，在 笔者环境 中表现效果良好的值。
 # ^^^^^^
 
 # vvvvvv
-# 文件说明3:
+# 文件说明（3）:
 # 什么是 clang-format？以及如何使用它？-- Clang-Format 简介
 #
-### No.[一]  Clang-Format.exe 与 .clang-format配置文件介绍
+### No.[一]  Clang-Format.exe 与 .clang-format 配置文件介绍
 # clang-format.exe 位于 /clang/tools/clang-format，可用于格式化 C/C++/Java/JavaScript/Objective-C/Protobuf/C# 代码。
 # clang-format.exe 是一个命令行工具，用于格式化 C/C++/Java/JavaScript/Objective-C/Protobuf/C# 代码。可以在命令行中输入 clang-format --help 查看它的帮助信息。如下是一个范例:
 #
@@ -162,7 +168,7 @@
 #
 # 配置文件可以由几个部分组成，每个部分使用不同的语言: 参数表示该配置部分针对的编程语言。有关支持的语言列表，请参阅下面语言选项的说明。第一部分可能没有设置语言，它将为所有语言设置默认样式选项。特定语言的配置节将覆盖在默认部分的设置的选项。
 #
-# 当 clang-format 格式化文件时，它使用文件名自动检测语言。当格式化标准输入或没有与其语言对应的扩展名的文件时， -assume-filename= 选项可以用来覆盖 clang-format 用于检测语言的文件名。
+# 当 clang-format 格式化目标文件时，它使用文件名自动检测语言。当格式化标准输入或没有与其语言对应的扩展名的文件时，-assume-filename= 选项可以用来覆盖 clang-format 用于检测语言的文件名。
 #
 # clang-format 支持在同一文件中对多种支持的语言进行不同的配置。在这种情况下，它将使用最接近的配置部分，该部分的语言与文件中的语言匹配。
 # 如果想明确的配置一个语言，可以将配置项 Language: <language> 置于所有配置项之前，并且在之后的配置中不再设置 Language 项。这样可以确保 clang-format 使用正确的配置部分。
@@ -204,7 +210,7 @@
 #
 #
 ### No.[三]  关于禁用格式
-# Clang-format 还可以理解在带分隔符的范围内切换格式的特殊注释。注释 // clang-format off (或 /* clang-format off */) 到注释 // clang-format on (或 /* clang-format on */) 之间的代码不会被格式化。注释本身将被正常格式化(对齐)。
+# Clang-format 还可以理解在带分隔符的范围内切换格式的特殊注释。注释 // clang-format off（或 /* clang-format off */）到注释 // clang-format on（或 /* clang-format on */）之间的代码不会被格式化。注释本身将被正常格式化（对齐）。
 #
 # int formatted_code;
 # // clang-format off
@@ -221,7 +227,7 @@
 # vvvvvv
 Language: Cpp ## <3>
 #
-## <3>  语言选项的说明: 此配置详细信息请参考条款 No.[80]-Language-(LanguageKind) 与 文件说明3-No.[二]-关于配置样式 。
+## <3>  语言选项的说明: 此配置详细信息请参考条款 No.[80]-Language-(LanguageKind) 与 文件说明（3）No.[二] 关于配置样式 。
 # ^^^^^^
 
 # vvvvvv
@@ -236,7 +242,7 @@ Language: Cpp ## <3>
 # WebKit: 一种符合 WebKit风格指南 的样式
 # Microsoft: 一种符合 Microsoft风格指南 的样式
 # GNU: 一种符合 GNU代码规范 的样式
-# InheritParentConfig: 不是真正的样式，但允许使用来自父目录的 .clang-format 文件(如果没有父目录，则为其父目录)。如果没有找到父文件，它会退回到 fallback 样式，并将更改应用到该样式。使用这个选项，您可以覆盖子目录的主样式的某些部分。这也可以通过命令行实现，例如: --style={BasedOnStyle: InheritParentConfig, ColumnLimit: 20}
+# InheritParentConfig: 不是真正的样式，但允许使用父目录中的 .clang-format 文件（如果没有，则使用其父目录）。如果找不到父文件，它将回退到回退样式，并将更改应用到该样式。使用这个选项，您可以覆盖子目录的主样式的某些部分。这也可以通过命令行实现，例如: --style={BasedOnStyle: InheritParentConfig, ColumnLimit: 20}
 # None: 不使用, 即自动配置, 也就是本文件中的自定义内容
 
 BasedOnStyle: None
@@ -253,7 +259,7 @@ AccessModifierOffset: -4
 ### No.[3]  AlignAfterOpenBracket (BracketAlignmentStyle) { clang-format 3.8 }
 # 如果为 true，则在左大括号后对齐。
 # 这适用于圆括号、尖括号和方括号。
-# 注意: 这目前仅适用于带括号的初始值设定项列表(当 No.[51]-Cpp11BracedListStyle-(Boolean) 为 true 时)和圆括号。
+# 注意: 这目前仅适用于带括号的初始值设定项列表（当 No.[51]-Cpp11BracedListStyle-(Boolean) 为 true 时）和圆括号。
 # 可能的值:
 # Align: 将左括号中的参数对齐。例如:
 #     someLongFunction(argument1,
@@ -591,6 +597,9 @@ AllowAllParametersOfDeclarationOnNextLine: false
 
 # vvvvvv
 # No.[15]  AllowBreakBeforeNoexceptSpecifier (BreakBeforeNoexceptSpecifierStyle) { clang-format 18 }
+#
+# THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+#
 # 控制 noexcept 说明符之前是否可以有换行符。
 # 可能的值:
 # Never: noexcept 说明符之前不允许换行。例如:
@@ -617,7 +626,7 @@ AllowAllParametersOfDeclarationOnNextLine: false
 #         noexcept(noexcept(baz(arg1)) &&
 #                  noexcept(baz(arg2)));
 
-# AllowBreakBeforeNoexceptSpecifier: Always # THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+# AllowBreakBeforeNoexceptSpecifier: Always
 # ^^^^^^
 
 # vvvvvv
@@ -661,6 +670,9 @@ AllowShortCaseLabelsOnASingleLine: false
 
 # vvvvvv
 ### No.[18]  AllowShortCompoundRequirementOnASingleLine (Boolean) { clang-format 18 }
+#
+# THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+#
 # 如果为 true，允许在单行上进行短复合要求。例如:
 # true:
 #     template <typename T>
@@ -677,7 +689,7 @@ AllowShortCaseLabelsOnASingleLine: false
 #    };
 #
 
-# AllowShortCompoundRequirementOnASingleLine: false # THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+# AllowShortCompoundRequirementOnASingleLine: false
 # ^^^^^^
 
 # vvvvvv
@@ -1212,21 +1224,21 @@ BraceWrapping:
     # bool IndentBraces: 缩进包装的括号本身
     IndentBraces: true
 
-    # bool SplitEmptyFunction:  如果为 false ，则可以将空函数体放在一行上。只有当函数的左大括号已经换行时，即设置了 AfterFunction 大括号换行模式，并且函数不能/不应该放在一行上时，才使用此选项（根据 AllowShortFunctionsOnSingleLine 和构造函数格式选项）。例如:
+    # bool SplitEmptyFunction:  如果为 false ，则可以将空函数体放在一行上。只有当函数的左大括号已经换行时，即设置了 AfterFunction（此配置项的前置项）大括号换行模式，并且函数不能/不应该放在一行上时，才使用此选项（根据 No.[20]-AllowShortFunctionsOnASingleLine-(ShortFunctionStyle) 和构造函数格式选项）。例如:
     #     false:                true:
     #     int f()         vs.   int f()
     #     {}                    {
     #                           }
-    SplitEmptyFunction: true
+    SplitEmptyFunction: false
 
-    # bool SplitEmptyRecord: 如果为 false，空记录(例如类，结构体或联合)主体可以放在一行上。此选项仅在记录的开括号已经被包装时使用，即设置了 AfterClass (对于类)括号封装模式。例如:
+    # bool SplitEmptyRecord: 如果为 false，空记录（例如类，结构体或联合）主体可以放在一行上。此选项仅在记录的开括号已经被包装时使用，即设置了 AfterClass（此配置项的前置项）括号封装模式。例如:
     #     false:               true:
     #     class Foo       vs.  class Foo
     #     {}                   {
     #                          }
     SplitEmptyRecord: true
 
-    # bool SplitEmptyNamespace: 如果为 false，则空的命名空间主体可以放在一行上。该选项仅在名称空间的左大括号已经被包装时使用，即设置了 AfterNamespace 大括号包装模式。例如:
+    # bool SplitEmptyNamespace: 如果为 false，则空的命名空间主体可以放在一行上。该选项仅在名称空间的左大括号已经被包装时使用，即设置了 AfterNamespace（此配置项的前置项）大括号包装模式。例如:
     #     false:               true:
     #     namespace Foo   vs.  namespace Foo
     #     {}                   {
@@ -1269,6 +1281,9 @@ BracedInitializerIndentWidth: 4
 
 # vvvvvv
 ### No.[33]  BreakAdjacentStringLiterals (Boolean) { clang-format 18 }
+#
+# THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+#
 # 在相邻的字符串文字之间中断。例如:
 # true:
 #     return "Code"
@@ -1278,7 +1293,7 @@ BracedInitializerIndentWidth: 4
 # false:
 #     return "Code" "\0\52\26\55\55\0" "x013" "\02\xBA";
 
-# BreakAdjacentStringLiterals: true # THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+# BreakAdjacentStringLiterals: true
 # ^^^^^^
 
 # vvvvvv
@@ -1360,6 +1375,9 @@ BreakAfterAttributes: Never
 
 # vvvvvv
 ### No.[35]  BreakAfterReturnType (ReturnTypeBreakingStyle) { clang-format 19 }
+#
+# THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+#
 # 函数声明返回要使用的类型样式。
 # 可能的值:
 # Automatic: 基于 PenaltyReturnTypeOnItsOwnLine 的返回类型后中断。例如:
@@ -1436,7 +1454,7 @@ BreakAfterAttributes: Never
 #     int
 #     LongName::AnotherLongName();
 
-# BreakAfterReturnType: ExceptShorttype # THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+# BreakAfterReturnType: ExceptShorttype
 # ^^^^^^
 
 # vvvvvv
@@ -1925,8 +1943,8 @@ BreakBeforeConceptDeclarations: Always
 # 控制内联汇编冒号的换行。
 # 可能的值:
 # Never: 从不在内联汇编冒号前中断。例如:
-#
 #     asm volatile("string", : : val);
+#
 # OnlyMultiline: 仅在内联汇编冒号前中断。例如:
 #     asm volatile("string", : : val);
 #     asm("cmoveq %1, %2, %[result]"
@@ -2010,7 +2028,7 @@ BreakInheritanceList: AfterColon
 # ^^^^^^
 
 # vvvvvv
-### No.[44]  BreakStringLiterals (Boolean)
+### No.[44]  BreakStringLiterals (Boolean) { clang-format 3.9 }
 # 如果为 true，则允许在格式化时中断字符串文字。
 # 在 C, C++, 或 Objective-C 中，例如:
 # true:
@@ -2049,6 +2067,9 @@ BreakStringLiterals: true
 
 # vvvvvv
 ### No.[45]  BreakTemplateDeclarations (BreakTemplateDeclarationsStyle) { clang-format 19 }
+#
+# THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+#
 # 控制模板声明的换行。
 # 可能的值:
 # Leave: 使模板声明的换行保持原样。例如:
@@ -2083,7 +2104,7 @@ BreakStringLiterals: true
 #           int bbbbbbbbbbbbbbbbbbbbb) {
 #     }
 
-# BreakTemplateDeclarations: Yes # THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+# BreakTemplateDeclarations: Yes
 # ^^^^^^
 
 # vvvvvv
@@ -2151,7 +2172,7 @@ ContinuationIndentWidth: 4
 # 括号内没有空格。
 # 在右括号之前不能换行。
 # 使用延续缩进，而不是使用块缩进。
-# 基本上，带大括号的 C++11 列表的格式与函数调用在其位置上的格式完全相同。如果带括号的列表跟在一个名称后面(例如，类型名或变量名)，clang-format 的格式就好像 {} 是带有该名称的函数调用的圆括号一样。如果没有名称，则假定名称长度为零。
+# 基本上，带大括号的 C++11 列表的格式与函数调用在其位置上的格式完全相同。如果带括号的列表跟在一个名称后面（例如，类型名或变量名），clang-format 的格式就好像 {} 是带有该名称的函数调用的圆括号一样。如果没有名称，则假定名称长度为零。
 # 例如:
 #     true:                                  false:
 #     vector<int> x{1, 2, 3, 4};     vs.     vector<int> x{ 1, 2, 3, 4 };
@@ -2344,7 +2365,7 @@ IncludeBlocks: Regroup
 ### No.[61]  IncludeCategories (List of IncludeCategories) { clang-format 3.8 }
 # 表示用于对 #includes 进行排序的不同 #include 类别的正则表达式。
 # 支持 POSIX 扩展正则表达式。
-# 这些正则表达式按顺序匹配包含的文件名(包括 <>或 "")。分配属于第一个匹配正则表达式的值，#include 首先根据类别编号递增排序，然后在每个类别内按字母顺序排序。
+# 这些正则表达式按顺序匹配包含的文件名（包括 <>或 ""）。分配属于第一个匹配正则表达式的值，#include 首先根据类别编号递增排序，然后在每个类别内按字母顺序排序。
 # 如果所有正则表达式都不匹配，则 INT_MAX 被分配为类别。源文件的主标题自动获得类别 0。因此它通常保存在 #include (https://llvm.org/docs/CodingStandards.html#include-style) 的开头。然而，如果你有某些总是需要优先的头，你也可以分配负优先级。
 # 当 IncludeBlocks = Regroup 时，可以使用第三个可选字段 SortPriority 来定义 #include 应该被排序的优先级。Priority 的值定义了 #include 块的顺序，也允许对不同优先级的 #include 块进行分组。如果没有分配 SortPriority，则将其设置为 Priority 的默认值。
 # 每个正则表达式都可以用大小写敏感字段标记为区分大小写，但默认情况下它不是。
@@ -2366,7 +2387,7 @@ IncludeCategories:
 # vvvvvv
 ### No.[62]  IncludeIsMainRegex (String) { clang-format 3.9 }
 # 指定在 file-to-main-include 映射中允许的后缀的正则表达式。
-# 当猜测 #include 是否是 main include 时(为类别 0 赋值，见上面)，使用这个允许后缀的正则表达式到标题干。完成部分匹配，因此:
+# 当猜测 #include 是否是 main include 时（为类别 0 赋值，见上面），使用这个允许后缀的正则表达式到标题干。完成部分匹配，因此:
 # "" 表示 “任意后缀”
 # "$" 表示 “没有后缀”
 # 例如，如果配置为 (_test)?$，则头文件 a.h 将被视为 a.cc 和 a_test.cc 中的 main 。
@@ -2377,8 +2398,8 @@ IncludeIsMainRegex: '((_test)|(Test))?$'
 # vvvvvv
 ### No.[63]  IncludeIsMainSourceRegex (String) { clang-format 10 }
 # 为在 file-to-main-include 映射中允许被视为 main 的格式化文件指定一个正则表达式。
-# 默认情况下，只有当文件以: .c，.cc，.cpp，.c++，.cxx，.m 或 .mm 扩展名结束时，clang-format才会将文件视为 main。对于这些文件，会猜测 main include(要分配类别0，参见上面)。这个配置选项允许附加后缀和扩展名的文件被视为main。
-# 例如，如果这个选项被配置为 (Impl\.hpp)$，那么一个文件 ClassImpl.hpp 被认为是main(除了 Class.c、Class.cc、Class.cpp 等)和 main include file 逻辑将被执行(稍后阶段还将使用 IncludeIsMainRegex 设置)。如果不设置此选项，ClassImpl.hpp 不会把主要的包含文件放在任何其他包含文件之前。
+# 默认情况下，只有当文件以: .c，.cc，.cpp，.c++，.cxx，.m 或 .mm 扩展名结束时，clang-format才会将文件视为 main。对于这些文件，会猜测 main include（要分配类别0，参见上面）。这个配置选项允许附加后缀和扩展名的文件被视为main。
+# 例如，如果这个选项被配置为 (Impl\.hpp)$，那么一个文件 ClassImpl.hpp 被认为是main（除了 Class.c、Class.cc、Class.cpp 等）和 main include file 逻辑将被执行（稍后阶段还将使用 No.[62]-IncludeIsMainRegex-(String) 设置）。如果不设置此选项，ClassImpl.hpp 不会把主要的包含文件放在任何其他包含文件之前。
 
 IncludeIsMainSourceRegex: ''
 # ^^^^^^
@@ -2386,7 +2407,7 @@ IncludeIsMainSourceRegex: ''
 # vvvvvv
 ### No.[64]  IndentAccessModifiers (Boolean) { clang-format 13 }
 # 指定访问修饰符是否应该有自己的缩进级别。
-# 当为 false 时，访问修饰符相对于记录成员缩进(或退缩)，表示 No.[2]-AccessModifierOffset-(int)。记录成员缩进比记录低一级。当为 true 时，访问修饰符将获得自己的缩进级别。因此，记录成员总是比记录缩进 2 级，而不管是否存在访问修饰符。忽略 No.[2]-AccessModifierOffset-(int) 的值。
+# 当为 false 时，访问修饰符相对于记录成员缩进（或退缩），表示 No.[2]-AccessModifierOffset-(int) 。记录成员缩进比记录低一级。当为 true 时，访问修饰符将获得自己的缩进级别。因此，记录成员总是比记录缩进 2 级，而不管是否存在访问修饰符。忽略 No.[2]-AccessModifierOffset-(int) 的值。
 # 例如:
 #     false:                                 true:
 #     class C {                 vs.          class C {
@@ -2429,7 +2450,7 @@ IndentCaseBlocks: false
 # vvvvvv
 ### No.[66]  IndentCaseLabels (Boolean) { clang-format 3.3 }
 # 缩进 case 标记 switch 语句的一个级别。
-# 当为 false 时，使用与 switch 语句相同的缩进级别。switch 语句体总是比 case 标签缩进一级( case 标签后面的第一个块除外，它本身会缩进代码——除非启用了 No.[56-IndentCaseBlocks-(Boolean) )。
+# 当为 false 时，使用与 switch 语句相同的缩进级别。switch 语句体总是比 case 标签缩进一级（case 标签后面的第一个块除外，它本身会缩进代码——除非启用了 No.[56-IndentCaseBlocks-(Boolean) ）。
 # 例如:
 #     false:                                 true:
 #     switch (fool) {           vs.          switch (fool) {
@@ -2608,9 +2629,10 @@ InsertNewlineAtEOF: true
 
 # vvvvvv
 ### No.[75]  InsertTrailingCommas (TrailingCommaStyle) { clang-format 11 }
-# 如果设置为 Wrapped，则会在跨多行换行的容器文本(数组和对象)中插入末尾的逗号。它目前仅对 JavaScript 可用，并在默认情况下禁用 None。InsertTrailingCommas 不能与 BinPackArguments 一起使用，因为插入逗号会禁用包装。
+# 如果设置为 Wrapped，则会在跨多行换行的容器文本（数组和对象）中插入末尾的逗号。它目前仅对 JavaScript 可用，并在默认情况下禁用（ None ）。
+# 注意: 此配置项不能与 No.[28]-BinPackArguments-(Boolean) 一起使用，因为插入逗号会禁用包装。
 # 可能的值:
-# Wrapped: 在包装在多行中的括号字面值中插入尾随逗号。请注意，这在概念上与装箱不兼容，因为末尾的逗号被用作指示容器应该每行格式化(即不包含)。因此，插入末尾逗号会抵消括号的作用。例如:
+# Wrapped: 在包装在多行中的括号字面值中插入尾随逗号。请注意，这在概念上与装箱不兼容，因为末尾的逗号被用作指示容器应该每行格式化（即不包含）。因此，插入末尾逗号会抵消括号的作用。例如:
 #     const someArray = [
 #     aaaaaaaaaaaaaaaaaaaaaaaaaa,
 #     aaaaaaaaaaaaaaaaaaaaaaaaaa,
@@ -2738,7 +2760,7 @@ LambdaBodyIndentation: Signature
 # Verilog: Verilog。
 # None: 无。
 
-# 特别说明: 该配置项虽然在此处列出，但是它定义的位置应该在文件的开头。具体原因请参看条款 文件说明3-No.[二]-关于配置样式 。
+# 特别说明: 该配置项虽然在此处列出，但是它定义的位置应该在文件的开头。具体原因请参看条款 文件说明（3）No.[二] 关于配置样式 。
 # Language: Cpp
 # ^^^^^^
 
@@ -2821,13 +2843,16 @@ Macros: []
 
 # vvvvvv
 ### No.[85]  MainIncludeChar (MainIncludeCharDiscriminator) { clang-format 19 }
+#
+# THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+#
 # 当猜测 #include 是否为 "main" include 时，只考虑使用指定字符的 include 指令。
 # 可能的值:
 # Quote: main include 使用引号: #include “foo.hpp” 。
 # AngleBracket: main include使用尖括号: #include ＜foo.hpp＞ 。
 # Any: main include使用引号或尖括号。
 
-# MainIncludeChar: Quote # THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+# MainIncludeChar: Quote
 
 # ^^^^^^
 
@@ -2946,7 +2971,7 @@ PPIndentWidth: -1
 #           bbbbbbbbbbbbbbbbbbbb(),
 #           cccccccccccccccccccc()
 
-PackConstructorInitializers: NextLine
+PackConstructorInitializers: CurrentLine
 # ^^^^^^
 
 # vvvvvv
@@ -2986,9 +3011,12 @@ PenaltyBreakOpenParenthesis: 60
 
 # vvvvvv
 ### No.[96]  PenaltyBreakScopeResolution (Unsigned) { clang-format 18 }
+#
+# THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+#
 # 在 :: 之前中断的补偿。
 
-# PenaltyBreakScopeResolution: 100 # THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+# PenaltyBreakScopeResolution: 100
 # ^^^^^^
 
 # vvvvvv
@@ -3392,9 +3420,12 @@ ShortNamespaceLines: 1
 
 # vvvvvv
 ### No.[115]  SkipMacroDefinitionBody (Boolean) { clang-format 18 }
+#
+# THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+#
 # 如果为 true，则不会格式化宏定义的主体。
 
-# SkipMacroDefinitionBody: false # THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+# SkipMacroDefinitionBody: false
 # ^^^^^^
 
 # vvvvvv
@@ -3527,7 +3558,7 @@ SpaceBeforeCaseColon: false
 
 # vvvvvv
 ### No.[124]  SpaceBeforeCpp11BracedList (Boolean) { clang-format 7 }
-# 如果为 true，则在用于初始化对象的 C++11 大括号列表之前插入一个空格(在前面的标识符或类型之后)。例如:
+# 如果为 true，则在用于初始化对象的 C++11 大括号列表之前插入一个空格（在前面的标识符或类型之后）。例如:
 #     true:                                  false:
 #     Foo foo { bar };            vs.        Foo foo{ bar };
 #     Foo {};                                Foo{};
@@ -3560,7 +3591,7 @@ SpaceBeforeInheritanceColon: false
 # 控制在左圆括号之前放置空格的情况。
 # 可能的值:
 # Never: 从不在左圆括号之前放置空格。
-# ControlStatements: 在控制语句( if、for、while 等)的左圆括号之前放置空格。例如:
+# ControlStatements: 在控制语句（ if、for、while 等 ）的左圆括号之前放置空格。例如:
 #     void f() {
 #       if (true) {
 #         f();
@@ -3644,11 +3675,15 @@ SpaceBeforeParensOptions:
     #     object.operator++ (10);                object.operator++(10);
     AfterOverloadedOperator: false
 
-    # bool AfterPlacementOperator: 如果为 true，则在放置 new/delete 运算符和左括号之间放置空格。例如:
+    # bool AfterPlacementOperator: 如果为 true，则在放置 new/delete 运算符和左括号之间放置空格。
+    #
+    # THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+    #
+    # 例如:
     #     true:                                  false:
     #     new (buf) T;                    vs.    new(buf) T;
     #     delete (buf) T;                        delete(buf) T;
-    # AfterPlacementOperator: false # THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+    # AfterPlacementOperator: false
 
     # bool AfterRequiresInClause: 如果为 true，则在 requires 子句和左括号之间放置空格。例如:
     #     true:                                  false:
@@ -3703,7 +3738,7 @@ SpaceInEmptyBlock: false
 
 # vvvvvv
 ### No.[132]  SpacesBeforeTrailingComments (Unsigned) { clang-format 3.7 }
-# 尾行注释(// -注释)之前的空格数。
+# 尾行注释（ // -注释）之前的空格数。
 # 这不会影响尾部块注释（/*-注释），因为这些注释通常具有不同的使用模式和一些特殊情况。
 # 在Verilog的情况下，它不会影响模块头中端口或参数列表中左括号后的注释，因为它可能是针对下一行的端口，而不是后面的括号。例如:
 #     SpacesBeforeTrailingComments: 3
@@ -3734,7 +3769,7 @@ SpacesInAngles: Never
 
 # vvvvvv
 ### No.[134]  SpacesInContainerLiterals (Boolean) { clang-format 3.7 }
-# 如果为 true，则在容器字面量(例如 ObjC 和 Javascript 数组和 dict 字面量)中插入空格。例如:
+# 如果为 true，则在容器字面量（例如 ObjC 和 Javascript 数组和 dict 字面量）中插入空格。例如:
 #     true:                                  false:
 #     var arr = [ 1, 2, 3 ];         vs.     var arr = [1, 2, 3];
 #     f({a : 1, b : 2, c : 3});              f({a: 1, b: 2, c: 3});
@@ -3800,34 +3835,33 @@ SpacesInParens: Never
 #         Other: true
 #
 
-# SpacesInParensCustom:
-#     # bool InConditionalStatements: 如果为 true，则在条件语句中的括号内插入空格。例如:
-#     #     true:                                  false:
-#     #     if ( a )  { ... }              vs.     if (a) { ... }
-#     #     while ( i < 5 )  { ... }               while (i < 5) { ... }
-#     InConditionalStatements: false
-#
-#     # InCStyleCasts: 如果为 true，则在 C 风格的类型转换中的括号内插入空格。例如:
-#     #     true:                                  false:
-#     #     x = ( int32 )y                 vs.     x = (int32)y
-#     InCStyleCasts: false
-#
-#     # bool InEmptyParentheses: 只有当括号为空时，才在括号中放一个空格，即 "()" 。例如:
-#     #     true:                                false:
-#     #     void f( ) {                    vs.   void f() {
-#     #       int x[] = {foo( ), bar( )};          int x[] = {foo(), bar()};
-#     #       if (true) {                          if (true) {
-#     #         f( );                                f();
-#     #       }                                    }
-#     #     }                                    }
-#     InEmptyParentheses: false
-#
-#     # bool Other: 在前面选项未包含的括号中放一个空格。例如:
-#     #     true:                                  false:
-#     #     t f( Deleted & ) & = delete;   vs.     t f(Deleted &) & = delete;
-#     Other: false
+SpacesInParensOptions:
+    # bool InConditionalStatements: 如果为 true，则在条件语句中的括号内插入空格。例如:
+    #     true:                                  false:
+    #     if ( a )  { ... }              vs.     if (a) { ... }
+    #     while ( i < 5 )  { ... }               while (i < 5) { ... }
+    InConditionalStatements: false
 
-# THE-VERSION-DOES_NOT-MEET-THE-REQUIREMENTS
+    # InCStyleCasts: 如果为 true，则在 C 风格的类型转换中的括号内插入空格。例如:
+    #     true:                                  false:
+    #     x = ( int32 )y                 vs.     x = (int32)y
+    InCStyleCasts: false
+
+    # bool InEmptyParentheses: 只有当括号为空时，才在括号中放一个空格，即 "()" 。例如:
+    #     true:                                false:
+    #     void f( ) {                    vs.   void f() {
+    #       int x[] = {foo( ), bar( )};          int x[] = {foo(), bar()};
+    #       if (true) {                          if (true) {
+    #         f( );                                f();
+    #       }                                    }
+    #     }                                    }
+    InEmptyParentheses: false
+
+    # bool Other: 在前面选项未包含的括号中放一个空格。例如:
+    #     true:                                  false:
+    #     t f( Deleted & ) & = delete;   vs.     t f(Deleted &) & = delete;
+    Other: false
+# ^^^^^^
 
 # vvvvvv
 ### No.[138]  SpacesInSquareBrackets (Boolean) { clang-format 3.7 }
@@ -3908,7 +3942,7 @@ TypenameMacros: ['STACK_OF', 'LIST']
 # 可能的值:
 # Never: 从不使用制表符。
 # ForIndentation: 仅在缩进级别中使用制表符。
-# ForContinuationAndIndentation: 用制表符填充所有的前导空格，并在一行中使用空格进行对齐(例如连续的赋值和声明)。
+# ForContinuationAndIndentation: 用制表符填充所有的前导空格，并在一行中使用空格进行对齐（例如连续的赋值和声明）。
 # AlignWithSpaces: 使用制表符进行行延续和缩进，使用空格进行对齐。
 # Always: 当需要填补至少从一个制表位到下一个制表位的空白时，使用制表位。
 
@@ -3916,7 +3950,7 @@ UseTab: Always
 # ^^^^^^
 
 # vvvvvv
-### No.[146]  WhitespaceSensitiveMacros (List of Strings)
+### No.[146]  WhitespaceSensitiveMacros (List of Strings) { clang-format 11 }
 # 宏的一个向量，应该被解释为敏感于空格的宏。
 # 这些应为以下形式的宏:
 #     STRINGIZE(...)
@@ -3927,4 +3961,96 @@ WhitespaceSensitiveMacros:
 
 #
 # ^^^^^^^^^^^^^^^^^^^^^^^^ The Formal Configuration Items End Here ^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+
+# 文件说明（4） :
+### No.[一]  添加其他样式选项?
+# 每个额外的样式选项都会增加 clang-format 项目的成本。其中一些成本影响了 clang-format 开发本身，因为我们需要确保任何给定的选项组合都有效，并且新功能不会以任何方式破坏现有的任何选项。
+# 随着选项变得不那么容易发现，最终用户也会付出代价，人们不得不考虑并决定他们并不真正关心的选项。
+# clang-format 项目的目标更倾向于真正很好地支持有限的一组样式，而不是支持某个地方的代码库使用的每一种样式。
+# 当然，我们确实希望支持所有主要项目，因此建立了以下添加样式选项的栏。每个新样式选项必须:
+#   be used in a project of significant size (have dozens of contributors)
+#       （用于规模巨大的项目（有几十个贡献者））
+#   have a publicly accessible style guide
+#       （有一个可公开访问的风格指南）
+#   have a person willing to contribute and maintain patches
+#       （让愿意贡献和维护补丁的人）
+#
+#
+#
+### No.[二]  示例
+#
+# 类似于 Linux Kernel style 的样式:
+# BasedOnStyle: LLVM
+# IndentWidth: 8
+# UseTab: Always
+# BreakBeforeBraces: Linux
+# AllowShortIfStatementsOnASingleLine: false
+# IndentCaseLabels: false
+#
+# 结果是（假设这里使用制表符进行缩进）:
+#       void test()
+#       {
+#               switch (x) {
+#               case 0:
+#               case 1:
+#                       do_something();
+#                       break;
+#               case 2:
+#                       do_something_else();
+#                       break;
+#               default:
+#                       break;
+#               }
+#               if (condition)
+#                       do_something_completely_different();
+#
+#               if (x == y) {
+#                       q();
+#               } else if (x > y) {
+#                       w();
+#               } else {
+#                       r();
+#               }
+#       }
+#
+# 与默认的 Visual Studio 格式设置样式类似的样式:
+# UseTab: Never
+# IndentWidth: 4
+# BreakBeforeBraces: Allman
+# AllowShortIfStatementsOnASingleLine: false
+# IndentCaseLabels: false
+# ColumnLimit: 0
+#
+# 结果是:
+#       void test()
+#       {
+#           switch (suffix)
+#           {
+#           case 0:
+#           case 1:
+#               do_something();
+#               break;
+#           case 2:
+#               do_something_else();
+#               break;
+#           default:
+#               break;
+#           }
+#           if (condition)
+#               do_something_completely_different();
+#
+#           if (x == y)
+#           {
+#               q();
+#           }
+#           else if (x > y)
+#           {
+#               w();
+#           }
+#           else
+#           {
+#               r();
+#           }
+#       }
 #
