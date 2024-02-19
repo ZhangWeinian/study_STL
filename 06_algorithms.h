@@ -73,7 +73,8 @@ concept __wrapped_seekable =
 	requires(Iterator iter, UIterator uiter) { iter._Seek_to(_STD forward<UIterator>(uiter)); };
 
 // 此函数的作用是将 uiter（通常是一个裸指针） 的信息，装载到 iter（通常是一个迭代器）
-template <typename Iterator, typename UIterator> constexpr void __seek_wrapped(Iterator& iter, UIterator&& uiter)
+template <typename Iterator, typename UIterator>
+constexpr void __seek_wrapped(Iterator& iter, UIterator&& uiter)
 {
 	if constexpr (__wrapped_seekable<Iterator, UIterator>)
 	{
@@ -83,6 +84,8 @@ template <typename Iterator, typename UIterator> constexpr void __seek_wrapped(I
 	{
 		iter = _STD forward<UIterator>(uiter);
 	}
+
+	return;
 }
 
 /*------------------------------------------------------------------------------------------------*/
@@ -92,7 +95,8 @@ struct __Copy_function: private __Not_quite_object
 {
 private:
 
-	template <typename Iterator, typename OutIter> using copy_result = _RANGES in_out_result<Iterator, OutIter>;
+	template <typename Iterator, typename OutIter>
+	using copy_result = _RANGES in_out_result<Iterator, OutIter>;
 
 	// 统一调用方式
 	template <typename Iterator, typename Sentinel, typename OutIter>
@@ -321,6 +325,8 @@ private:
 		{
 			*(first++) = (value++);
 		}
+
+		return;
 	}
 
 public:
@@ -335,6 +341,8 @@ public:
 		auto ulast	= __get_last_iterator_with_unwrapped<Iterator>(ufirst, _STD move(last));
 
 		__default_itoa(_STD move(ufirst), _STD move(ulast), _STD move(value));
+
+		return;
 	}
 
 	/* function itoa() for 容器 加强版 */
@@ -342,6 +350,8 @@ public:
 	constexpr auto operator()(Range&& rng, const Type& value) const noexcept
 	{
 		__default_itoa(ubegin(rng), uend(rng), _STD move(value));
+
+		return;
 	}
 };
 
@@ -670,6 +680,8 @@ public:
 		Type tmp = static_cast<Type&&>(a);
 		a		 = static_cast<Type&&>(b);
 		b		 = static_cast<Type&&>(tmp);
+
+		return;
 	}
 
 	template <typename Type1, typename Type2>
@@ -689,6 +701,8 @@ public:
 		{
 			(*this)(t1[i], t2[i]);
 		}
+
+		return;
 	}
 };
 
@@ -705,13 +719,18 @@ public:
 	constexpr void operator()(Iterator a, Iterator b) const noexcept(noexcept(swap(*a, *b)))
 	{
 		swap(*a, *b);
+
+		return;
 	}
 
-	template <typename Iterator1, typename Iterator2> constexpr void operator()(Iterator1 a, Iterator2 b) const
+	template <typename Iterator1, typename Iterator2>
+	constexpr void operator()(Iterator1 a, Iterator2 b) const
 	{
 		Iterator1 tmp = _STD move(a);
 		*a			  = _STD			move(_RANGES iter_move(b));
 		*b			  = _STD			move(_RANGES iter_move(tmp));
+
+		return;
 	}
 };
 
@@ -791,7 +810,8 @@ struct __For_each_function: private __Not_quite_object
 {
 private:
 
-	template <typename Iterator, typename Predicate> using for_each_result = _RANGES in_fun_result<Iterator, Predicate>;
+	template <typename Iterator, typename Predicate>
+	using for_each_result = _RANGES in_fun_result<Iterator, Predicate>;
 
 	// 统一调用方式
 	template <typename Iterator, typename Predicate, typename Projection>
@@ -967,6 +987,8 @@ private:
 		{
 			*first = value;
 		}
+
+		return;
 	}
 
 public:
@@ -981,6 +1003,8 @@ public:
 		auto ulast	= __unwrap_sentinel<Iterator>(_STD move(last));
 
 		__default_fill(_STD move(ufirst), _STD move(ulast), _STD move(value));
+
+		return;
 	}
 
 	/* function fill() for 容器 强化版 */
@@ -988,6 +1012,8 @@ public:
 	constexpr auto operator()(Range&& rng, const Type& value) const noexcept
 	{
 		__default_fill(ubegin(rng), uend(rng), _STD move(value));
+
+		return;
 	}
 };
 
