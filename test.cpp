@@ -35,11 +35,5 @@ int main(int argc, char* argv[])
 	vector		nums2 { 1, 3, 5, 7, 9, 2, 4, 6, 8, 10 };
 	vector<int> nums3(10, 0);
 
-	rg::sort(nums1, rg::equal_to {});
-
-	std::sort(nums1.begin(), nums1.end());
-
-	println(nums1);
-
 	return 0;
 }
