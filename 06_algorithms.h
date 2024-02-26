@@ -2175,12 +2175,12 @@ public:
 	{
 		using diff_t = _STD iter_difference_t<Iterator>;
 
-		const diff_t lenth = last - first;
+		const diff_t length = last - first;
 
-		if ((_max_get_median_of_three_constant<diff_t>) < lenth)
+		if ((_max_get_median_of_three_constant<diff_t>) < length)
 		{
-			const diff_t step1 = (lenth + 1) >> 3;	// +1 不会溢出，因为在调用方中使范围包含在内
-			const diff_t step2 = step1 << 1;		// 注意：有意丢弃低位
+			const diff_t step1 = (length + 1) >> 3;	 // +1 不会溢出，因为在调用方中使范围包含在内
+			const diff_t step2 = step1 << 1;		 // 注意：有意丢弃低位
 
 			__default_set_median_of_three(first, _RANGES next(first, step1), _RANGES next(first, step2), pred, proj);
 
@@ -2337,11 +2337,11 @@ private:
 	template <typename Iterator, typename Predicate, typename Projection>
 	static constexpr void __default_quick_sort(Iterator first,
 											   Iterator last,
-											   _STD iter_difference_t<Iterator> lenth,
+											   _STD iter_difference_t<Iterator> length,
 											   Predicate						pred,
 											   Projection						proj) noexcept
 	{
-		while (1 < lenth)
+		while (1 < length)
 		{
 			auto [pfirst, plast] = partition(no_inspection_required, first, last, pred, proj);
 
@@ -2380,11 +2380,11 @@ public:
 
 		_seek_wrapped(first, ufirst);
 
-		const auto lenth = ulast - ufirst;
+		const auto length = ulast - ufirst;
 
 		__default_quick_sort(_STD move(ufirst),
 							 _STD move(ulast),
-							 _STD move(lenth),
+							 _STD move(length),
 							 _check_function(pred),
 							 _check_function(proj));
 
@@ -2399,9 +2399,9 @@ public:
 	{
 		auto	   ufirst = __ubegin(rng);
 		auto	   ulast  = _get_last_iterator_unwrapped(rng);
-		const auto lenth  = ulast - ufirst;
+		const auto length = ulast - ufirst;
 
-		__default_sort(_STD move(ufirst), ulast, lenth, pred, proj);
+		__default_sort(_STD move(ufirst), ulast, length, pred, proj);
 
 		return _rewrap_iterator(rng, _STD move(ufirst));
 	}
@@ -2418,18 +2418,18 @@ private:
 	template <typename Iterator, typename Predicate, typename Projection>
 	static constexpr void __default_merge_sort(Iterator first,
 											   Iterator last,
-											   _STD iter_difference_t<Iterator> lenth,
+											   _STD iter_difference_t<Iterator> length,
 											   Predicate						pred,
 											   Projection						proj) noexcept
 	{
 		using diff_t = _STD iter_difference_t<Iterator>;
 
-		if ((lenth == 0) || (lenth == 1))
+		if ((length == 0) || (length == 1))
 		{
 			return;
 		}
 
-		Iterator middle = _RANGES next(first, static_cast<diff_t>(lenth >> 1));
+		Iterator middle = _RANGES next(first, static_cast<diff_t>(length >> 1));
 
 		__default_merge_sort(first, middle, pred, proj);
 		__default_merge_sort(middle, last, pred, proj);
@@ -2464,11 +2464,11 @@ public:
 
 		_seek_wrapped(first, ufirst);
 
-		const auto lenth = ulast - ufirst;
+		const auto length = ulast - ufirst;
 
 		__default_merge_sort(_STD move(ufirst),
 							 _STD move(ulast),
-							 _STD move(lenth),
+							 _STD move(length),
 							 _check_function(pred),
 							 _check_function(proj));
 
@@ -2483,9 +2483,9 @@ public:
 	{
 		auto	   ufirst = __ubegin(rng);
 		auto	   ulast  = _get_last_iterator_unwrapped(rng);
-		const auto lenth  = ulast - ufirst;
+		const auto length = ulast - ufirst;
 
-		__default_merge_sort(_STD move(ufirst), ulast, lenth, pred, proj);
+		__default_merge_sort(_STD move(ufirst), ulast, length, pred, proj);
 
 		return _rewrap_iterator(rng, _STD move(ufirst));
 	}
@@ -2562,11 +2562,11 @@ public:
 
 		_seek_wrapped(first, ufirst);
 
-		const auto lenth = ulast - ufirst;
+		const auto length = ulast - ufirst;
 
 		__default_sort(_STD move(ufirst),
 					   _STD move(ulast),
-					   _STD move(lenth),
+					   _STD move(length),
 					   _check_function(pred),
 					   _check_function(proj));
 
@@ -2581,9 +2581,9 @@ public:
 	{
 		auto	   ufirst = __ubegin(rng);
 		auto	   ulast  = _get_last_iterator_unwrapped(rng);
-		const auto lenth  = ulast - ufirst;
+		const auto length = ulast - ufirst;
 
-		__default_sort(_STD move(ufirst), ulast, lenth, pred, proj);
+		__default_sort(_STD move(ufirst), ulast, length, pred, proj);
 
 		return _rewrap_iterator(rng, _STD move(ufirst));
 	}
@@ -2717,7 +2717,7 @@ private:
 	// 统一调用方式
 	template <typename Iterator, typename Type, typename Predicate, typename Projection>
 	_NODISCARD static constexpr Iterator __default_lower_bound(Iterator first,
-															   _STD iter_difference_t<Iterator> lenth,
+															   _STD iter_difference_t<Iterator> length,
 															   const Type&						value,
 															   Predicate						pred,
 															   Projection						proj) noexcept
@@ -2728,9 +2728,9 @@ private:
 
 		Iterator middle { first };
 
-		while (0 < lenth)
+		while (0 < length)
 		{
-			half = static_cast<diff_t>(lenth >> 1);
+			half = static_cast<diff_t>(length >> 1);
 
 			middle = _RANGES next(first, half);
 
@@ -2739,11 +2739,11 @@ private:
 				first = _STD move(middle);
 				++first;
 
-				lenth -= static_cast<diff_t>(half + 1);
+				length -= static_cast<diff_t>(half + 1);
 			}
 			else
 			{
-				lenth = _STD move(half);
+				length = _STD move(half);
 			}
 		}
 
@@ -2769,10 +2769,10 @@ public:
 																				Projection	proj = {}) const noexcept
 	{
 		auto	   ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
-		const auto lenth  = _RANGES distance(ufirst, _unwrap_sentinel<Iterator, Sentinel>(_STD move(last)));
+		const auto length = _RANGES distance(ufirst, _unwrap_sentinel<Iterator, Sentinel>(_STD move(last)));
 
 		ufirst = __default_lower_bound(_STD move(ufirst),
-									   _STD move(lenth),
+									   _STD move(length),
 									   _STD move(value),
 									   _check_function(pred),
 									   _check_function(proj));
@@ -2806,12 +2806,12 @@ public:
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
 	constexpr Iterator operator()(zh_No_inspection_required_function,
 								  Iterator first,
-								  _STD iter_difference_t<Iterator> lenth,
+								  _STD iter_difference_t<Iterator> length,
 								  const Type&					   value,
 								  Predicate						   pred,
 								  Projection					   proj) const noexcept
 	{
-		return __default_lower_bound(_STD move(first), _STD move(lenth), _STD move(value), pred, proj);
+		return __default_lower_bound(_STD move(first), _STD move(length), _STD move(value), pred, proj);
 	}
 };
 
@@ -2825,7 +2825,7 @@ private:
 	// 统一调用方式
 	template <typename Iterator, typename Type, typename Predicate, typename Projection>
 	_NODISCARD static constexpr Iterator __default_upper_bound(Iterator first,
-															   _STD iter_difference_t<Iterator> lenth,
+															   _STD iter_difference_t<Iterator> length,
 															   const Type&						value,
 															   Predicate						pred,
 															   Projection						proj) noexcept
@@ -2836,22 +2836,22 @@ private:
 
 		Iterator middle { first };
 
-		while (0 < lenth)
+		while (0 < length)
 		{
-			half = static_cast<diff_t>(lenth >> 1);
+			half = static_cast<diff_t>(length >> 1);
 
 			middle = _RANGES next(first, half);
 
 			if (_STD invoke(pred, value, _STD invoke(proj, *middle)))
 			{
-				lenth = _STD move(half);
+				length = _STD move(half);
 			}
 			else
 			{
 				first = _STD move(middle);
 				++first;
 
-				lenth -= static_cast<diff_t>(half + 1);
+				length -= static_cast<diff_t>(half + 1);
 			}
 		}
 
@@ -2876,10 +2876,10 @@ public:
 																				Projection	proj = {}) const noexcept
 	{
 		auto	   ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
-		const auto lenth  = _RANGES distance(ufirst, _unwrap_sentinel<Iterator, Sentinel>(_STD move(last)));
+		const auto length = _RANGES distance(ufirst, _unwrap_sentinel<Iterator, Sentinel>(_STD move(last)));
 
 		ufirst = __default_upper_bound(_STD move(ufirst),
-									   _STD move(lenth),
+									   _STD move(length),
 									   _STD move(value),
 									   _check_function(pred),
 									   _check_function(proj));
@@ -2912,12 +2912,12 @@ public:
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
 	constexpr Iterator operator()(zh_No_inspection_required_function,
 								  Iterator first,
-								  _STD iter_difference_t<Iterator> lenth,
+								  _STD iter_difference_t<Iterator> length,
 								  const Type&					   value,
 								  Predicate						   pred,
 								  Projection					   proj) const noexcept
 	{
-		return __default_upper_bound(_STD move(first), _STD move(lenth), _STD move(value), pred, proj);
+		return __default_upper_bound(_STD move(first), _STD move(length), _STD move(value), pred, proj);
 	}
 };
 
@@ -2930,11 +2930,12 @@ private:
 
 	// 统一调用方式
 	template <typename Iterator, typename Type, typename Predicate, typename Projection>
-	_NODISCARD static constexpr _RANGES subrange<Iterator> __default_equal_range(Iterator first,
-																				 _STD iter_difference_t<Iterator> lenth,
-																				 const Type&					  value,
-																				 Predicate						  pred,
-																				 Projection proj) noexcept
+	_NODISCARD static constexpr _RANGES subrange<Iterator>
+										__default_equal_range(Iterator first,
+															  _STD iter_difference_t<Iterator> length,
+															  const Type&					   value,
+															  Predicate						   pred,
+															  Projection					   proj) noexcept
 	{
 		using diff_t = _STD iter_difference_t<Iterator>;
 
@@ -2942,9 +2943,9 @@ private:
 
 		Iterator middle { first };
 
-		while (0 < lenth)											   // 如果整个区间尚未迭代完毕
+		while (0 < length)											   // 如果整个区间尚未迭代完毕
 		{
-			half = static_cast<diff_t>(lenth >> 1);					   // 找出中间位置
+			half = static_cast<diff_t>(length >> 1);				   // 找出中间位置
 
 			middle = _RANGES next(first, half);						   // 设定中央迭代器
 
@@ -2953,21 +2954,21 @@ private:
 				first = _STD move(middle);
 				++first;  // 将区间缩小（移至后半段），以提高效率
 
-				lenth -= static_cast<diff_t>(half + 1);
+				length -= static_cast<diff_t>(half + 1);
 			}
 			else if (_STD invoke(pred, value, _STD invoke(proj, *middle)))	// 如果 中央元素 > 指定值
 			{
-				lenth = _STD move(half);  // 将区间缩小（移至前半段），以提高效率
+				length = _STD move(half);  // 将区间缩小（移至前半段），以提高效率
 			}
-			else						  // 如果 中央元素 == 指定值
+			else						   // 如果 中央元素 == 指定值
 			{
 				// 在前半段寻找上限
 				auto begin { lower_bound(no_inspection_required, _STD move(first), half, value, pred, proj) };
 
 				// 在后半段寻找下限
-				lenth = static_cast<diff_t>(half + 1);
+				length = static_cast<diff_t>(half + 1);
 
-				auto end { upper_bound(no_inspection_required, _STD move(++middle), lenth, value, pred, proj) };
+				auto end { upper_bound(no_inspection_required, _STD move(++middle), length, value, pred, proj) };
 
 				return { _STD move(begin), _STD move(end) };
 			}
@@ -2994,10 +2995,10 @@ public:
 	{
 		auto	   ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
 		auto	   ulast  = _get_last_iterator_unwrapped<Iterator>(ufirst, _STD move(last));
-		const auto lenth  = ulast - ufirst;
+		const auto length = ulast - ufirst;
 
 		auto result = __default_equal_range(_STD move(ufirst),
-											_STD move(lenth),
+											_STD move(length),
 											_STD move(value),
 											_check_function(pred),
 											_check_function(proj));
@@ -3014,11 +3015,11 @@ public:
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES borrowed_subrange_t<Range>
 		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		auto first		 = _RANGES begin(rng);
-		const auto lenth = _RANGES distance(rng);
+		auto first		  = _RANGES begin(rng);
+		const auto length = _RANGES distance(rng);
 
 		auto result = __default_equal_range(_STD move(__ubegin(rng)),
-											_STD move(lenth),
+											_STD move(length),
 											_STD move(value),
 											_check_function(pred),
 											_check_function(proj));
@@ -3051,11 +3052,11 @@ public:
 	{
 		auto	   ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
 		auto	   ulast  = _get_last_iterator_unwrapped<Iterator>(ufirst, _STD move(last));
-		const auto lenth  = ulast - ufirst;
+		const auto length = ulast - ufirst;
 
 		ufirst = lower_bound(no_inspection_required,
 							 _STD move(ufirst),
-							 _STD move(lenth),
+							 _STD move(length),
 							 _STD move(value),
 							 _check_function(pred),
 							 _check_function(proj));
@@ -3073,11 +3074,11 @@ public:
 		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto	   ufirst = __ubegin(rng);
-		const auto lenth  = _RANGES distance(rng);
+		const auto length = _RANGES distance(rng);
 
 		ufirst = lower_bound(no_inspection_required,
 							 _STD move(ufirst),
-							 _STD move(lenth),
+							 _STD move(length),
 							 _STD move(value),
 							 _check_function(pred),
 							 _check_function(proj));
