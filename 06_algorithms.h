@@ -2,7 +2,6 @@
 
 #include "00_basicFile.h"
 
-
 #ifdef _HAS_CXX20
 
 _BEGIN_NAMESPACE_ZHANG
@@ -2175,9 +2174,7 @@ public:
 	{
 		using diff_t = _STD iter_difference_t<Iterator>;
 
-		const diff_t length = last - first;
-
-		if ((_max_get_median_of_three_constant<diff_t>) < length)
+		if (const diff_t length = last - first; (_max_get_median_of_three_constant<diff_t>) < length)
 		{
 			const diff_t step1 = (length + 1) >> 3;	 // +1 不会溢出，因为在调用方中使范围包含在内
 			const diff_t step2 = step1 << 1;		 // 注意：有意丢弃低位
@@ -2554,7 +2551,7 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 		requires(__basic_concept_for_sort_function<Iterator, Predicate, Projection>)
-	constexpr inline Iterator
+	constexpr Iterator
 		operator()(Iterator first, Sentinel last, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
