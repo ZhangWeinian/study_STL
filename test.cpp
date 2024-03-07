@@ -37,5 +37,7 @@ int main(int argc, char* argv[])
 
 	print(nums1);
 
+	rg::sort;
+
 	return 0;
 }
