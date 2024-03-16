@@ -59,7 +59,7 @@ _NODISCARD constexpr _RANGES iterator_t<Range> _rewrap_iterator(Range&& rng, Ite
 	}
 	else
 	{
-		auto result = _RANGES begin(rng);
+		auto result = _RANGES begin(_STD forward<Range>(rng));
 
 		result._Seek_to(_STD forward<Iterator>(iter));
 
@@ -251,7 +251,7 @@ public:
 	template <_RANGES forward_range Range, typename Type>
 	constexpr auto operator()(Range&& rng, const Type& value) const noexcept
 	{
-		__default_itoa(__ubegin(rng), __uend(rng), _STD move(value));
+		__default_itoa(__ubegin(_STD forward<Range>(rng)), __uend(_STD forward<Range>(rng)), _STD move(value));
 
 		return;
 	}
@@ -951,7 +951,13 @@ public:
 							  Projection1 proj1 = {},
 							  Projection2 proj2 = {}) const noexcept
 	{
-		return __default_equal(__ubegin(rng1), __uend(rng1), __ubegin(rng2), __uend(rng2), pred, proj1, proj2);
+		return __default_equal(__ubegin(_STD forward<Range>(rng1)),
+							   __uend(_STD forward<Range>(rng1)),
+							   __ubegin(_STD forward<Range>(rng2)),
+							   __uend(_STD forward<Range>(rng2)),
+							   pred,
+							   proj1,
+							   proj2);
 	}
 };
 
@@ -994,7 +1000,7 @@ public:
 	template <_RANGES forward_range Range, typename Type>
 	constexpr auto operator()(Range&& rng, const Type& value) const noexcept
 	{
-		__default_fill(__ubegin(rng), __uend(rng), _STD move(value));
+		__default_fill(__ubegin(_STD forward<Range>(rng)), __uend(_STD forward<Range>(rng)), _STD move(value));
 
 		return;
 	}
@@ -2453,21 +2459,21 @@ public:
 		{
 			if constexpr (_RANGES common_range<Range>)
 			{
-				return __uend(rng);
+				return __uend(_STD forward<Range>(rng));
 			}
 			else if constexpr (_RANGES sized_range<Range>)
 			{
-				return _RANGES next(__ubegin(rng), _RANGES distance(rng));
+				return _RANGES next(__ubegin(_STD forward<Range>(rng)), _RANGES distance(_STD forward<Range>(rng)));
 			}
 			else
 			{
-				return _RANGES next(unth, __uend(rng));
+				return _RANGES next(unth, __uend(_STD forward<Range>(rng)));
 			}
 		}();
 
 		_seek_wrapped(nth, ulast);
 
-		__default_nth_element(__ubegin(rng),
+		__default_nth_element(__ubegin(_STD forward<Range>(rng)),
 							  _STD move(unth),
 							  _STD move(ulast),
 							  _check_function(pred),

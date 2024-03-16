@@ -156,16 +156,16 @@ private:
 	template <typename Iterator, typename PrintFunction, typename Projection>
 		requires((_STD is_same_v<_STD remove_cvref_t<typename _STD iter_value_t<Iterator>>, char>)
 				 || (_STD is_same_v<_STD remove_cvref_t<typename _STD iter_value_t<Iterator>>, wchar_t>))
-	static constexpr void
-		__print_with_char_or_wchar(Iterator first, Iterator last, PrintFunction pfun, Projection proj) noexcept(true)
+	static constexpr void __print_with_char_or_wchar(Iterator first, Iterator last, PrintFunction pfun, Projection proj)
+		noexcept(true)
 	{
 		using value_t = typename _STD iter_value_t<Iterator>;
 
 		if constexpr (_STD is_same_v<_STD remove_cvref_t<value_t>,
 									 char>)	 // 如果是字符类型，转为 string ，调用 fputs 输出
 		{
-			if constexpr ((_STD is_same_v<_STD remove_cvref_t<Projection>, _STD identity>)&&(
-							  noexcept(_STD string(first, last))))	// 如果没有自定义的投影函数 proj ，直接输出
+			if constexpr ((_STD is_same_v<_STD remove_cvref_t<Projection>, _STD identity>)
+						  && (noexcept(_STD string(first, last))))	// 如果没有自定义的投影函数 proj ，直接输出
 			{
 				_CSTD fputs(_STD string(first, last).c_str(), stdout);
 			}
@@ -189,10 +189,10 @@ private:
 			_STD ios::sync_with_stdio(true);
 			_STD locale::global(_STD locale(""));
 
-			if constexpr ((_STD is_same_v<_STD remove_cvref_t<Projection>, _STD identity>)&&(
-							  noexcept(_STD wstring(first, last))))	 // 如果没有自定义的投影函数 proj ，直接输出
+			if constexpr ((_STD is_same_v<_STD remove_cvref_t<Projection>, _STD identity>)
+						  && (noexcept(_STD wstring(first, last))))	 // 如果没有自定义的投影函数 proj ，直接输出
 			{
-				_STD wcout << _STD move(_STD wstring(first, last));
+				_STD wcout << _STD wstring(first, last);
 			}
 			else  // 如果有自定义的投影函数 proj ，先投影，再输出
 			{
@@ -211,10 +211,9 @@ private:
 
 	// 使用自定义打印函数 pfun 和投影函数 proj ，格式化输出 [first, last) 区间内的所有元素
 	template <typename Iterator, typename PrintFunction, typename Projection>
-	static constexpr void
-		__print_with_format_iter(Iterator first, Iterator last, PrintFunction pfun, Projection proj) noexcept(
-			(noexcept(_STD invoke(pfun, _STD invoke(proj, *first))))
-			|| (noexcept(_STD invoke(pfun, _STD invoke(proj, *first), delimiter_mode_with_Comma_and_Space))))
+	static constexpr void __print_with_format_iter(Iterator first, Iterator last, PrintFunction pfun, Projection proj)
+		noexcept((noexcept(_STD invoke(pfun, _STD invoke(proj, *first))))
+				 || (noexcept(_STD invoke(pfun, _STD invoke(proj, *first), delimiter_mode_with_Comma_and_Space))))
 	{
 		if constexpr (_STD is_same_v<_STD remove_cvref_t<PrintFunction>, zh_Print_with_one_data_function>)
 		{
@@ -251,7 +250,7 @@ private:
 			}
 			else
 			{
-				_STD invoke(pfun, _STD forward<Arg&&>(arg), delimiter_mode_with_None);
+				_STD invoke(pfun, _STD forward<Arg>(arg), delimiter_mode_with_None);
 			}
 
 			return;
@@ -264,10 +263,10 @@ private:
 			}
 			else
 			{
-				_STD invoke(pfun, _STD forward<Arg&&>(arg), mode);
+				_STD invoke(pfun, _STD forward<Arg>(arg), mode);
 			}
 
-			__print_with_args(pfun, mode, _STD forward<Args&&>(args)...);
+			__print_with_args(pfun, mode, _STD forward<Args>(args)...);
 
 			return;
 		}
@@ -363,8 +362,8 @@ private:
 		{
 			__print_with_args(print_with_one_data,
 							  delimiter_mode_with_Comma_and_Space,
-							  _STD forward<MsgType&&>(msg),
-							  _STD forward<Args&&>(args)...);
+							  _STD forward<MsgType>(msg),
+							  _STD forward<Args>(args)...);
 
 			return;
 		}
@@ -379,10 +378,10 @@ private:
 			}
 			else
 			{
-				_STD string fmt_msg(msg);	 // 用于格式化的字符串
+				_STD string fmt_msg(msg);  // 用于格式化的字符串
 				_STD string new_fmt_msg {
 					_STD move(_STD vformat(fmt_msg, _STD make_format_args(args...)))
-				};							 // 格式化后的字符串
+				};	// 格式化后的字符串
 
 				if (fmt_msg != new_fmt_msg)	 // 如果格式化成功，输出格式化后的字符串
 				{
@@ -392,8 +391,8 @@ private:
 				{
 					__print_with_args(print_with_one_data,
 									  delimiter_mode_with_Comma_and_Space,
-									  _STD forward<MsgType&&>(msg),
-									  _STD forward<Args&&>(args)...);
+									  _STD forward<MsgType>(msg),
+									  _STD forward<Args>(args)...);
 				}
 			}
 
@@ -454,13 +453,12 @@ public:
 
 	// 3、针对 format() 格式的 一般泛化
 	template <_basic_msg_type MsgType, _basic_msg_type... Args>
-	constexpr void operator()(MsgType msg, Args... args) const
-		noexcept(noexcept(__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
+	constexpr void operator()(MsgType msg, Args... args) const noexcept(noexcept(__print_with_basic_msg(msg, args...)))
 	{
-		static_assert((sizeof...(args) < (_max_msg_args_constant<uint64_t>)),
+		static_assert((sizeof...(args) < _max_msg_args_constant<uint64_t>),
 					  "There are too many parameters, please consider printing in an STL container.");
 
-		__print_with_basic_msg(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
+		__print_with_basic_msg(msg, args...);
 
 		return;
 	}
@@ -520,13 +518,12 @@ public:
 	}
 
 	template <_basic_msg_type MsgType, _basic_msg_type... Args>
-	constexpr void operator()(MsgType msg, Args... args) const
-		noexcept(noexcept(print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...)))
+	constexpr void operator()(MsgType msg, Args... args) const noexcept(noexcept(print(msg, args...)))
 	{
-		static_assert((sizeof...(args) < (_max_msg_args_constant<uint64_t>)),
+		static_assert((sizeof...(args) < _max_msg_args_constant<uint64_t>),
 					  "There are too many parameters, please consider printing in an STL container.");
 
-		print(_STD forward<MsgType&&>(msg), _STD forward<Args&&>(args)...);
+		print(msg, args...);
 
 		_CSTD fputs("\n", stdout);
 
@@ -551,9 +548,9 @@ struct __Take_msg
 template <__Take_msg msg>
 consteval _STD string operator""_f() noexcept
 {
-	return [=]<typename... Type>(Type... Args) constexpr
+	return [= msg]<typename... Type>(Type... Args) constexpr
 	{
-		return _STD format(msg.info, _STD forward<Type&&>(Args)...);
+		return _STD format(msg.info, Args...);
 	};
 }
 
