@@ -183,9 +183,12 @@ public:
 			  typename Predicate  = _RANGES equal_to,
 			  typename Projection = _STD   identity>
 		requires(_STD indirect_binary_predicate<Predicate, _STD projected<Iterator, Projection>, const Type*>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _STD iter_difference_t<Iterator>
-		operator()(Iterator first, Sentinel last, const Type& value, Predicate pred = {}, Projection proj = {})
-			const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr _STD iter_difference_t<Iterator> operator()(Iterator	  first,
+														  Sentinel	  last,
+														  const Type& value,
+														  Predicate	  pred = {},
+														  Projection  proj = {}) const noexcept
 	{
 		return __default_count(_unwrap_iterator<Sentinel>(_STD move(first)),
 							   _unwrap_sentinel<Iterator>(_STD move(last)),
@@ -202,8 +205,8 @@ public:
 		requires(_STD indirect_binary_predicate<Predicate,
 												_STD projected<_RANGES iterator_t<Range>, Projection>,
 												const Type*>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr auto
-		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr auto operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		return __default_count(__ubegin(rng), __uend(rng), _STD move(value), pred, proj);
 	}
@@ -284,8 +287,8 @@ public:
 			  typename Type,
 			  typename Projection = _STD identity>
 		requires(_STD indirect_binary_predicate<_RANGES equal_to, _STD projected<Iterator, Projection>, const Type*>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr Iterator
-		operator()(Iterator first, Sentinel last, const Type& value, Projection proj = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr Iterator operator()(Iterator first, Sentinel last, const Type& value, Projection proj = {}) const noexcept
 	{
 		auto result = __default_find(_unwrap_iterator<Sentinel>(_STD move(first)),
 									 _unwrap_sentinel<Iterator>(_STD move(last)),
@@ -302,7 +305,8 @@ public:
 		requires(_STD indirect_binary_predicate<_RANGES equal_to,
 												_STD	projected<_RANGES iterator_t<Range>, Projection>,
 												const Type*>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES borrowed_iterator_t<Range>
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr _RANGES borrowed_iterator_t<Range>
 		operator()(Range&& rng, const Type& value, Projection proj = {}) const noexcept
 	{
 		auto first = _RANGES begin(rng);
@@ -349,11 +353,12 @@ public:
 			  typename Predicate  = _STD  identity,
 			  typename Projection = _STD identity>
 		requires(_STD indirect_unary_predicate<Predicate, _STD projected<Iterator, Projection>>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr Iterator operator()(Iterator	first,
-																				Sentinel	last,
-																				const Type& value,
-																				Predicate	pred,
-																				Projection	proj = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr Iterator operator()(Iterator	  first,
+								  Sentinel	  last,
+								  const Type& value,
+								  Predicate	  pred,
+								  Projection  proj = {}) const noexcept
 	{
 		auto result = __default_find_if(_unwrap_iterator<Sentinel>(_STD move(first)),
 										_unwrap_sentinel<Iterator>(_STD move(last)),
@@ -372,7 +377,8 @@ public:
 			  typename Predicate  = _STD  identity,
 			  typename Projection = _STD identity>
 		requires(_STD indirect_unary_predicate<Predicate, _STD projected<_RANGES iterator_t<Range>, Projection>>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES borrowed_iterator_t<Range>
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr _RANGES borrowed_iterator_t<Range>
 		operator()(Range&& rng, const Type& value, Predicate pred, Projection proj = {}) const noexcept
 	{
 		auto first = _RANGES begin(rng);
@@ -423,11 +429,12 @@ public:
 			  typename Predicate,
 			  typename Projection = _STD identity>
 		requires(_STD indirect_unary_predicate<Predicate, _STD projected<Iterator, Projection>>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr Iterator operator()(Iterator	first,
-																				Sentinel	last,
-																				const Type& value,
-																				Predicate	pred,
-																				Projection	proj = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr Iterator operator()(Iterator	  first,
+								  Sentinel	  last,
+								  const Type& value,
+								  Predicate	  pred,
+								  Projection  proj = {}) const noexcept
 	{
 		auto result = __default_find_if_not(_unwrap_iterator<Sentinel>(_STD move(first)),
 											_unwrap_sentinel<Iterator>(_STD move(last)),
@@ -443,7 +450,8 @@ public:
 	/* function find_if_not() for 容器 强化版 */
 	template <_RANGES input_range Range, typename Type, typename Predicate, typename Projection = _STD identity>
 		requires(_STD indirect_unary_predicate<Predicate, _STD projected<_RANGES iterator_t<Range>, Projection>>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES borrowed_iterator_t<Range>
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr _RANGES borrowed_iterator_t<Range>
 		operator()(Range&& rng, const Type& value, Predicate pred, Projection proj = {}) const noexcept
 	{
 		auto first = _RANGES begin(rng);
@@ -506,13 +514,14 @@ public:
 			  typename Projection1 = _STD  identity,
 			  typename Projection2 = _STD  identity>
 		requires(_STD indirectly_comparable<Iterator1, Iterator2, Predicate, Projection1, Projection2>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr Iterator1 operator()(Iterator1	 first1,
-																				 Sentinel1	 last1,
-																				 Iterator2	 first2,
-																				 Sentinel2	 last2,
-																				 Predicate	 pred  = {},
-																				 Projection1 proj1 = {},
-																				 Projection2 proj2 = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr Iterator1 operator()(Iterator1   first1,
+								   Sentinel1   last1,
+								   Iterator2   first2,
+								   Sentinel2   last2,
+								   Predicate   pred	 = {},
+								   Projection1 proj1 = {},
+								   Projection2 proj2 = {}) const noexcept
 	{
 		auto ufirst1 = _unwrap_iterator<Sentinel1>(_STD move(first1));
 		auto ufirst2 = _unwrap_iterator<Sentinel2>(_STD move(first2));
@@ -543,9 +552,12 @@ public:
 											Predicate,
 											Projection1,
 											Projection2>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES borrowed_iterator_t<Range1>
-		operator()(Range1&& rng1, Range2&& rng2, Predicate pred = {}, Projection1 proj1 = {}, Projection2 proj2 = {})
-			const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr _RANGES borrowed_iterator_t<Range1> operator()(Range1&&	 rng1,
+															 Range2&&	 rng2,
+															 Predicate	 pred  = {},
+															 Projection1 proj1 = {},
+															 Projection2 proj2 = {}) const noexcept
 	{
 		auto first1 = _RANGES begin(rng1);
 
@@ -574,7 +586,7 @@ public:
 
 	template <typename Type>
 	constexpr void operator()(Type& a, Type& b) const
-		noexcept((_STD is_nothrow_move_constructible_v<Type>)&&(_STD is_nothrow_move_assignable_v<Type>))
+		noexcept((_STD is_nothrow_move_constructible_v<Type>) && (_STD is_nothrow_move_assignable_v<Type>))
 	{
 		Type tmp = static_cast<Type&&>(a);
 		a		 = static_cast<Type&&>(b);
@@ -586,8 +598,8 @@ public:
 	template <typename Type1, typename Type2>
 		requires((_STD convertible_to<Type1 &&, Type2 &&>) && (_STD convertible_to<Type2 &&, Type1 &&>))
 	constexpr void operator()(Type1&& a, Type2&& b) const
-		noexcept((_STD is_nothrow_constructible_v<Type1, Type2>)&&(_STD is_nothrow_constructible_v<Type2, Type1>)&&(
-			_STD is_nothrow_assignable_v<Type1, Type2>)&&(_STD is_nothrow_assignable_v<Type2, Type1>))
+		noexcept((_STD is_nothrow_constructible_v<Type1, Type2>) && (_STD is_nothrow_constructible_v<Type2, Type1>)
+				 && (_STD is_nothrow_assignable_v<Type1, Type2>) && (_STD is_nothrow_assignable_v<Type2, Type1>))
 	{
 		(*this)<_STD common_type_t<Type1, Type2>>(a, b);
 	}
@@ -896,13 +908,14 @@ public:
 									 _STD invoke(proj2, _RANGES iter_move(first2)))
 					 } -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr bool operator()(Iterator1	first1,
-																			Sentinel1	last1,
-																			Iterator2	first2,
-																			Sentinel2	last2,
-																			Predicate	pred  = {},
-																			Projection1 proj1 = {},
-																			Projection2 proj2 = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr bool operator()(Iterator1	  first1,
+							  Sentinel1	  last1,
+							  Iterator2	  first2,
+							  Sentinel2	  last2,
+							  Predicate	  pred	= {},
+							  Projection1 proj1 = {},
+							  Projection2 proj2 = {}) const noexcept
 	{
 		auto ufirst1 = _unwrap_iterator<Sentinel1>(_STD move(first1));
 		auto ulast1	 = _unwrap_sentinel<Iterator1>(_STD move(last1));
@@ -931,11 +944,12 @@ public:
 									 _STD invoke(proj2, _RANGES iter_move(_RANGES begin(rng2))))
 					 } -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr auto operator()(Range&&		rng1,
-																			Range&&		rng2,
-																			Predicate	pred  = {},
-																			Projection1 proj1 = {},
-																			Projection2 proj2 = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr auto operator()(Range&&	  rng1,
+							  Range&&	  rng2,
+							  Predicate	  pred	= {},
+							  Projection1 proj1 = {},
+							  Projection2 proj2 = {}) const noexcept
 	{
 		return __default_equal(__ubegin(rng1), __uend(rng1), __ubegin(rng2), __uend(rng2), pred, proj1, proj2);
 	}
@@ -1043,7 +1057,8 @@ public:
 						 _STD invoke(pred, _STD invoke(proj, a), _STD invoke(proj, b))
 					 } noexcept -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const Type&
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr const Type&
 		operator()(const Type& a, const Type& b, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto check_pred = _check_function(pred);
@@ -1064,7 +1079,8 @@ public:
 									 _STD invoke(proj, _RANGES iter_move(__ubegin(rng))))
 					 } noexcept -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const _RANGES range_value_t<Range>&
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr const _RANGES range_value_t<Range>&
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const
 	{
 		auto check_pred = _check_function(pred);
@@ -1094,8 +1110,8 @@ public:
 									 _STD invoke(proj, _RANGES iter_move(__ubegin(rng))))
 					 } noexcept -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const Type&
-		operator()(_STD initializer_list<Type> rng, Predicate pred = {}, Projection proj = {}) const
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr const Type& operator()(_STD initializer_list<Type> rng, Predicate pred = {}, Projection proj = {}) const
 	{
 		auto check_pred = _check_function(pred);
 		auto check_proj = _check_function(proj);
@@ -1132,7 +1148,8 @@ public:
 						 _STD invoke(pred, _STD invoke(proj, a), _STD invoke(proj, b))
 					 } noexcept -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const Type&
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr const Type&
 		operator()(const Type& a, const Type& b, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto check_pred = _check_function(pred);
@@ -1153,7 +1170,8 @@ public:
 									 _STD invoke(proj, _RANGES iter_move(__ubegin(rng))))
 					 } noexcept -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const _RANGES range_value_t<Range>&
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr const _RANGES range_value_t<Range>&
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto check_pred = _check_function(pred);
@@ -1183,7 +1201,8 @@ public:
 									 _STD invoke(proj, _RANGES iter_move(__ubegin(rng))))
 					 } noexcept -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr const Type&
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr const Type&
 		operator()(_STD initializer_list<Type> rng, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto check_pred = _check_function(pred);
@@ -1248,7 +1267,8 @@ public:
 									 _STD invoke(proj, _RANGES iter_move(first)))
 					 } noexcept -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr Iterator
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr Iterator
 		operator()(Iterator first, Sentinel last, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		return _seek_wrapped(first,
@@ -1270,7 +1290,8 @@ public:
 									 _STD invoke(proj, _RANGES iter_move(__ubegin(rng))))
 					 } noexcept -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES borrowed_iterator_t<Range>
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr _RANGES borrowed_iterator_t<Range>
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		return _rewrap_iterator(
@@ -1324,7 +1345,8 @@ public:
 									 _STD invoke(proj, _RANGES iter_move(first)))
 					 } noexcept -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr Iterator
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr Iterator
 		operator()(Iterator first, Sentinel last, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		return _seek_wrapped(first,
@@ -1346,8 +1368,8 @@ public:
 									 _STD invoke(proj, _RANGES iter_move(__ubegin(rng))))
 					 } noexcept -> _STD convertible_to<bool>;
 				 })
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr auto
-		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr auto operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		return _rewrap_iterator(
 			rng,
@@ -2532,11 +2554,12 @@ public:
 		typename Projection																			 = _STD identity,
 		_STD indirect_strict_weak_order<const Type*, _STD projected<Iterator, Projection>> Predicate = _RANGES less>
 		requires(__basic_concept_for_binary_search_function<Iterator, Type, Predicate, Projection>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr Iterator operator()(Iterator	first,
-																				Sentinel	last,
-																				const Type& value,
-																				Predicate	pred = {},
-																				Projection	proj = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr Iterator operator()(Iterator	  first,
+								  Sentinel	  last,
+								  const Type& value,
+								  Predicate	  pred = {},
+								  Projection  proj = {}) const noexcept
 	{
 		auto	   ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
 		const auto length = _RANGES distance(ufirst, _unwrap_sentinel<Iterator, Sentinel>(_STD move(last)));
@@ -2559,7 +2582,8 @@ public:
 			  _STD indirect_strict_weak_order<const Type*, _STD projected<_RANGES iterator_t<Range>, Projection>>
 				  Predicate = _RANGES less>
 		requires(__basic_concept_for_binary_search_function<_RANGES iterator_t<Range>, Type, Predicate, Projection>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES borrowed_iterator_t<Range>
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr _RANGES borrowed_iterator_t<Range>
 		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto result = __default_lower_bound(__ubegin(rng),
@@ -2639,11 +2663,12 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 		requires(__basic_concept_for_binary_search_function<Iterator, Type, Predicate, Projection>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr Iterator operator()(Iterator	first,
-																				Sentinel	last,
-																				const Type& value,
-																				Predicate	pred = {},
-																				Projection	proj = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr Iterator operator()(Iterator	  first,
+								  Sentinel	  last,
+								  const Type& value,
+								  Predicate	  pred = {},
+								  Projection  proj = {}) const noexcept
 	{
 		auto	   ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
 		const auto length = _RANGES distance(ufirst, _unwrap_sentinel<Iterator, Sentinel>(_STD move(last)));
@@ -2665,7 +2690,8 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 		requires(__basic_concept_for_binary_search_function<_RANGES iterator_t<Range>, Type, Predicate, Projection>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES borrowed_iterator_t<Range>
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr _RANGES borrowed_iterator_t<Range>
 		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto result = __default_upper_bound(__ubegin(rng),
@@ -2759,9 +2785,12 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 		requires(__basic_concept_for_binary_search_function<Iterator, Type, Predicate, Projection>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES subrange<Iterator>
-		operator()(Iterator first, Sentinel last, const Type& value, Predicate pred = {}, Projection proj = {})
-			const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr _RANGES subrange<Iterator> operator()(Iterator	first,
+													Sentinel	last,
+													const Type& value,
+													Predicate	pred = {},
+													Projection	proj = {}) const noexcept
 	{
 		auto	   ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
 		auto	   ulast  = _get_last_iterator_unwrapped<Iterator>(ufirst, _STD move(last));
@@ -2782,7 +2811,8 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 		requires(__basic_concept_for_binary_search_function<_RANGES iterator_t<Range>, Type, Predicate, Projection>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr _RANGES borrowed_subrange_t<Range>
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr _RANGES borrowed_subrange_t<Range>
 		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto first		  = _RANGES begin(rng);
@@ -2814,11 +2844,12 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 		requires(__basic_concept_for_binary_search_function<Iterator, Type, Predicate, Projection>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr bool operator()(Iterator	first,
-																			Sentinel	last,
-																			const Type& value,
-																			Predicate	pred = {},
-																			Projection	proj = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr bool operator()(Iterator	  first,
+							  Sentinel	  last,
+							  const Type& value,
+							  Predicate	  pred = {},
+							  Projection  proj = {}) const noexcept
 	{
 		auto	   ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
 		auto	   ulast  = _get_last_iterator_unwrapped<Iterator>(ufirst, _STD move(last));
@@ -2840,8 +2871,8 @@ public:
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
 		requires(__basic_concept_for_binary_search_function<_RANGES iterator_t<Range>, Type, Predicate, Projection>)
-	_NODISCARD_MSG(L"此函数的返回值不应该被忽略") constexpr bool
-		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
+	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
+	constexpr bool operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
 		auto	   ufirst = __ubegin(rng);
 		const auto length = _RANGES distance(rng);
