@@ -220,7 +220,11 @@
 # ^^^^^^
 
 #
+#
+#
 # vvvvvvvvvvvvvvvvvvvvvvvv The Formal Configuration Items Start Here vvvvvvvvvvvvvvvvvvvvvvvvv
+#
+#
 #
 
 # vvvvvv
@@ -234,15 +238,15 @@ Language: Cpp ## <3>
 # 用于配置中未特别设置的所有选项的样式。用于配置中未特别设置的所有选项的样式。
 # 此选项仅在 clang-format 配置中支持（在 -style='{...}' 和 .clang-format 文件）。
 # 可能的值:
-# LLVM: 一种符合 LLVM代码规范 的样式
-# Google: 一种符合 Google C++风格指南 的样式
-# Chromium: 一种符合 Chromium风格指南 的样式
-# Mozilla: 一种符合 Mozilla风格指南 的样式
-# WebKit: 一种符合 WebKit风格指南 的样式
-# Microsoft: 一种符合 Microsoft风格指南 的样式
-# GNU: 一种符合 GNU代码规范 的样式
-# InheritParentConfig: 不是真正的样式，但允许使用父目录中的 .clang-format 文件（如果没有，则使用其父目录）。如果找不到父文件，它将回退到回退样式，并将更改应用到该样式。使用这个选项，您可以覆盖子目录的主样式的某些部分。这也可以通过命令行实现，例如: --style={BasedOnStyle: InheritParentConfig, ColumnLimit: 20}
-# None: 不使用, 即自动配置, 也就是本文件中的自定义内容
+# LLVM:                 一种符合 LLVM代码规范 的样式
+# Google:               一种符合 Google C++风格指南 的样式
+# Chromium:             一种符合 Chromium风格指南 的样式
+# Mozilla:              一种符合 Mozilla风格指南 的样式
+# WebKit:               一种符合 WebKit风格指南 的样式
+# Microsoft:            一种符合 Microsoft风格指南 的样式
+# GNU:                  一种符合 GNU代码规范 的样式
+# InheritParentConfig:  使用当前目录中的 .clang-format 文件（如果没有，则使用其父目录）。如果找不到父文件，它将回退到回退样式，并将更改应用到该样式。使用这个选项，您可以覆盖子目录的主样式的某些部分。这也可以通过命令行实现，例如: --style={BasedOnStyle: InheritParentConfig, ColumnLimit: 20}
+# None:                 不使用, 即自动配置, 也就是本文件中的自定义内容
 
 BasedOnStyle: None
 # ^^^^^^
@@ -418,7 +422,7 @@ AlignConsecutiveShortCaseStatements:
     #     default: return "";
     #     }
     #
-    AcrossEmptyLines: true
+    AcrossEmptyLines: false
 
     # bool AcrossComments: 是否跨注释对齐。
     # true:
@@ -454,7 +458,7 @@ AlignConsecutiveShortCaseStatements:
     #     default:           return "";
     #     }
     #
-    AlignCaseColons: true
+    AlignCaseColons: false
 # ^^^^^^
 
 # vvvvvv
@@ -499,7 +503,7 @@ AlignEscapedNewlines: Left
 #     int aaa = bbbbbbbbbbbbbbb
 #             + ccccccccccccccc;
 
-AlignOperands: AlignAfterOperator
+AlignOperands: Align
 # ^^^^^^
 
 # vvvvvv
@@ -839,11 +843,11 @@ AllowShortLoopsOnASingleLine: false
 # 此选项将重命名为 No.[35]-BreakAfterReturnType-(ReturnTypeBreakingStyle) （ 官方文档 中如此说明，并没有明确声明为弃置，故而在此处列出。关于此项的更多信息，请参考条款 No.[35]-BreakAfterReturnType-(ReturnTypeBreakingStyle) ）。
 # 可能的值:
 # None: 返回类型后自动中断。PenaltyReturnTypeOnItsOwnLine 被考虑在内。例如:
-#		class A {
-#			int f() { return 0; };
-#		};
-#		int f();
-#		int f() { return 1; }
+#       class A {
+#       int f() { return 0; };
+#       };
+#       int f();
+#       int f() { return 1; }
 #
 # All: 总是在返回类型后中断。例如:
 #       class A {
@@ -914,28 +918,28 @@ AlwaysBreakBeforeMultilineStrings: true
 # 此选项将重命名为 No.[45]-BreakTemplateDeclarations-(BreakTemplateDeclarationsStyle)（ 官方文档中 如此说明，并没有明确声明为启用，故而在此处列出。关于此项的更多信息，请参考条款 No.[45]-BreakTemplateDeclarations-(BreakTemplateDeclarationsStyle) ）。
 # 可能的值:
 # No: 不要在模板声明之后中断。No.[98]-PenaltyBreakTemplateDeclaration-(Unsigned) 被考虑在内。例如:
-#		template <typename T> T foo() {
-#		}
-#		template <typename T> T foo(int aaaaaaaaaaaaaaaaaaaaa,
+#       template <typename T> T foo() {
+#       }
+#       template <typename T> T foo(int aaaaaaaaaaaaaaaaaaaaa,
 #                            int bbbbbbbbbbbbbbbbbbbbb) {
-#		}
+#       }
 #
 # MultiLine: 只有当下列声明跨多行时，才在模板声明后强制中断。例如:
-#		template <typename T> T foo() {
-#		}
-#		template <typename T>
-#		T foo(int aaaaaaaaaaaaaaaaaaaaa,
-#			int bbbbbbbbbbbbbbbbbbbbb) {
-#		}
+# template <typename T> T foo() {
+#       }
+#       template <typename T>
+#       T foo(int aaaaaaaaaaaaaaaaaaaaa,
+#       int bbbbbbbbbbbbbbbbbbbbb) {
+#       }
 #
 # Yes: 总是在模板声明之后中断。例如:
-#		template <typename T>
-#		T foo() {
-#		}
-#		template <typename T>
-#		T foo(int aaaaaaaaaaaaaaaaaaaaa,
-#			int bbbbbbbbbbbbbbbbbbbbb) {
-#		}
+#       template <typename T>
+#       T foo() {
+#       }
+#       template <typename T>
+#       T foo(int aaaaaaaaaaaaaaaaaaaaa,
+#       int bbbbbbbbbbbbbbbbbbbbb) {
+#       }
 
 AlwaysBreakTemplateDeclarations: Yes
 # ^^^^^^
@@ -1497,7 +1501,7 @@ BreakArrays: true
 #                 && aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 #                         > ccccccccccccccccccccccccccccccccccccccccc;
 
-BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBinaryOperators: None
 # ^^^^^^
 
 # vvvvvv
@@ -3946,17 +3950,19 @@ WhitespaceSensitiveMacros:
 #
 
 # 文件说明（4） :
-### No.[一]  添加其他样式选项?
+#
+### No.[一]  添加其他样式选项？
+#
 # 每个额外的样式选项都会增加 clang-format 项目的成本。其中一些成本影响了 clang-format 开发本身，因为我们需要确保任何给定的选项组合都有效，并且新功能不会以任何方式破坏现有的任何选项。
 # 随着选项变得不那么容易发现，最终用户也会付出代价，人们不得不考虑并决定他们并不真正关心的选项。
 # clang-format 项目的目标更倾向于真正很好地支持有限的一组样式，而不是支持某个地方的代码库使用的每一种样式。
 # 当然，我们确实希望支持所有主要项目，因此建立了以下添加样式选项的栏。每个新样式选项必须:
 #   be used in a project of significant size (have dozens of contributors)
-#       （用于规模巨大的项目（有几十个贡献者））
+#       （编者按：用于规模巨大的项目（有几十个贡献者））
 #   have a publicly accessible style guide
-#       （有一个可公开访问的风格指南）
+#       （编者按：有一个可公开访问的风格指南）
 #   have a person willing to contribute and maintain patches
-#       （让愿意贡献和维护补丁的人）
+#       （编者按：让愿意贡献和维护补丁的人）
 #
 #
 #

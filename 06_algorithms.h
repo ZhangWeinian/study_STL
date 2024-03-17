@@ -92,7 +92,7 @@ constexpr void _seek_wrapped(Iterator& iter, UIterator&& uiter)
 
 /* 此处实现一些简单函数 */
 
-// 给定一个初值 init ，将 [first, last) 范围内的元素依次累加到 init 上。可指定谓词 pred 与投影 proj
+// 给定一个初值 init，将 [first, last) 范围内的元素依次累加到 init 上。可指定谓词 pred 与投影 proj
 struct __Accumulate_function: private __Not_quite_object
 {
 private:
@@ -259,7 +259,7 @@ public:
 
 constexpr inline __Itoa_function itoa { __Not_quite_object::__Construct_tag {} };
 
-// 在 [first, last) 范围内查找第一个与 value 相等的元素。可指定投影 proj ，不可指定谓词 pred
+// 在 [first, last) 范围内查找第一个与 value 相等的元素。可指定投影 proj，不可指定谓词 pred
 struct __Find_function: private __Not_quite_object
 {
 private:
@@ -715,7 +715,7 @@ public:
 
 constexpr inline __Swap_ranges_function swap_ranges { __Not_quite_object::__Construct_tag {} };
 
-// 将 [first, last) 范围内的元素依次调用 pred 。必须指定谓词 pred ，可指定投影 proj
+// 将 [first, last) 范围内的元素依次调用 pred 。必须指定谓词 pred，可指定投影 proj
 struct __For_each_function: private __Not_quite_object
 {
 private:
@@ -787,7 +787,7 @@ public:
 
 constexpr inline __For_each_function for_each { __Not_quite_object::__Construct_tag {} };
 
-// 将 [first, first + n) 范围内的元素依次调用 pred 。必须指定谓词 pred ，可指定投影 proj
+// 将 [first, first + n) 范围内的元素依次调用 pred 。必须指定谓词 pred，可指定投影 proj
 struct __For_each_n_function: private __Not_quite_object
 {
 private:
@@ -1524,7 +1524,7 @@ public:
 
 constexpr inline __Merge_function merge { __Not_quite_object::__Construct_tag {} };
 
-// 将 [first, last) 范围内的元素依次调用 pred ，并将结果保存到 result 中。可指定谓词 pred 与投影 proj
+// 将 [first, last) 范围内的元素依次调用 pred，并将结果保存到 result 中。可指定谓词 pred 与投影 proj
 struct __Transform_function: private __Not_quite_object
 {
 private:
@@ -1928,7 +1928,7 @@ public:
 
 constexpr inline __Insertion_sort_function insertion_sort { __Not_quite_object::__Construct_tag {} };
 
-// 此处实现 __zh_Set_median_of_three_with_unchecked() 设置 “三点中值” 。原本服务于 quick_sort() ，单独写出是为了在其他地方调用
+// 此处实现 __zh_Set_median_of_three_with_unchecked() 设置 “三点中值” 。原本服务于 quick_sort()，单独写出是为了在其他地方调用
 struct __Set_median_of_three_function: private __Not_quite_object
 {
 private:
@@ -2003,7 +2003,7 @@ public:
 
 constexpr inline __Set_median_of_three_function set_median_of_three { __Not_quite_object::__Construct_tag {} };
 
-// 此处实现 partition() 进行无边界检查的 分割序列 。原本服务于 quick_sort() ，单独写出是为了在其他地方调用
+// 此处实现 partition() 进行无边界检查的 分割序列 。原本服务于 quick_sort()，单独写出是为了在其他地方调用
 struct __Partition_function: private __Not_quite_object
 {
 public:
@@ -2232,7 +2232,7 @@ private:
 		__default_merge_sort(first, middle, pred, proj);
 		__default_merge_sort(middle, last, pred, proj);
 
-		// TODO: 以期实现自己的 inplace_merge() ，同时，此前提到插入排序的缺点之一 “借助额外内存” ，就体现在此函数中
+		// TODO: 以期实现自己的 inplace_merge()，同时，此前提到插入排序的缺点之一 “借助额外内存”，就体现在此函数中
 		_RANGES inplace_merge(_STD move(first), _STD move(middle), _STD move(last), pred, proj);
 
 		return;
