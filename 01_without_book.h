@@ -96,7 +96,7 @@ struct zh_Print_with_one_data_function
 {
 public:
 
-	// 此两处函数虽然拥有默认 DelimiterMode，但是不代表在使用此两函数时，可以省略 DelimiterMode 。相反，必须显式指定 DelimiterMode 。
+	// 此两处函数虽然拥有默认 DelimiterMode，但是不代表在使用此两函数时，可以省略 DelimiterMode。相反，必须显式指定 DelimiterMode。
 	// 原因是：print()（或 println()）的接口仅仅可以自定义打印函数，而不能自定义 DelimiterMode，这是一个内部的私有类型，它仅仅是配合
 	// 默认打印函数使用的。所以，如果不显式指定 DelimiterMode，则会导致编译器无法推导出正确的类型，从而导致编译失败。
 
@@ -282,7 +282,7 @@ private:
 		using diff_t  = _STD  iter_difference_t<Iterator>;
 		using value_t = _STD iter_value_t<Iterator>;
 
-		// 如果是字符类型的指针，调用 __print_with_char_or_wchar() 。特别注意，字符类型的判断必须放在前面，否则会被误判为算术类型
+		// 如果是字符类型的指针，调用 __print_with_char_or_wchar()。特别注意，字符类型的判断必须放在前面，否则会被误判为算术类型
 		if constexpr (((_STD is_same_v<_STD remove_cvref_t<value_t>, char>) ||
 					   (_STD is_same_v<_STD remove_cvref_t<value_t>, wchar_t>)) &&
 					  ((_STD is_pointer_v<Iterator>) || (_STD is_array_v<Iterator>)))
@@ -306,9 +306,9 @@ private:
 		{
 			if constexpr (_STD is_pointer_v<value_t>)
 			{
-				using value_value_t = typename _STD iter_value_t<value_t>;
+				using value_value_t = _STD iter_value_t<value_t>;
 
-				if (_STD is_fundamental_v<value_value_t>)
+				if constexpr (_STD is_fundamental_v<value_value_t>)
 				{
 					__print_with_format_iter(_STD move(first), _STD move(last), pfun, proj);
 
