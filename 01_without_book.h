@@ -161,8 +161,8 @@ private:
 	{
 		using value_t = _STD iter_value_t<Iterator>;
 
-		if constexpr (_STD is_same_v<_STD remove_cvref_t<value_t>,
-									 char>)	 // 如果是字符类型，转为 string，调用 fputs 输出
+		// 如果是字符类型，转为 string，调用 fputs 输出
+		if constexpr (_STD is_same_v<_STD remove_cvref_t<value_t>, char>)
 		{
 			if (*last < 0 && noexcept(_CSTD fputs(first, stdout)))
 			{
@@ -372,9 +372,9 @@ private:
 		}
 		else if constexpr (_STD is_pointer_v<_STD remove_cvref_t<MsgType>>)
 		{
-			using valte_t = _STD remove_cv_t<_STD remove_pointer_t<MsgType>>;
+			using value_t = _STD remove_cv_t<_STD remove_pointer_t<MsgType>>;
 
-			if constexpr (_STD is_same_v<valte_t, char>)
+			if constexpr (_STD is_same_v<value_t, char>)
 			{
 				// 使用 std::cout 作为标准输出目的地
 				auto standard_output_destination_with_char { _STD ostreambuf_iterator<char> { _STD cout } };
@@ -390,20 +390,15 @@ private:
 						_STD move(_STD vformat(fmt_msg, _STD make_format_args(args...)))
 					};	// 格式化后的字符串
 
-					if (fmt_msg != new_fmt_msg)	 // 如果格式化成功，输出格式化后的字符串
-					{
-						_STD format_to(standard_output_destination_with_char, "{}", new_fmt_msg);
-					}
-					else  // 否则，顺次输出 msg 和参数包 args 中的所有参数
-					{
-						__print_with_args(print_with_one_data,
-										  delimiter_mode_with_Comma_and_Space,
-										  _STD forward<MsgType>(msg),
-										  _STD forward<Args>(args)...);
-					}
+					// 如果格式化成功，输出格式化后的字符串，否则，顺次输出 msg 和参数包 args 中的所有参数
+					(fmt_msg != new_fmt_msg) ? _STD format_to(standard_output_destination_with_char, "{}", new_fmt_msg)
+											 : __print_with_args(print_with_one_data,
+																 delimiter_mode_with_Comma_and_Space,
+																 _STD forward<MsgType>(msg),
+																 _STD forward<Args>(args)...);
 				}
 			}
-			else if constexpr (_STD is_same_v<valte_t, wchar_t>)
+			else if constexpr (_STD is_same_v<value_t, wchar_t>)
 			{
 				_STD ios::sync_with_stdio(true);
 				_STD locale::global(_STD locale(""));
@@ -455,17 +450,17 @@ public:
 			  typename Projection	 = _STD identity>
 		requires(requires(Iterator iter, PrintFunction pfun, Projection proj) {
 					 {
-						 _STD invoke(_check_function(pfun), _STD invoke(_check_function(proj), _RANGES iter_move(iter)))
+						 _STD invoke(_pass_function(pfun), _STD invoke(_pass_function(proj), _RANGES iter_move(iter)))
 					 } noexcept -> _STD same_as<void>;
 				 })
 	constexpr void operator()(Iterator first, Sentinel last, PrintFunction pfun = {}, Projection proj = {}) const
-		noexcept(noexcept(
-			__print_with_iter(_STD move(first), _STD move(last), _check_function(pfun), _check_function(proj))))
+		noexcept(
+			noexcept(__print_with_iter(_STD move(first), _STD move(last), _pass_function(pfun), _pass_function(proj))))
 	{
 		auto ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
 		auto ulast	= _get_last_iterator_unwrapped<Iterator>(ufirst, _STD move(last));
 
-		__print_with_iter(_STD move(ufirst), _STD move(ulast), _check_function(pfun), _check_function(proj));
+		__print_with_iter(_STD move(ufirst), _STD move(ulast), _pass_function(pfun), _pass_function(proj));
 
 		return;
 	}
@@ -476,7 +471,7 @@ public:
 			  typename Projection	 = _STD identity>
 		requires(requires(_RANGES range_value_t<Range> value, PrintFunction pfun, Projection proj) {
 					 {
-						 _STD invoke(_check_function(pfun), _STD invoke(_check_function(proj), value))
+						 _STD invoke(_pass_function(pfun), _STD invoke(_pass_function(proj), value))
 					 } noexcept -> _STD same_as<void>;
 				 })
 	constexpr void operator()(Range&& rng, PrintFunction pfun = {}, Projection proj = {}) const
@@ -524,7 +519,7 @@ public:
 			  typename Projection	 = _STD identity>
 		requires(requires(Iterator iter, PrintFunction pfun, Projection proj) {
 					 {
-						 _STD invoke(_check_function(pfun), _STD invoke(_check_function(proj), _RANGES iter_move(iter)))
+						 _STD invoke(_pass_function(pfun), _STD invoke(_pass_function(proj), _RANGES iter_move(iter)))
 					 } noexcept -> _STD same_as<void>;
 				 })
 	constexpr void operator()(Iterator first, Sentinel last, PrintFunction pfun = {}, Projection proj = {}) const
@@ -542,7 +537,7 @@ public:
 			  typename Projection	 = _STD identity>
 		requires(requires(_RANGES range_value_t<Range> value, PrintFunction pfun, Projection proj) {
 					 {
-						 _STD invoke(_check_function(pfun), _STD invoke(_check_function(proj), value))
+						 _STD invoke(_pass_function(pfun), _STD invoke(_pass_function(proj), value))
 					 } noexcept -> _STD same_as<void>;
 				 })
 	constexpr void operator()(Range&& rng, PrintFunction pfun = {}, Projection proj = {}) const

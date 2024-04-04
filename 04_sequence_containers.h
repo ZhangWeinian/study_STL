@@ -62,7 +62,7 @@ public:
 						   static_cast<difference_type>((last - first) - 1),
 						   static_cast<difference_type>(0),
 						   static_cast<value_type>(*(last - 1)),
-						   _check_function(pred),
+						   _pass_function(pred),
 						   proj);
 	}
 
@@ -158,12 +158,7 @@ public:
 	{
 		using value_type = typename _STD iter_value_t<RandomAccessIterator>;
 
-		__default_pop_heap(first,
-						   last - 1,
-						   last - 1,
-						   static_cast<value_type>(*(last - 1)),
-						   _check_function(pred),
-						   proj);
+		__default_pop_heap(first, last - 1, last - 1, static_cast<value_type>(*(last - 1)), _pass_function(pred), proj);
 	}
 
 	// pop_heap() for 容器、仿函数 强化版
@@ -192,7 +187,7 @@ public:
 							  Predicate			   pred = {},
 							  Projection		   proj = {}) const
 	{
-		pred = _check_function(pred);
+		pred = _pass_function(pred);
 
 		while (1 < (last - first))
 		{
@@ -226,7 +221,7 @@ private:
 			return;
 		}
 
-		pred = _check_function(pred);
+		pred = _pass_function(pred);
 
 		using value_type	= typename _STD	   iter_value_t<RandomAccessIterator>;
 		using distance_type = typename _STD iter_difference_t<RandomAccessIterator>;
@@ -260,7 +255,7 @@ public:
 							  Predicate			   pred = {},
 							  Projection		   proj = {}) const
 	{
-		__default_make_heap(first, last, _check_function(pred), proj);
+		__default_make_heap(first, last, _pass_function(pred), proj);
 	}
 
 	// make_heap() for 仿函数、容器 强化版

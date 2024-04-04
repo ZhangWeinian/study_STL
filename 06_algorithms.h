@@ -130,8 +130,8 @@ public:
 		return __default_accumulate(_STD move(ufirst),
 									_STD move(ulast),
 									_STD move(init),
-									_check_function(pred),
-									_check_function(proj));
+									_pass_function(pred),
+									_pass_function(proj));
 	}
 
 	/* function accumulate() for 容器、仿函数 强化版 */
@@ -193,8 +193,8 @@ public:
 		return __default_count(_unwrap_iterator<Sentinel>(_STD move(first)),
 							   _unwrap_sentinel<Iterator>(_STD move(last)),
 							   _STD move(value),
-							   _check_function(pred),
-							   _check_function(proj));
+							   _pass_function(pred),
+							   _pass_function(proj));
 	}
 
 	/* function count() for 容器、仿函数 强化版 */
@@ -293,7 +293,7 @@ public:
 		auto result = __default_find(_unwrap_iterator<Sentinel>(_STD move(first)),
 									 _unwrap_sentinel<Iterator>(_STD move(last)),
 									 _STD move(value),
-									 _check_function(proj));
+									 _pass_function(proj));
 
 		_seek_wrapped(first, _STD move(result));
 
@@ -314,7 +314,7 @@ public:
 		auto result = __default_find(_unwrap_range_iterator<Range>(_STD move(first)),
 									 __uend(rng),
 									 _STD move(value),
-									 _check_function(proj));
+									 _pass_function(proj));
 
 		_seek_wrapped(first, _STD move(result));
 
@@ -363,8 +363,8 @@ public:
 		auto result = __default_find_if(_unwrap_iterator<Sentinel>(_STD move(first)),
 										_unwrap_sentinel<Iterator>(_STD move(last)),
 										_STD move(value),
-										_check_function(pred),
-										_check_function(proj));
+										_pass_function(pred),
+										_pass_function(proj));
 
 		_seek_wrapped(first, _STD move(result));
 
@@ -386,8 +386,8 @@ public:
 		auto result = __default_find_if(_unwrap_range_iterator<Range>(_STD move(first)),
 										__uend(rng),
 										_STD move(value),
-										_check_function(pred),
-										_check_function(proj));
+										_pass_function(pred),
+										_pass_function(proj));
 
 		_seek_wrapped(first, _STD move(result));
 
@@ -439,8 +439,8 @@ public:
 		auto result = __default_find_if_not(_unwrap_iterator<Sentinel>(_STD move(first)),
 											_unwrap_sentinel<Iterator>(_STD move(last)),
 											_STD move(value),
-											_check_function(pred),
-											_check_function(proj));
+											_pass_function(pred),
+											_pass_function(proj));
 
 		_seek_wrapped(first, _STD move(result));
 
@@ -459,8 +459,8 @@ public:
 		auto result = __default_find_if_not(_unwrap_range_iterator<Range>(_STD move(first)),
 											__uend(rng),
 											_STD move(value),
-											_check_function(pred),
-											_check_function(proj));
+											_pass_function(pred),
+											_pass_function(proj));
 
 		_seek_wrapped(first, _STD move(result));
 
@@ -532,9 +532,9 @@ public:
 											  _STD move(ulast1),
 											  _STD move(ufirst2),
 											  _STD move(ulast2),
-											  _check_function(pred),
-											  _check_function(proj1),
-											  _check_function(proj2));
+											  _pass_function(pred),
+											  _pass_function(proj1),
+											  _pass_function(proj2));
 
 		_seek_wrapped(first1, _STD move(result));
 
@@ -565,9 +565,9 @@ public:
 											  __uend(rng1),
 											  __ubegin(rng2),
 											  __uend(rng2),
-											  _check_function(pred),
-											  _check_function(proj1),
-											  _check_function(proj2));
+											  _pass_function(pred),
+											  _pass_function(proj1),
+											  _pass_function(proj2));
 
 		_seek_wrapped(first1, _STD move(result));
 
@@ -598,8 +598,8 @@ public:
 	template <typename Type1, typename Type2>
 		requires((_STD convertible_to<Type1 &&, Type2 &&>) && (_STD convertible_to<Type2 &&, Type1 &&>))
 	constexpr void operator()(Type1&& a, Type2&& b) const
-		noexcept((_STD is_nothrow_constructible_v<Type1, Type2>) && (_STD is_nothrow_constructible_v<Type2, Type1>)
-				 && (_STD is_nothrow_assignable_v<Type1, Type2>) && (_STD is_nothrow_assignable_v<Type2, Type1>))
+		noexcept((_STD is_nothrow_constructible_v<Type1, Type2>) && (_STD is_nothrow_constructible_v<Type2, Type1>) &&
+				 (_STD is_nothrow_assignable_v<Type1, Type2>) && (_STD is_nothrow_assignable_v<Type2, Type1>))
 	{
 		(*this)<_STD common_type_t<Type1, Type2>>(a, b);
 	}
@@ -755,7 +755,7 @@ public:
 		auto ulast	= _get_last_iterator_unwrapped<Iterator>(ufirst, _STD move(last));
 
 		auto [end_for_range, upred] =
-			__default_for_each(_STD move(ufirst), _STD move(ulast), _STD move(pred), _check_function(proj));
+			__default_for_each(_STD move(ufirst), _STD move(ulast), _STD move(pred), _pass_function(proj));
 
 		_seek_wrapped(first, _STD move(end_for_range));
 
@@ -777,7 +777,7 @@ public:
 		auto [end_for_range, upred] = __default_for_each(_unwrap_range_iterator<Range>(_STD move(first)),
 														 __uend(rng),
 														 _STD move(pred),
-														 _check_function(proj));
+														 _pass_function(proj));
 
 		_seek_wrapped(first, _STD move(end_for_range));
 
@@ -827,7 +827,7 @@ public:
 		auto ufirst = _unwrap_iterator<Iterator>(_STD move(first));
 
 		auto [end_of_range, upred] =
-			__default_for_each_n(_STD move(ufirst), _STD move(n), _STD move(pred), _check_function(proj));
+			__default_for_each_n(_STD move(ufirst), _STD move(n), _STD move(pred), _pass_function(proj));
 
 		_seek_wrapped(first, _STD move(end_of_range));
 
@@ -850,7 +850,7 @@ public:
 		auto [end_for_range, upred] = __default_for_each_n(_unwrap_range_iterator<Range>(_STD move(first)),
 														   _STD move(n),
 														   _STD move(pred),
-														   _check_function(proj));
+														   _pass_function(proj));
 
 		_seek_wrapped(first, _STD move(end_for_range));
 
@@ -927,9 +927,9 @@ public:
 							   _STD move(ulast1),
 							   _STD move(ufirst2),
 							   _STD move(ulast2),
-							   _check_function(pred),
-							   _check_function(proj1),
-							   _check_function(proj2));
+							   _pass_function(pred),
+							   _pass_function(proj1),
+							   _pass_function(proj2));
 	}
 
 	/* function equal() for 容器、仿函数 强化版 */
@@ -1067,8 +1067,8 @@ public:
 	constexpr const Type&
 		operator()(const Type& a, const Type& b, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		auto check_pred = _check_function(pred);
-		auto check_proj = _check_function(proj);
+		auto check_pred = _pass_function(pred);
+		auto check_proj = _pass_function(proj);
 
 		return (_STD invoke(check_pred, _STD invoke(check_proj, a), _STD invoke(check_proj, b))) ? b : a;
 	}
@@ -1089,8 +1089,8 @@ public:
 	constexpr const _RANGES range_value_t<Range>&
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const
 	{
-		auto check_pred = _check_function(pred);
-		auto check_proj = _check_function(proj);
+		auto check_pred = _pass_function(pred);
+		auto check_proj = _pass_function(proj);
 
 		auto first = __ubegin(rng);
 		auto last  = __uend(rng);
@@ -1119,8 +1119,8 @@ public:
 	_NODISCARD_MSG(L"此函数的返回值不应该被忽略")
 	constexpr const Type& operator()(_STD initializer_list<Type> rng, Predicate pred = {}, Projection proj = {}) const
 	{
-		auto check_pred = _check_function(pred);
-		auto check_proj = _check_function(proj);
+		auto check_pred = _pass_function(pred);
+		auto check_proj = _pass_function(proj);
 
 		auto first = rng.begin();
 		auto last  = rng.end();
@@ -1158,8 +1158,8 @@ public:
 	constexpr const Type&
 		operator()(const Type& a, const Type& b, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		auto check_pred = _check_function(pred);
-		auto check_proj = _check_function(proj);
+		auto check_pred = _pass_function(pred);
+		auto check_proj = _pass_function(proj);
 
 		return (_STD invoke(check_pred, _STD invoke(check_proj, a), _STD invoke(check_proj, b))) ? b : a;
 	}
@@ -1180,8 +1180,8 @@ public:
 	constexpr const _RANGES range_value_t<Range>&
 		operator()(Range&& rng, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		auto check_pred = _check_function(pred);
-		auto check_proj = _check_function(proj);
+		auto check_pred = _pass_function(pred);
+		auto check_proj = _pass_function(proj);
 
 		auto first = __ubegin(rng);
 		auto last  = __uend(rng);
@@ -1211,8 +1211,8 @@ public:
 	constexpr const Type&
 		operator()(_STD initializer_list<Type> rng, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		auto check_pred = _check_function(pred);
-		auto check_proj = _check_function(proj);
+		auto check_pred = _pass_function(pred);
+		auto check_proj = _pass_function(proj);
 
 		auto first = rng.begin();
 		auto last  = rng.end();
@@ -1280,8 +1280,8 @@ public:
 		return _seek_wrapped(first,
 							 __default_max_element(_unwrap_iterator<Sentinel>(_STD move(first)),
 												   _unwrap_sentinel<Iterator, Sentinel>(_STD move(last)),
-												   _check_function(pred),
-												   _check_function(proj)));
+												   _pass_function(pred),
+												   _pass_function(proj)));
 	}
 
 	/* function max_element() for 容器、仿函数 强化版 */
@@ -1302,7 +1302,7 @@ public:
 	{
 		return _rewrap_iterator(
 			rng,
-			__default_max_element(__ubegin(rng), __uend(rng), _check_function(pred), _check_function(proj)));
+			__default_max_element(__ubegin(rng), __uend(rng), _pass_function(pred), _pass_function(proj)));
 	}
 };
 
@@ -1358,8 +1358,8 @@ public:
 		return _seek_wrapped(first,
 							 __default_min_element(_unwrap_iterator<Sentinel>(_STD move(first)),
 												   _unwrap_sentinel<Iterator, Sentinel>(_STD move(last)),
-												   _check_function(pred),
-												   _check_function(proj)));
+												   _pass_function(pred),
+												   _pass_function(proj)));
 	}
 
 	/* function min_element() for 容器、仿函数 强化版 */
@@ -1379,7 +1379,7 @@ public:
 	{
 		return _rewrap_iterator(
 			rng,
-			__default_min_element(__ubegin(rng), __uend(rng), _check_function(pred), _check_function(proj)));
+			__default_min_element(__ubegin(rng), __uend(rng), _pass_function(pred), _pass_function(proj)));
 	}
 };
 
@@ -1471,9 +1471,9 @@ public:
 							_unwrap_iterator<Sentinel2>(_STD move(first2)),
 							_unwrap_sentinel<Iterator2, Sentinel2>(_STD move(last2)),
 							_STD move(result),
-							_check_function(pred),
-							_check_function(proj1),
-							_check_function(proj2));
+							_pass_function(pred),
+							_pass_function(proj1),
+							_pass_function(proj2));
 
 		_seek_wrapped(first1, _STD move(end_for_range1));
 		_seek_wrapped(first2, _STD move(end_for_range2));
@@ -1511,9 +1511,9 @@ public:
 							_unwrap_range_iterator<Range2>(_STD move(first2)),
 							__uend(rng2),
 							_STD move(result),
-							_check_function(pred),
-							_check_function(proj1),
-							_check_function(proj2));
+							_pass_function(pred),
+							_pass_function(proj1),
+							_pass_function(proj2));
 
 		_seek_wrapped(first1, _STD move(end_for_range1));
 		_seek_wrapped(first2, _STD move(end_for_range2));
@@ -1593,8 +1593,8 @@ public:
 		auto [end_for_range1, end_for_range2] = __default_transform(_unwrap_iterator<Sentinel>(_STD move(first)),
 																	_unwrap_sentinel<Iterator>(_STD move(last)),
 																	_STD move(result),
-																	_check_function(pred),
-																	_check_function(proj));
+																	_pass_function(pred),
+																	_pass_function(proj));
 
 		_seek_wrapped(first, _STD move(end_for_range1));
 
@@ -1617,8 +1617,8 @@ public:
 		auto [end_for_range1, end_for_range2] = __default_transform(_unwrap_range_iterator<Range>(_STD move(first)),
 																	__uend(rng),
 																	_STD move(result),
-																	_check_function(pred),
-																	_check_function(proj));
+																	_pass_function(pred),
+																	_pass_function(proj));
 
 		_seek_wrapped(first, _STD move(end_for_range1));
 
@@ -1653,9 +1653,9 @@ public:
 								_unwrap_iterator<Sentinel2>(_STD move(first2)),
 								_unwrap_sentinel<Iterator2>(_STD move(last2)),
 								_STD move(result),
-								_check_function(pred),
-								_check_function(proj1),
-								_check_function(proj2));
+								_pass_function(pred),
+								_pass_function(proj1),
+								_pass_function(proj2));
 
 		_seek_wrapped(first1, _STD move(end_for_range1));
 		_seek_wrapped(first2, _STD move(end_for_range2));
@@ -1692,9 +1692,9 @@ public:
 								_unwrap_range_iterator<Range2>(_STD move(first2)),
 								__uend(rng2),
 								_STD move(result),
-								_check_function(pred),
-								_check_function(proj1),
-								_check_function(proj2));
+								_pass_function(pred),
+								_pass_function(proj1),
+								_pass_function(proj2));
 
 		_seek_wrapped(first1, _STD move(end_for_range1));
 		_seek_wrapped(first2, _STD move(end_for_range2));
@@ -1762,8 +1762,8 @@ public:
 			__default_partial_sort(_unwrap_iterator<Sentinel>(_STD move(first)),
 								   _unwrap_iterator<Sentinel>(_STD move(middle)),
 								   _unwrap_sentinel<Iterator>(last),
-								   _check_function(pred),
-								   _check_function(proj));
+								   _pass_function(pred),
+								   _pass_function(proj));
 
 			return last;
 		}
@@ -1777,8 +1777,8 @@ public:
 			__default_partial_sort(_unwrap_iterator<Sentinel>(_STD move(first)),
 								   _STD move(umiddle),
 								   _STD move(ulast),
-								   _check_function(pred),
-								   _check_function(proj));
+								   _pass_function(pred),
+								   _pass_function(proj));
 
 			return middle;
 		}
@@ -1797,8 +1797,8 @@ public:
 			__default_partial_sort(__ubegin(rng),
 								   _unwrap_range_iterator<Range>(_STD move(middle)),
 								   __uend(rng),
-								   _check_function(pred),
-								   _check_function(proj));
+								   _pass_function(pred),
+								   _pass_function(proj));
 
 			return _RANGES end(rng);
 		}
@@ -1812,8 +1812,8 @@ public:
 			__default_partial_sort(__ubegin(rng),
 								   _STD move(umiddle),
 								   _STD move(ulast),
-								   _check_function(pred),
-								   _check_function(proj));
+								   _pass_function(pred),
+								   _pass_function(proj));
 
 			return middle;
 		}
@@ -1896,7 +1896,7 @@ public:
 		auto ulast	= _get_last_iterator_unwrapped<Iterator>(ufirst, _STD move(last));
 
 		ufirst =
-			__default_insertion_sort(_STD move(ufirst), _STD move(ulast), _check_function(pred), _check_function(proj));
+			__default_insertion_sort(_STD move(ufirst), _STD move(ulast), _pass_function(pred), _pass_function(proj));
 
 		_seek_wrapped(first, ufirst);
 
@@ -2028,15 +2028,15 @@ public:
 		Iterator pfirst = mid;
 		Iterator plast	= _RANGES next(pfirst);
 
-		while ((first < pfirst)
-			   && (!(_STD invoke(pred, _STD invoke(proj, *(_RANGES prev(pfirst))), _STD invoke(proj, *pfirst))))
-			   && (!(_STD invoke(pred, _STD invoke(proj, *pfirst), _STD invoke(proj, *(_RANGES prev(pfirst)))))))
+		while ((first < pfirst) &&
+			   (!(_STD invoke(pred, _STD invoke(proj, *(_RANGES prev(pfirst))), _STD invoke(proj, *pfirst)))) &&
+			   (!(_STD invoke(pred, _STD invoke(proj, *pfirst), _STD invoke(proj, *(_RANGES prev(pfirst)))))))
 		{
 			--pfirst;
 		}
 
-		while ((plast < last) && (!(_STD invoke(pred, _STD invoke(proj, *plast), _STD invoke(proj, *pfirst))))
-			   && (!(_STD invoke(pred, _STD invoke(proj, *pfirst), _STD invoke(proj, *plast)))))
+		while ((plast < last) && (!(_STD invoke(pred, _STD invoke(proj, *plast), _STD invoke(proj, *pfirst)))) &&
+			   (!(_STD invoke(pred, _STD invoke(proj, *pfirst), _STD invoke(proj, *plast)))))
 		{
 			++plast;
 		}
@@ -2183,8 +2183,8 @@ public:
 		__default_quick_sort(_STD move(ufirst),
 							 _STD move(ulast),
 							 _STD move(length),
-							 _check_function(pred),
-							 _check_function(proj));
+							 _pass_function(pred),
+							 _pass_function(proj));
 
 		return first;
 	}
@@ -2267,8 +2267,8 @@ public:
 		__default_merge_sort(_STD move(ufirst),
 							 _STD move(ulast),
 							 _STD move(length),
-							 _check_function(pred),
-							 _check_function(proj));
+							 _pass_function(pred),
+							 _pass_function(proj));
 
 		return first;
 	}
@@ -2306,8 +2306,8 @@ private:
 	{
 		while (true)
 		{
-			if ((last - first)
-				< (_stl_threshold<_STD iter_difference_t<Iterator>>))  // 使用插入排序，如果元素数量足够少
+			if ((last - first) <
+				(_stl_threshold<_STD iter_difference_t<Iterator>>))	 // 使用插入排序，如果元素数量足够少
 			{
 				insertion_sort(no_inspection_required, _STD move(first), _STD move(last), pred, proj);
 
@@ -2365,8 +2365,8 @@ public:
 		__default_sort(_STD move(ufirst),
 					   _STD move(ulast),
 					   _STD move(length),
-					   _check_function(pred),
-					   _check_function(proj));
+					   _pass_function(pred),
+					   _pass_function(proj));
 
 		return first;
 	}
@@ -2441,8 +2441,8 @@ public:
 		__default_nth_element(_STD move(_unwrap_iterator<Sentinel>(_STD move(first))),
 							  _STD move(unth),
 							  _STD move(ulast),
-							  _check_function(pred),
-							  _check_function(proj));
+							  _pass_function(pred),
+							  _pass_function(proj));
 
 		return nth;
 	}
@@ -2476,8 +2476,8 @@ public:
 		__default_nth_element(__ubegin(_STD forward<Range>(rng)),
 							  _STD move(unth),
 							  _STD move(ulast),
-							  _check_function(pred),
-							  _check_function(proj));
+							  _pass_function(pred),
+							  _pass_function(proj));
 
 		return nth;
 	}
@@ -2573,8 +2573,8 @@ public:
 		ufirst = __default_lower_bound(_STD move(ufirst),
 									   _STD move(length),
 									   _STD move(value),
-									   _check_function(pred),
-									   _check_function(proj));
+									   _pass_function(pred),
+									   _pass_function(proj));
 
 		_seek_wrapped(first, _STD move(ufirst));
 
@@ -2595,8 +2595,8 @@ public:
 		auto result = __default_lower_bound(__ubegin(rng),
 											_STD move(_RANGES distance(rng)),
 											_STD move(value),
-											_check_function(pred),
-											_check_function(proj));
+											_pass_function(pred),
+											_pass_function(proj));
 
 		return _rewrap_iterator(rng, _STD move(result));
 	}
@@ -2682,8 +2682,8 @@ public:
 		ufirst = __default_upper_bound(_STD move(ufirst),
 									   _STD move(length),
 									   _STD move(value),
-									   _check_function(pred),
-									   _check_function(proj));
+									   _pass_function(pred),
+									   _pass_function(proj));
 
 		_seek_wrapped(first, _STD move(ufirst));
 
@@ -2703,8 +2703,8 @@ public:
 		auto result = __default_upper_bound(__ubegin(rng),
 											_STD move(_RANGES distance(rng)),
 											_STD move(value),
-											_check_function(pred),
-											_check_function(proj));
+											_pass_function(pred),
+											_pass_function(proj));
 
 		return _rewrap_iterator(rng, _STD move(result));
 	}
@@ -2805,8 +2805,8 @@ public:
 		auto result = __default_equal_range(_STD move(ufirst),
 											_STD move(length),
 											_STD move(value),
-											_check_function(pred),
-											_check_function(proj));
+											_pass_function(pred),
+											_pass_function(proj));
 
 		return _rewrap_subrange<_RANGES subrange<Iterator>>(first, _STD move(result));
 	}
@@ -2827,8 +2827,8 @@ public:
 		auto result = __default_equal_range(_STD move(__ubegin(rng)),
 											_STD move(length),
 											_STD move(value),
-											_check_function(pred),
-											_check_function(proj));
+											_pass_function(pred),
+											_pass_function(proj));
 
 		return _rewrap_subrange<_RANGES borrowed_subrange_t<Range>>(first, _STD move(result));
 	}
@@ -2865,8 +2865,8 @@ public:
 							 _STD move(ufirst),
 							 _STD move(length),
 							 _STD move(value),
-							 _check_function(pred),
-							 _check_function(proj));
+							 _pass_function(pred),
+							 _pass_function(proj));
 
 		return (ufirst != ulast) && (!(_STD invoke(pred, value, _STD invoke(proj, *ufirst))));
 	}
@@ -2887,8 +2887,8 @@ public:
 							 _STD move(ufirst),
 							 _STD move(length),
 							 _STD move(value),
-							 _check_function(pred),
-							 _check_function(proj));
+							 _pass_function(pred),
+							 _pass_function(proj));
 
 		return (ufirst != __uend(rng)) && (!(_STD invoke(pred, value, _STD invoke(proj, *ufirst))));
 	}

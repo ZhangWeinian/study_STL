@@ -369,6 +369,8 @@ constexpr inline _unchecked_begin::UncheckBegin __ubegin;
 
 namespace _unchecked_end
 {
+	// _has_member 是一个概念，用于确定一个类型是否具有一个成员函数 _unchecked_end() 。
+	// 如果存在这样的成员函数，它不会抛出异常，并且可以被ADL（参数依赖名称查找）发现。
 	template <class Type>
 	concept _has_member =
 		(_unchecked_begin::_has_member<Type>) && (requires(Type& t) {
@@ -378,6 +380,8 @@ namespace _unchecked_end
 													  } -> _STD sentinel_for<decltype(t._unchecked_begin())>;
 												  });
 
+	// _can_end 是一个概念，用于确定是否可以使用 _RANGES end()表达式来获取一个类型的结束 sentinel 。
+	// 这通常用于那些不直接提供 _unchecked_end() 成员函数，但可以通过 ranges 库的 end() 函数来获取结束 sentinel 的类型。
 	template <class Type>
 	concept _can_end = requires(Type& t) { _unwrap_range_sentinel<Type>(_RANGES end(t)); };
 
@@ -395,17 +399,19 @@ namespace _unchecked_end
 		template <class Type>
 		_NODISCARD static consteval choice_t<Start> choose() noexcept
 		{
+			using enum Start;
+
 			if constexpr (_has_member<Type>)
 			{
-				return { Start::Member, noexcept(_STD declval<Type>()._unchecked_end()) };
+				return { Member, noexcept(_STD declval<Type>()._unchecked_end()) };
 			}
 			else if constexpr (_can_end<Type>)
 			{
-				return { Start::Unwrap, noexcept(_unwrap_range_sentinel<Type>(_RANGES end(_STD declval<Type>()))) };
+				return { Unwrap, noexcept(_unwrap_range_sentinel<Type>(_RANGES end(_STD declval<Type>()))) };
 			}
 			else
 			{
-				return { Start::None };
+				return { None };
 			}
 		}
 
@@ -443,16 +449,16 @@ constexpr inline _unchecked_end::UncheckEnd __uend;
 
 
 template <typename Predicate>
-struct _add_ref_for_function
+struct
+	_add_ref_for_function  // 将谓词（Predicate）对象包装为一个引用传递的形式。这个结构体特别适用于那些不能按值传递的谓词对象，比如非平凡复制构造函数的类类型或者需要按引用传递的大型对象。
 {
-	// 按值传递函数对象作为引用
-	Predicate& pred;
+	Predicate&
+		pred;  // 非const左值引用，指向一个 Predicate 类型的对象。这意味着 _add_ref_for_function 对象将持有对原始谓词对象的一个引用。
 
 	template <class... Args>
 	constexpr auto operator()(Args&&... args)
 	{
-		// forward function call operator
-		if constexpr (_STD is_member_pointer_v<Predicate>)
+		if constexpr (_STD is_member_pointer_v<Predicate>)	// 检查 Predicate 是否是一个成员指针类型
 		{
 			return _STD invoke(pred, _STD forward<Args>(args)...);
 		}
@@ -464,11 +470,14 @@ struct _add_ref_for_function
 };
 
 template <typename Predicate>
-_NODISCARD constexpr auto _check_function(Predicate& pred) noexcept
+_NODISCARD constexpr auto _pass_function(Predicate& pred) noexcept
 {
-	constexpr bool _pass_by_value = _STD conjunction_v<_STD bool_constant<sizeof(Predicate) <= sizeof(void*)>,
-													   _STD is_trivially_copy_constructible<Predicate>,
-													   _STD is_trivially_destructible<Predicate>>;
+	constexpr bool _pass_by_value = _STD conjunction_v<	 // 将多个布尔常量表达式的结果逻辑与（AND）起来
+		_STD bool_constant<sizeof(Predicate) <= sizeof(void*)>,	 // 检查 Predicate 的大小是否小于或等于指针的大小
+		_STD is_trivially_copy_constructible<Predicate>,  // 检查 Predicate是否具有平凡的复制构造函数
+		_STD is_trivially_destructible<Predicate>		  // 检查 Predicate 是否具有平凡的析构函数
+		>;	// 如果谓词类型满足以上所有条件，_pass_by_value 为 true，表示可以按值传递。
+
 	if constexpr (_pass_by_value)
 	{
 		return pred;
@@ -479,14 +488,21 @@ _NODISCARD constexpr auto _check_function(Predicate& pred) noexcept
 	}
 }
 
-class __Not_quite_object
+class
+	__Not_quite_object	// 展示了一种在C++中创建非完全对象（not quite an object）的模式。此类对象的设计目的是作为一个基类或辅助类，用于那些不希望被视为常规对象的函数对象。
 {
 public:
 
 	/*
+	* 它用于库中的一些重载集，这些重载集不希望参数通过ADL（参数依赖名称查找）被找到，因此它们禁止ADL。
+	* 这种设计允许将这些重载集实现为函数对象，而不是常规对象。
+	*
 	* 库中的一些重载集具有这样的特性，即它们的组成函数模板对参数相关名称查找（ADL）不可见，
 	* 并且当通过非限定名称查找找到 ADL 时，它们会禁止 ADL 。此属性允许将这些重载集实现为函数对象。
-	* 我们从这种类型派生出这样的函数对象，以删除一些典型的对象行为，这有助于用户避免依赖于他们未指定的对象性。
+	* 我们从这种类型派生出这样的函数对象，以删除一些典型的对象行为（如默认构造、拷贝和赋值），这有助于用户避免依赖于他们未指定的对象性。
+	*
+	* 这种模式在库设计中很有用，特别是当你想提供一个轻量级的函数对象，它不应该被当作常规对象处理时。
+	* 例如，它可能用于实现标准库中的某些算法或操作，其中对象的行为需要被精确控制，以避免意外的语义或性能开销。
 	*/
 
 	struct __Construct_tag
