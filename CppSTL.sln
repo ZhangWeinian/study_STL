@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "STL学习记录", "STL学习记录.vcxproj", "{F660D4CD-1B20-4EE2-AD5F-25FA7D0F0451}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CppSTL", "CppSTL.vcxproj", "{F660D4CD-1B20-4EE2-AD5F-25FA7D0F0451}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

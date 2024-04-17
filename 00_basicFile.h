@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string_view>
+#include <type_traits>
+
 #include <algorithm>
 #include <climits>
 #include <functional>
@@ -8,8 +11,6 @@
 #include <memory>
 #include <new>
 #include <string>
-#include <string_view>
-#include <type_traits>
 #include <utility>
 #include <vector>
 #include <version>
@@ -22,17 +23,17 @@
 
 		#ifndef _HAS_CXX20
 			#define _HAS_CXX20 __cplusplus
-		#endif	// !_HAS_CXX20
+		#endif // !_HAS_CXX20
 
 	#elif !(_MSVC_LANG < 202'002L)
 
 		#ifndef _HAS_CXX20
 			#define _HAS_CXX20 _MSVC_LANG
-		#endif	// !_HAS_CXX20
+		#endif // !_HAS_CXX20
 
 	#endif
 
-#endif	// !_HAS_CXX20
+#endif // !_HAS_CXX20
 
 
 
@@ -47,74 +48,74 @@
 
 	#ifndef _STD
 		#define _STD ::std::
-	#endif	// !_STD
+	#endif // !_STD
 
 	#ifndef _CSTD
 		#define _CSTD ::
-	#endif	// !_CSTD
+	#endif // !_CSTD
 
 	#ifndef _RANGES
 		#define _RANGES ::std::ranges::
-	#endif	// !_RANGES
+	#endif // !_RANGES
 
 	#ifndef _RG
 		#define _RG ::std::ranges::
-	#endif	// !_RG
+	#endif // !_RG
 
 
 	#ifndef _NODISCARD
 		#define _NODISCARD [[nodiscard]]
-	#endif	// !_NODISCARD
+	#endif // !_NODISCARD
 
 	#ifndef _NORETURN
 		#define _NORETURN [[noreturn]]
-	#endif	// !_NORETURN
+	#endif // !_NORETURN
 
 
 	#ifndef __STL_TEMPLATE_NULL
 		#define __STL_TEMPLATE_MULL template <>
-	#endif	// !__STL_TEMPLATE_NULL
+	#endif // !__STL_TEMPLATE_NULL
 
 	#ifndef _BEGIN_NAMESPACE_ZHANG
 		#define _BEGIN_NAMESPACE_ZHANG \
 			namespace zhang            \
 			{
-	#endif	// !_BEGIN_NAMESPACE_ZHANG
+	#endif // !_BEGIN_NAMESPACE_ZHANG
 
 	#ifndef _END_NAMESPACE_ZHANG
 		#define _END_NAMESPACE_ZHANG }
-	#endif	// !_END_NAMESPACE_ZHANG
+	#endif // !_END_NAMESPACE_ZHANG
 
 	#ifndef _BEGIN_NEW_NAMESPACE
 		#define _BEGIN_NEW_NAMESPACE(name) \
 			namespace name                 \
 			{
-	#endif	// !_BEGIN_NEW_NAMESPACE
+	#endif // !_BEGIN_NEW_NAMESPACE
 
 	#ifndef _END_NEW_NAMESPACE
 		#define _END_NEW_NAMESPACE(name) }
-	#endif	// !_END_NEW_NAMESPACE
+	#endif // !_END_NEW_NAMESPACE
 
 	#ifndef _BEGIN_INLINE_NAMESPACE
 		#define _BEGIN_INLINE_NAMESPACE(name) \
 			inline namespace name             \
 			{
-	#endif	// !_BEGIN_INLINE_NAMESPACE
+	#endif // !_BEGIN_INLINE_NAMESPACE
 
 	#ifndef _END_INLINE_NAMESPACE
 		#define _END_INLINE_NAMESPACE(name) }
-	#endif	// !_END_INLINE_NAMESPACE
+	#endif // !_END_INLINE_NAMESPACE
 
 /*------------------------------------------------------------------------------------------------*/
 
 
 
-_BEGIN_NAMESPACE_ZHANG	// 此处开始，所有的代码都在命名空间 zhang 中
+_BEGIN_NAMESPACE_ZHANG // 此处开始，所有的代码都在命名空间 zhang 中
 
 	#ifndef _stl_threshold
 	template <typename Type>
 	constexpr Type _stl_threshold = Type(16);
-	#endif	// !_stl_threshold
+	#endif // !_stl_threshold
 
 
 	#ifndef _max_msg_args_constant
@@ -127,13 +128,13 @@ constexpr inline Type _max_msg_args_constant = Type(128);
 template <typename Type>
 constexpr inline Type _limit_msg_args_constant = (_max_msg_args_constant<Type>) >> 1;
 
-		#endif	// !_limit_msg_args_constant
-	#endif		// !_max_msg_args_constant
+		#endif // !_limit_msg_args_constant
+	#endif	   // !_max_msg_args_constant
 
 	#ifndef _max_get_median_of_three_constant
 template <typename Type>
 constexpr inline Type _max_get_median_of_three_constant = Type(40);
-	#endif	// !_max_get_median_of_three_constant
+	#endif // !_max_get_median_of_three_constant
 
 template <typename>
 constexpr inline bool _always_false = false;
@@ -196,15 +197,15 @@ template <typename Iterator, typename Sentinel>
 _NODISCARD constexpr decltype(auto) _unwrap_sentinel(Sentinel&& sent)
 	noexcept((!_unwrappable_sentinel_for<Sentinel, Iterator>) || (_nothrow_unwrapped<Sentinel>))
 {
-	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Sentinel>>)	 // 如果是指针，直接返回
+	if constexpr (_STD is_pointer_v<_STD remove_cvref_t<Sentinel>>) // 如果是指针，直接返回
 	{
 		return sent + 0;
 	}
-	else if constexpr (_unwrappable_sentinel_for<Sentinel, Iterator>)  // 如果是弱展开哨兵，返回 _Unwrapped()
+	else if constexpr (_unwrappable_sentinel_for<Sentinel, Iterator>) // 如果是弱展开哨兵，返回 _Unwrapped()
 	{
 		return static_cast<Sentinel&&>(sent)._Unwrapped();
 	}
-	else  // 否则，返回 Sentinel&&
+	else // 否则，返回 Sentinel&&
 	{
 		return static_cast<Sentinel&&>(sent);
 	}
@@ -308,7 +309,6 @@ namespace _unchecked_begin
 	class UncheckBegin
 	{
 	private:
-
 		enum class Start
 		{
 			None,
@@ -342,7 +342,6 @@ namespace _unchecked_begin
 		static constexpr choice_t<Start> choice = choose<Type>();
 
 	public:
-
 		template <_RANGES _Should_range_access Type>
 			requires(choice<Type&>.strategy != Start::None)
 		_NODISCARD constexpr auto operator()(Type&& value) const noexcept(choice<Type&>.no_throw)
@@ -363,7 +362,7 @@ namespace _unchecked_begin
 			}
 		}
 	};
-}  // namespace _unchecked_begin
+} // namespace _unchecked_begin
 
 constexpr inline _unchecked_begin::UncheckBegin __ubegin;
 
@@ -388,7 +387,6 @@ namespace _unchecked_end
 	class UncheckEnd
 	{
 	private:
-
 		enum class Start
 		{
 			None,
@@ -419,7 +417,6 @@ namespace _unchecked_end
 		static constexpr choice_t<Start> choice = choose<Type>();
 
 	public:
-
 		template <_RANGES _Should_range_access Type>
 			requires(choice<Type&>.strategy != Start::None)
 		_NODISCARD constexpr auto operator()(Type&& value) const noexcept(choice<Type&>.no_throw)
@@ -440,7 +437,7 @@ namespace _unchecked_end
 			}
 		}
 	};
-}  // namespace _unchecked_end
+} // namespace _unchecked_end
 
 constexpr inline _unchecked_end::UncheckEnd __uend;
 
@@ -450,15 +447,15 @@ constexpr inline _unchecked_end::UncheckEnd __uend;
 
 template <typename Predicate>
 struct
-	_add_ref_for_function  // 将谓词（Predicate）对象包装为一个引用传递的形式。这个结构体特别适用于那些不能按值传递的谓词对象，比如非平凡复制构造函数的类类型或者需要按引用传递的大型对象。
+	_add_ref_for_function // 将谓词（Predicate）对象包装为一个引用传递的形式。这个结构体特别适用于那些不能按值传递的谓词对象，比如非平凡复制构造函数的类类型或者需要按引用传递的大型对象。
 {
 	Predicate&
-		pred;  // 非const左值引用，指向一个 Predicate 类型的对象。这意味着 _add_ref_for_function 对象将持有对原始谓词对象的一个引用。
+		pred; // 非const左值引用，指向一个 Predicate 类型的对象。这意味着 _add_ref_for_function 对象将持有对原始谓词对象的一个引用。
 
 	template <class... Args>
 	constexpr auto operator()(Args&&... args)
 	{
-		if constexpr (_STD is_member_pointer_v<Predicate>)	// 检查 Predicate 是否是一个成员指针类型
+		if constexpr (_STD is_member_pointer_v<Predicate>) // 检查 Predicate 是否是一个成员指针类型
 		{
 			return _STD invoke(pred, _STD forward<Args>(args)...);
 		}
@@ -472,11 +469,11 @@ struct
 template <typename Predicate>
 _NODISCARD constexpr auto _pass_function(Predicate& pred) noexcept
 {
-	constexpr bool _pass_by_value = _STD conjunction_v<	 // 将多个布尔常量表达式的结果逻辑与（AND）起来
-		_STD bool_constant<sizeof(Predicate) <= sizeof(void*)>,	 // 检查 Predicate 的大小是否小于或等于指针的大小
-		_STD is_trivially_copy_constructible<Predicate>,  // 检查 Predicate是否具有平凡的复制构造函数
-		_STD is_trivially_destructible<Predicate>		  // 检查 Predicate 是否具有平凡的析构函数
-		>;	// 如果谓词类型满足以上所有条件，_pass_by_value 为 true，表示可以按值传递。
+	constexpr bool _pass_by_value = _STD conjunction_v< // 将多个布尔常量表达式的结果逻辑与（AND）起来
+		_STD bool_constant<sizeof(Predicate) <= sizeof(void*)>, // 检查 Predicate 的大小是否小于或等于指针的大小
+		_STD is_trivially_copy_constructible<Predicate>, // 检查 Predicate是否具有平凡的复制构造函数
+		_STD is_trivially_destructible<Predicate>		 // 检查 Predicate 是否具有平凡的析构函数
+		>; // 如果谓词类型满足以上所有条件，_pass_by_value 为 true，表示可以按值传递。
 
 	if constexpr (_pass_by_value)
 	{
@@ -484,15 +481,13 @@ _NODISCARD constexpr auto _pass_function(Predicate& pred) noexcept
 	}
 	else
 	{
-		return _add_ref_for_function<Predicate> { pred };  // 通过“引用”传递函子
+		return _add_ref_for_function<Predicate> { pred }; // 通过“引用”传递函子
 	}
 }
 
-class
-	__Not_quite_object	// 展示了一种在C++中创建非完全对象（not quite an object）的模式。此类对象的设计目的是作为一个基类或辅助类，用于那些不希望被视为常规对象的函数对象。
+class __Not_quite_object
 {
 public:
-
 	/*
 	* 它用于库中的一些重载集，这些重载集不希望参数通过ADL（参数依赖名称查找）被找到，因此它们禁止ADL。
 	* 这种设计允许将这些重载集实现为函数对象，而不是常规对象。
@@ -510,20 +505,18 @@ public:
 		explicit __Construct_tag() = default;
 	};
 
-	__Not_quite_object() = delete;
-
 	constexpr explicit __Not_quite_object(__Construct_tag) noexcept {}
 
+	__Not_quite_object()									 = delete;
 	__Not_quite_object(const __Not_quite_object&)			 = delete;
+
+	void				operator&() const					 = delete;
 	__Not_quite_object& operator=(const __Not_quite_object&) = delete;
 
-	void operator&() const = delete;
-
 protected:
-
 	~__Not_quite_object() = default;
 };
 
 _END_NAMESPACE_ZHANG
 
-#endif	// _HAS_CXX20
+#endif // _HAS_CXX20

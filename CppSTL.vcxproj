@@ -22,7 +22,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{f660d4cd-1b20-4ee2-ad5f-25fa7d0f0451}</ProjectGuid>
-    <RootNamespace>STL学习记录</RootNamespace>
+    <RootNamespace>CppSTL</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -149,6 +149,7 @@
     <ClInclude Include="05_associative_containers.h" />
     <ClInclude Include="06_algorithms.h" />
     <ClInclude Include="07_functor.h" />
+    <ClInclude Include="test.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mySTL.h" />
@@ -160,6 +161,7 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="data.txt" />
     <Text Include="LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

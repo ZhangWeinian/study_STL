@@ -111,7 +111,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function accumulate() for 仿函数 标准版 */
@@ -158,9 +157,9 @@ private:
 	_NODISCARD static constexpr _STD iter_difference_t<Iterator>
 		__default_count(Iterator first, Iterator last, const Type& value, Predicate pred, Projection proj) noexcept
 	{
-		using diff_t = _STD iter_difference_t<Iterator>;
+		using diff_t		  = _STD iter_difference_t<Iterator>;
 
-		diff_t n = 0;
+		diff_t				n = 0;
 		for (; first != last; ++first)
 		{
 			if (_STD invoke(pred, _STD invoke(proj, *first), value))
@@ -173,7 +172,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function count() for 仿函数 标准版 */
@@ -232,7 +230,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function itoa() 标准版 */
@@ -278,7 +275,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function find() for 仿函数 标准版 */
@@ -309,9 +305,9 @@ public:
 	constexpr _RANGES borrowed_iterator_t<Range>
 		operator()(Range&& rng, const Type& value, Projection proj = {}) const noexcept
 	{
-		auto first = _RANGES begin(rng);
+		auto first					= _RANGES begin(rng);
 
-		auto result = __default_find(_unwrap_range_iterator<Range>(_STD move(first)),
+		auto				 result = __default_find(_unwrap_range_iterator<Range>(_STD move(first)),
 									 __uend(rng),
 									 _STD move(value),
 									 _pass_function(proj));
@@ -343,7 +339,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function find_if() for 仿函数 标准版 */
@@ -381,9 +376,9 @@ public:
 	constexpr _RANGES borrowed_iterator_t<Range>
 		operator()(Range&& rng, const Type& value, Predicate pred, Projection proj = {}) const noexcept
 	{
-		auto first = _RANGES begin(rng);
+		auto first					= _RANGES begin(rng);
 
-		auto result = __default_find_if(_unwrap_range_iterator<Range>(_STD move(first)),
+		auto				 result = __default_find_if(_unwrap_range_iterator<Range>(_STD move(first)),
 										__uend(rng),
 										_STD move(value),
 										_pass_function(pred),
@@ -419,7 +414,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function find_if_not() for 仿函数 标准版 */
@@ -454,9 +448,9 @@ public:
 	constexpr _RANGES borrowed_iterator_t<Range>
 		operator()(Range&& rng, const Type& value, Predicate pred, Projection proj = {}) const noexcept
 	{
-		auto first = _RANGES begin(rng);
+		auto first					= _RANGES begin(rng);
 
-		auto result = __default_find_if_not(_unwrap_range_iterator<Range>(_STD move(first)),
+		auto				 result = __default_find_if_not(_unwrap_range_iterator<Range>(_STD move(first)),
 											__uend(rng),
 											_STD move(value),
 											_pass_function(pred),
@@ -491,7 +485,7 @@ private:
 			{
 				if (_STD invoke(pred,
 								_STD invoke(proj1, *first1),
-								_STD invoke(proj2, *i)))  // 如果序列 1 的元素与序列 2 中元素相等
+								_STD invoke(proj2, *i))) // 如果序列 1 的元素与序列 2 中元素相等
 				{
 					return first1;
 				}
@@ -502,7 +496,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function find_first_of() for 仿函数 标准版 */
@@ -528,13 +521,13 @@ public:
 		auto ulast1	 = _get_last_iterator_unwrapped<Iterator1>(ufirst1, _STD move(last1));
 		auto ulast2	 = _get_last_iterator_unwrapped<Iterator2>(ufirst2, _STD move(last2));
 
-		auto result = __default_find_first_of(_STD move(ufirst1),
-											  _STD move(ulast1),
-											  _STD move(ufirst2),
-											  _STD move(ulast2),
-											  _pass_function(pred),
-											  _pass_function(proj1),
-											  _pass_function(proj2));
+		auto result	 = __default_find_first_of(_STD move(ufirst1),
+											   _STD move(ulast1),
+											   _STD move(ufirst2),
+											   _STD move(ulast2),
+											   _pass_function(pred),
+											   _pass_function(proj1),
+											   _pass_function(proj2));
 
 		_seek_wrapped(first1, _STD move(result));
 
@@ -559,15 +552,15 @@ public:
 															 Projection1 proj1 = {},
 															 Projection2 proj2 = {}) const noexcept
 	{
-		auto first1 = _RANGES begin(rng1);
+		auto first1					 = _RANGES begin(rng1);
 
-		auto result = __default_find_first_of(_unwrap_range_iterator<Range1>(_STD move(first1)),
-											  __uend(rng1),
-											  __ubegin(rng2),
-											  __uend(rng2),
-											  _pass_function(pred),
-											  _pass_function(proj1),
-											  _pass_function(proj2));
+		auto				  result = __default_find_first_of(_unwrap_range_iterator<Range1>(_STD move(first1)),
+											   __uend(rng1),
+											   __ubegin(rng2),
+											   __uend(rng2),
+											   _pass_function(pred),
+											   _pass_function(proj1),
+											   _pass_function(proj2));
 
 		_seek_wrapped(first1, _STD move(result));
 
@@ -581,7 +574,6 @@ constexpr inline __Find_first_of_function find_first_of { __Not_quite_object::__
 struct __Swap_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	template <typename Type>
@@ -623,7 +615,6 @@ constexpr inline __Swap_function swap { __Not_quite_object::__Construct_tag {} }
 struct __Iter_swap_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	template <typename Iterator>
@@ -651,7 +642,6 @@ constexpr inline __Iter_swap_function iter_swap { __Not_quite_object::__Construc
 struct __Swap_ranges_function: private __Not_quite_object
 {
 private:
-
 	template <typename Iterator1, typename Iterator2>
 	using swap_ranges_result = _RANGES in_in_result<Iterator1, Iterator2>;
 
@@ -669,7 +659,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function swap_ranges() 标准版 */
@@ -698,8 +687,8 @@ public:
 	constexpr swap_ranges_result<_RANGES borrowed_iterator_t<Range1>, _RANGES borrowed_iterator_t<Range2>>
 		operator()(Range1&& rng1, Range2&& rng2) const noexcept
 	{
-		auto first1 = _RANGES begin(rng1);
-		auto first2 = _RANGES begin(rng2);
+		auto first1							  = _RANGES begin(rng1);
+		auto first2							  = _RANGES begin(rng2);
 
 		auto [end_for_range1, end_for_range2] = __default_swap_ranges(_unwrap_range_iterator<Range1>(_STD move(first1)),
 																	  __uend(rng1),
@@ -719,7 +708,6 @@ constexpr inline __Swap_ranges_function swap_ranges { __Not_quite_object::__Cons
 struct __For_each_function: private __Not_quite_object
 {
 private:
-
 	template <typename Iterator, typename Predicate>
 	using for_each_result = _RANGES in_fun_result<Iterator, Predicate>;
 
@@ -737,7 +725,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function for_each() 标准版 */
@@ -772,7 +759,7 @@ public:
 	inline for_each_result<_RANGES borrowed_iterator_t<Range>, Predicate>
 		operator()(Range&& rng, Predicate pred, Projection proj = {}) const noexcept
 	{
-		auto first = _RANGES begin(rng);
+		auto first					= _RANGES begin(rng);
 
 		auto [end_for_range, upred] = __default_for_each(_unwrap_range_iterator<Range>(_STD move(first)),
 														 __uend(rng),
@@ -791,7 +778,6 @@ constexpr inline __For_each_function for_each { __Not_quite_object::__Construct_
 struct __For_each_n_function: private __Not_quite_object
 {
 private:
-
 	template <typename Iterator, typename Predicate>
 	using for_each_n_result = _RANGES in_fun_result<Iterator, Predicate>;
 
@@ -811,7 +797,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Construct_tag;
 
 	/* function for_each_n() 标准版 */
@@ -845,7 +830,7 @@ public:
 				   Predicate												  pred,
 				   Projection												  proj = {}) const noexcept
 	{
-		auto first = _RANGES begin(rng);
+		auto first					= _RANGES begin(rng);
 
 		auto [end_for_range, upred] = __default_for_each_n(_unwrap_range_iterator<Range>(_STD move(first)),
 														   _STD move(n),
@@ -873,12 +858,12 @@ private:
 													 Projection1 proj1,
 													 Projection2 proj2) noexcept
 	{
-		if ((last1 - first1) != (last2 - first2))  // 如果序列 1 的元素数量与序列 2 的元素数量不相等, 返回 false
+		if ((last1 - first1) != (last2 - first2)) // 如果序列 1 的元素数量与序列 2 的元素数量不相等, 返回 false
 		{
 			return false;
 		}
 
-		for (; first1 != last1; ++first1, ++first2)	 // 如果序列 1 的元素数量多于序列 2 的元素数量，顺次比较
+		for (; first1 != last1; ++first1, ++first2) // 如果序列 1 的元素数量多于序列 2 的元素数量，顺次比较
 		{
 			if (!(_STD invoke(pred, _STD invoke(proj1, *first1), _STD invoke(proj2, *first2))))
 			{
@@ -890,7 +875,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function equal() for 仿函数 标准版 */
@@ -981,7 +965,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function fill() 标准版 */
@@ -1027,7 +1010,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function fill_n() 标准版 */
@@ -1051,7 +1033,6 @@ constexpr inline __Fill_n_function fill_n { __Not_quite_object::__Construct_tag 
 struct __Max_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function max() for 仿函数 标准版 */
@@ -1092,9 +1073,9 @@ public:
 		auto check_pred = _pass_function(pred);
 		auto check_proj = _pass_function(proj);
 
-		auto first = __ubegin(rng);
-		auto last  = __uend(rng);
-		auto ans   = first;
+		auto first		= __ubegin(rng);
+		auto last		= __uend(rng);
+		auto ans		= first;
 
 		for (; first != last; ++first)
 		{
@@ -1122,9 +1103,9 @@ public:
 		auto check_pred = _pass_function(pred);
 		auto check_proj = _pass_function(proj);
 
-		auto first = rng.begin();
-		auto last  = rng.end();
-		auto ans   = first;
+		auto first		= rng.begin();
+		auto last		= rng.end();
+		auto ans		= first;
 
 		for (; first != last; ++first)
 		{
@@ -1142,7 +1123,6 @@ constexpr inline __Max_function max { __Not_quite_object::__Construct_tag {} };
 struct __Min_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function min() for 仿函数 标准版 */
@@ -1183,9 +1163,9 @@ public:
 		auto check_pred = _pass_function(pred);
 		auto check_proj = _pass_function(proj);
 
-		auto first = __ubegin(rng);
-		auto last  = __uend(rng);
-		auto ans   = first;
+		auto first		= __ubegin(rng);
+		auto last		= __uend(rng);
+		auto ans		= first;
 
 		for (; first != last; ++first)
 		{
@@ -1214,9 +1194,9 @@ public:
 		auto check_pred = _pass_function(pred);
 		auto check_proj = _pass_function(proj);
 
-		auto first = rng.begin();
-		auto last  = rng.end();
-		auto ans   = first;
+		auto first		= rng.begin();
+		auto last		= rng.end();
+		auto ans		= first;
 
 		for (; first != last; ++first)
 		{
@@ -1258,7 +1238,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function max_element() for 仿函数 标准版 */
@@ -1336,7 +1315,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function min_element() for 仿函数 标准版 */
@@ -1389,7 +1367,6 @@ constexpr inline __Min_element_function min_element { __Not_quite_object::__Cons
 struct __Merge_function: private __Not_quite_object
 {
 private:
-
 	template <typename Iterator1, typename Iterator2, typename Iterator>
 	using merge_result = _RANGES in_in_out_result<Iterator1, Iterator2, Iterator>;
 
@@ -1409,20 +1386,20 @@ private:
 																							Projection1 proj1,
 																							Projection2 proj2) noexcept
 	{
-		while ((first1 != last1) && (first2 != last2))	// 若两个序列都未完成，则继续
+		while ((first1 != last1) && (first2 != last2)) // 若两个序列都未完成，则继续
 		{
-			if (_STD invoke(pred, _STD invoke(proj2, *first2), _STD invoke(proj1, *first1)))  // 若序列 2 的元素比较小
+			if (_STD invoke(pred, _STD invoke(proj2, *first2), _STD invoke(proj1, *first1))) // 若序列 2 的元素比较小
 			{
-				*result = *first2;	// 则记录序列 2 的元素
-				++first2;			// 同时序列 2 前进 1 位
+				*result = *first2; // 则记录序列 2 的元素
+				++first2;		   // 同时序列 2 前进 1 位
 			}
-			else					// 反之同理
+			else				   // 反之同理
 			{
 				*result = *first1;
 				++first1;
 			}
 
-			++result;  // 每记录一个元素，result 前进 1 位
+			++result; // 每记录一个元素，result 前进 1 位
 		}
 
 		// 最后剩余元素拷贝到目的端。（两个序列一定有一个为空）
@@ -1433,7 +1410,7 @@ private:
 
 			return { _STD move(first1), _STD move(end_for_range1), _STD move(end_for_range2) };
 		}
-		else  // first2 == last2
+		else // first2 == last2
 		{
 			auto [end_for_range1, end_for_range2] =
 				_RANGES copy(_STD move(first1), _STD move(last1), _STD move(result));
@@ -1443,7 +1420,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function merge() for 仿函数 标准版 */
@@ -1528,7 +1504,6 @@ constexpr inline __Merge_function merge { __Not_quite_object::__Construct_tag {}
 struct __Transform_function: private __Not_quite_object
 {
 private:
-
 	template <typename Iterator, typename OutIter>
 	using unary_transform_result = _RANGES in_out_result<Iterator, OutIter>;
 
@@ -1576,7 +1551,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// function transform() for 仿函数 标准版
@@ -1612,7 +1586,7 @@ public:
 	constexpr unary_transform_result<_RANGES borrowed_iterator_t<Range>, OutIter>
 		operator()(Range&& rng, OutIter result, Predicate pred, Projection proj = {}) const noexcept
 	{
-		auto first = _RANGES begin(rng);
+		auto first							  = _RANGES begin(rng);
 
 		auto [end_for_range1, end_for_range2] = __default_transform(_unwrap_range_iterator<Range>(_STD move(first)),
 																	__uend(rng),
@@ -1724,7 +1698,7 @@ private:
 	static constexpr void
 		__default_partial_sort(Iterator first, Iterator middle, Iterator last, Predicate pred, Projection proj) noexcept
 	{
-		if (first == middle)  // 如果序列 1 为空，则直接返回
+		if (first == middle) // 如果序列 1 为空，则直接返回
 		{
 			return;
 		}
@@ -1733,7 +1707,7 @@ private:
 
 		for (Iterator next { middle }; next != last; ++next)
 		{
-			if (_STD invoke(pred, _STD invoke(proj, *next), _STD invoke(proj, *first)))	 // 如果序列 2 的元素比较小
+			if (_STD invoke(pred, _STD invoke(proj, *next), _STD invoke(proj, *first))) // 如果序列 2 的元素比较小
 			{
 				_RANGES _Pop_heap_hole_unchecked(first, middle, next, _RANGES iter_move(next), pred, proj, proj);
 			}
@@ -1745,7 +1719,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function partial_sort() for 仿函数 标准版 */
@@ -1855,7 +1828,7 @@ private:
 
 		for (Iterator i { first }; ++i != last;)
 		{
-			value_t value { _RANGES iter_move(i) };
+			value_t	 value { _RANGES iter_move(i) };
 
 			Iterator poivt { i };
 
@@ -1880,7 +1853,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// insertion_sort() for 仿函数 标准版
@@ -1962,7 +1934,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	template <_STD random_access_iterator Iterator, typename Predicate, typename Projection>
@@ -1977,8 +1948,8 @@ public:
 
 		if (const diff_t length = last - first; (_max_get_median_of_three_constant<diff_t>) < length)
 		{
-			const diff_t step1 = (length + 1) >> 3;	 // +1 不会溢出，因为在调用方中使范围包含在内
-			const diff_t step2 = step1 << 1;		 // 注意：有意丢弃低位
+			const diff_t step1 = (length + 1) >> 3; // +1 不会溢出，因为在调用方中使范围包含在内
+			const diff_t step2 = step1 << 1;		// 注意：有意丢弃低位
 
 			__default_set_median_of_three(first, _RANGES next(first, step1), _RANGES next(first, step2), pred, proj);
 
@@ -2007,10 +1978,9 @@ constexpr inline __Set_median_of_three_function set_median_of_three { __Not_quit
 struct __Partition_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
-	// 用于分割序列，选择一个枢轴，将[first，last）划分为小于枢轴的元素、等于枢轴的元素和大于枢轴的元素；将相等的分区作为子范围返回。
+	// 用于分割序列，选择一个枢轴，将 [first, last) 划分为小于枢轴的元素、等于枢轴的元素和大于枢轴的元素；将相等的分区作为子范围返回。
 	template <_STD random_access_iterator Iterator,
 			  _STD sentinel_for<Iterator> Sentinel,
 			  typename Predicate,
@@ -2161,7 +2131,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// quick_sort() for 仿函数 标准版
@@ -2239,7 +2208,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/*
@@ -2306,22 +2274,21 @@ private:
 	{
 		while (true)
 		{
-			if ((last - first) <
-				(_stl_threshold<_STD iter_difference_t<Iterator>>))	 // 使用插入排序，如果元素数量足够少
+			if ((last - first) < (_stl_threshold<_STD iter_difference_t<Iterator>>)) // 使用插入排序，如果元素数量足够少
 			{
 				insertion_sort(no_inspection_required, _STD move(first), _STD move(last), pred, proj);
 
 				return;
 			}
 
-			if (ideal == 0)	 // 使用堆排序，如果递归深度足够深
+			if (ideal == 0) // 使用堆排序，如果递归深度足够深
 			{
 				partial_sort(no_inspection_required, _STD move(first), last, _STD move(last), pred, proj);
 
 				return;
 			}
 
-			ideal = (ideal >> 1) + (ideal >> 2);  // allow 1.5 log2(N) divisions
+			ideal = (ideal >> 1) + (ideal >> 2); // allow 1.5 log2(N) divisions
 
 			// “非 ‘几乎有序’ ” 时，首先调用 快排 -- 分割
 			auto [pfirst, plast] = partition(no_inspection_required, first, last, pred, proj);
@@ -2343,7 +2310,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// sort() for 仿函数 标准版
@@ -2403,13 +2369,13 @@ private:
 		{
 			auto [pfirst, plast] = partition(no_inspection_required, first, last, pred, proj);
 
-			if (nth < pfirst)				// 如果 指定位置 < 右段起点，（即 nth 位于右段）
+			if (nth < pfirst)			   // 如果 指定位置 < 右段起点，（即 nth 位于右段）
 			{
-				first = _STD move(pfirst);	// 对右段实施分割
+				first = _STD move(pfirst); // 对右段实施分割
 			}
-			else							// 否则（nth 位于左段）
+			else						   // 否则（nth 位于左段）
 			{
-				last = _STD move(plast);	// 对左段实施分割
+				last = _STD move(plast);   // 对左段实施分割
 			}
 		}
 
@@ -2419,7 +2385,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function nth_element() for 仿函数 标准版 */
@@ -2522,13 +2487,13 @@ private:
 	{
 		using diff_t = _STD iter_difference_t<Iterator>;
 
-		diff_t half { 0 };
+		diff_t				half { 0 };
 
-		Iterator middle { first };
+		Iterator			middle { first };
 
 		while (0 < length)
 		{
-			half = static_cast<diff_t>(length >> 1);
+			half   = static_cast<diff_t>(length >> 1);
 
 			middle = _RANGES next(first, half);
 
@@ -2549,7 +2514,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function lower_bound() for 仿函数 标准版 */
@@ -2570,11 +2534,11 @@ public:
 		auto	   ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
 		const auto length = _RANGES distance(ufirst, _unwrap_sentinel<Iterator, Sentinel>(_STD move(last)));
 
-		ufirst = __default_lower_bound(_STD move(ufirst),
-									   _STD move(length),
-									   _STD move(value),
-									   _pass_function(pred),
-									   _pass_function(proj));
+		ufirst			  = __default_lower_bound(_STD move(ufirst),
+										  _STD move(length),
+										  _STD move(value),
+										  _pass_function(pred),
+										  _pass_function(proj));
 
 		_seek_wrapped(first, _STD move(ufirst));
 
@@ -2632,13 +2596,13 @@ private:
 	{
 		using diff_t = _STD iter_difference_t<Iterator>;
 
-		diff_t half { 0 };
+		diff_t				half { 0 };
 
-		Iterator middle { first };
+		Iterator			middle { first };
 
 		while (0 < length)
 		{
-			half = static_cast<diff_t>(length >> 1);
+			half   = static_cast<diff_t>(length >> 1);
 
 			middle = _RANGES next(first, half);
 
@@ -2659,7 +2623,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* upper_bound() for 仿函数 标准版 */
@@ -2679,11 +2642,11 @@ public:
 		auto	   ufirst = _unwrap_iterator<Sentinel>(_STD move(first));
 		const auto length = _RANGES distance(ufirst, _unwrap_sentinel<Iterator, Sentinel>(_STD move(last)));
 
-		ufirst = __default_upper_bound(_STD move(ufirst),
-									   _STD move(length),
-									   _STD move(value),
-									   _pass_function(pred),
-									   _pass_function(proj));
+		ufirst			  = __default_upper_bound(_STD move(ufirst),
+										  _STD move(length),
+										  _STD move(value),
+										  _pass_function(pred),
+										  _pass_function(proj));
 
 		_seek_wrapped(first, _STD move(ufirst));
 
@@ -2741,28 +2704,28 @@ private:
 	{
 		using diff_t = _STD iter_difference_t<Iterator>;
 
-		diff_t half { 0 };
+		diff_t				half { 0 };
 
-		Iterator middle { first };
+		Iterator			middle { first };
 
-		while (0 < length)											   // 如果整个区间尚未迭代完毕
+		while (0 < length)											  // 如果整个区间尚未迭代完毕
 		{
-			half = static_cast<diff_t>(length >> 1);				   // 找出中间位置
+			half   = static_cast<diff_t>(length >> 1);				  // 找出中间位置
 
-			middle = _RANGES next(first, half);						   // 设定中央迭代器
+			middle = _RANGES next(first, half);						  // 设定中央迭代器
 
-			if (_STD invoke(pred, _STD invoke(proj, *middle), value))  // 如果 中央元素 < 指定值
+			if (_STD invoke(pred, _STD invoke(proj, *middle), value)) // 如果 中央元素 < 指定值
 			{
 				first = _STD move(middle);
-				++first;  // 将区间缩小（移至后半段），以提高效率
+				++first; // 将区间缩小（移至后半段），以提高效率
 
 				length -= static_cast<diff_t>(half + 1);
 			}
-			else if (_STD invoke(pred, value, _STD invoke(proj, *middle)))	// 如果 中央元素 > 指定值
+			else if (_STD invoke(pred, value, _STD invoke(proj, *middle))) // 如果 中央元素 > 指定值
 			{
-				length = _STD move(half);  // 将区间缩小（移至前半段），以提高效率
+				length = _STD move(half); // 将区间缩小（移至前半段），以提高效率
 			}
-			else						   // 如果 中央元素 == 指定值
+			else						  // 如果 中央元素 == 指定值
 			{
 				// 在前半段寻找上限
 				auto begin { lower_bound(no_inspection_required, _STD move(first), half, value, pred, proj) };
@@ -2781,7 +2744,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function equal_range() for 仿函数 标准版 */
@@ -2802,11 +2764,11 @@ public:
 		auto	   ulast  = _get_last_iterator_unwrapped<Iterator>(ufirst, _STD move(last));
 		const auto length = ulast - ufirst;
 
-		auto result = __default_equal_range(_STD move(ufirst),
-											_STD move(length),
-											_STD move(value),
-											_pass_function(pred),
-											_pass_function(proj));
+		auto	   result = __default_equal_range(_STD move(ufirst),
+											  _STD move(length),
+											  _STD move(value),
+											  _pass_function(pred),
+											  _pass_function(proj));
 
 		return _rewrap_subrange<_RANGES subrange<Iterator>>(first, _STD move(result));
 	}
@@ -2821,14 +2783,14 @@ public:
 	constexpr _RANGES borrowed_subrange_t<Range>
 		operator()(Range&& rng, const Type& value, Predicate pred = {}, Projection proj = {}) const noexcept
 	{
-		auto first		  = _RANGES begin(rng);
-		const auto length = _RANGES distance(rng);
+		auto first						   = _RANGES begin(rng);
+		const auto length				   = _RANGES distance(rng);
 
-		auto result = __default_equal_range(_STD move(__ubegin(rng)),
-											_STD move(length),
-											_STD move(value),
-											_pass_function(pred),
-											_pass_function(proj));
+		auto						result = __default_equal_range(_STD move(__ubegin(rng)),
+											   _STD move(length),
+											   _STD move(value),
+											   _pass_function(pred),
+											   _pass_function(proj));
 
 		return _rewrap_subrange<_RANGES borrowed_subrange_t<Range>>(first, _STD move(result));
 	}
@@ -2840,7 +2802,6 @@ constexpr inline __Equal_range_function equal_range { __Not_quite_object::__Cons
 struct __Binary_search_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function binary_search() for 仿函数 标准版 */
@@ -2861,12 +2822,12 @@ public:
 		auto	   ulast  = _get_last_iterator_unwrapped<Iterator>(ufirst, _STD move(last));
 		const auto length = ulast - ufirst;
 
-		ufirst = lower_bound(no_inspection_required,
-							 _STD move(ufirst),
-							 _STD move(length),
-							 _STD move(value),
-							 _pass_function(pred),
-							 _pass_function(proj));
+		ufirst			  = lower_bound(no_inspection_required,
+								_STD move(ufirst),
+								_STD move(length),
+								_STD move(value),
+								_pass_function(pred),
+								_pass_function(proj));
 
 		return (ufirst != ulast) && (!(_STD invoke(pred, value, _STD invoke(proj, *ufirst))));
 	}
@@ -2883,12 +2844,12 @@ public:
 		auto	   ufirst = __ubegin(rng);
 		const auto length = _RANGES distance(rng);
 
-		ufirst = lower_bound(no_inspection_required,
-							 _STD move(ufirst),
-							 _STD move(length),
-							 _STD move(value),
-							 _pass_function(pred),
-							 _pass_function(proj));
+		ufirst			  = lower_bound(no_inspection_required,
+								_STD move(ufirst),
+								_STD move(length),
+								_STD move(value),
+								_pass_function(pred),
+								_pass_function(proj));
 
 		return (ufirst != __uend(rng)) && (!(_STD invoke(pred, value, _STD invoke(proj, *ufirst))));
 	}
@@ -2898,4 +2859,4 @@ constexpr inline __Binary_search_function binary_search { __Not_quite_object::__
 
 _END_NAMESPACE_ZHANG
 
-#endif	// _HAS_CXX20
+#endif // _HAS_CXX20
