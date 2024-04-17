@@ -111,7 +111,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function accumulate() for 仿函数 标准版 */
@@ -173,7 +172,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function count() for 仿函数 标准版 */
@@ -232,7 +230,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function itoa() 标准版 */
@@ -278,7 +275,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function find() for 仿函数 标准版 */
@@ -343,7 +339,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function find_if() for 仿函数 标准版 */
@@ -419,7 +414,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function find_if_not() for 仿函数 标准版 */
@@ -502,7 +496,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function find_first_of() for 仿函数 标准版 */
@@ -581,7 +574,6 @@ constexpr inline __Find_first_of_function find_first_of { __Not_quite_object::__
 struct __Swap_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	template <typename Type>
@@ -623,7 +615,6 @@ constexpr inline __Swap_function swap { __Not_quite_object::__Construct_tag {} }
 struct __Iter_swap_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	template <typename Iterator>
@@ -651,7 +642,6 @@ constexpr inline __Iter_swap_function iter_swap { __Not_quite_object::__Construc
 struct __Swap_ranges_function: private __Not_quite_object
 {
 private:
-
 	template <typename Iterator1, typename Iterator2>
 	using swap_ranges_result = _RANGES in_in_result<Iterator1, Iterator2>;
 
@@ -669,7 +659,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function swap_ranges() 标准版 */
@@ -719,7 +708,6 @@ constexpr inline __Swap_ranges_function swap_ranges { __Not_quite_object::__Cons
 struct __For_each_function: private __Not_quite_object
 {
 private:
-
 	template <typename Iterator, typename Predicate>
 	using for_each_result = _RANGES in_fun_result<Iterator, Predicate>;
 
@@ -737,7 +725,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function for_each() 标准版 */
@@ -791,7 +778,6 @@ constexpr inline __For_each_function for_each { __Not_quite_object::__Construct_
 struct __For_each_n_function: private __Not_quite_object
 {
 private:
-
 	template <typename Iterator, typename Predicate>
 	using for_each_n_result = _RANGES in_fun_result<Iterator, Predicate>;
 
@@ -811,7 +797,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Construct_tag;
 
 	/* function for_each_n() 标准版 */
@@ -890,7 +875,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function equal() for 仿函数 标准版 */
@@ -981,7 +965,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function fill() 标准版 */
@@ -1027,7 +1010,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function fill_n() 标准版 */
@@ -1051,7 +1033,6 @@ constexpr inline __Fill_n_function fill_n { __Not_quite_object::__Construct_tag 
 struct __Max_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function max() for 仿函数 标准版 */
@@ -1142,7 +1123,6 @@ constexpr inline __Max_function max { __Not_quite_object::__Construct_tag {} };
 struct __Min_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function min() for 仿函数 标准版 */
@@ -1258,7 +1238,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function max_element() for 仿函数 标准版 */
@@ -1336,7 +1315,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function min_element() for 仿函数 标准版 */
@@ -1389,7 +1367,6 @@ constexpr inline __Min_element_function min_element { __Not_quite_object::__Cons
 struct __Merge_function: private __Not_quite_object
 {
 private:
-
 	template <typename Iterator1, typename Iterator2, typename Iterator>
 	using merge_result = _RANGES in_in_out_result<Iterator1, Iterator2, Iterator>;
 
@@ -1443,7 +1420,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function merge() for 仿函数 标准版 */
@@ -1528,7 +1504,6 @@ constexpr inline __Merge_function merge { __Not_quite_object::__Construct_tag {}
 struct __Transform_function: private __Not_quite_object
 {
 private:
-
 	template <typename Iterator, typename OutIter>
 	using unary_transform_result = _RANGES in_out_result<Iterator, OutIter>;
 
@@ -1576,7 +1551,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// function transform() for 仿函数 标准版
@@ -1745,7 +1719,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function partial_sort() for 仿函数 标准版 */
@@ -1880,7 +1853,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// insertion_sort() for 仿函数 标准版
@@ -1962,7 +1934,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	template <_STD random_access_iterator Iterator, typename Predicate, typename Projection>
@@ -2007,10 +1978,9 @@ constexpr inline __Set_median_of_three_function set_median_of_three { __Not_quit
 struct __Partition_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
-	// 用于分割序列，选择一个枢轴，将[first，last）划分为小于枢轴的元素、等于枢轴的元素和大于枢轴的元素；将相等的分区作为子范围返回。
+	// 用于分割序列，选择一个枢轴，将 [first, last) 划分为小于枢轴的元素、等于枢轴的元素和大于枢轴的元素；将相等的分区作为子范围返回。
 	template <_STD random_access_iterator Iterator,
 			  _STD sentinel_for<Iterator> Sentinel,
 			  typename Predicate,
@@ -2161,7 +2131,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// quick_sort() for 仿函数 标准版
@@ -2239,7 +2208,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/*
@@ -2343,7 +2311,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// sort() for 仿函数 标准版
@@ -2419,7 +2386,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function nth_element() for 仿函数 标准版 */
@@ -2549,7 +2515,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function lower_bound() for 仿函数 标准版 */
@@ -2659,7 +2624,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* upper_bound() for 仿函数 标准版 */
@@ -2781,7 +2745,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function equal_range() for 仿函数 标准版 */
@@ -2840,7 +2803,6 @@ constexpr inline __Equal_range_function equal_range { __Not_quite_object::__Cons
 struct __Binary_search_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	/* function binary_search() for 仿函数 标准版 */

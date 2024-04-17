@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string_view>
+#include <type_traits>
+
 #include <algorithm>
 #include <climits>
 #include <functional>
@@ -8,8 +11,6 @@
 #include <memory>
 #include <new>
 #include <string>
-#include <string_view>
-#include <type_traits>
 #include <utility>
 #include <vector>
 #include <version>
@@ -308,7 +309,6 @@ namespace _unchecked_begin
 	class UncheckBegin
 	{
 	private:
-
 		enum class Start
 		{
 			None,
@@ -342,7 +342,6 @@ namespace _unchecked_begin
 		static constexpr choice_t<Start> choice = choose<Type>();
 
 	public:
-
 		template <_RANGES _Should_range_access Type>
 			requires(choice<Type&>.strategy != Start::None)
 		_NODISCARD constexpr auto operator()(Type&& value) const noexcept(choice<Type&>.no_throw)
@@ -388,7 +387,6 @@ namespace _unchecked_end
 	class UncheckEnd
 	{
 	private:
-
 		enum class Start
 		{
 			None,
@@ -419,7 +417,6 @@ namespace _unchecked_end
 		static constexpr choice_t<Start> choice = choose<Type>();
 
 	public:
-
 		template <_RANGES _Should_range_access Type>
 			requires(choice<Type&>.strategy != Start::None)
 		_NODISCARD constexpr auto operator()(Type&& value) const noexcept(choice<Type&>.no_throw)
@@ -488,11 +485,9 @@ _NODISCARD constexpr auto _pass_function(Predicate& pred) noexcept
 	}
 }
 
-class
-	__Not_quite_object	// 展示了一种在C++中创建非完全对象（not quite an object）的模式。此类对象的设计目的是作为一个基类或辅助类，用于那些不希望被视为常规对象的函数对象。
+class __Not_quite_object
 {
 public:
-
 	/*
 	* 它用于库中的一些重载集，这些重载集不希望参数通过ADL（参数依赖名称查找）被找到，因此它们禁止ADL。
 	* 这种设计允许将这些重载集实现为函数对象，而不是常规对象。
@@ -510,17 +505,15 @@ public:
 		explicit __Construct_tag() = default;
 	};
 
-	__Not_quite_object() = delete;
-
 	constexpr explicit __Not_quite_object(__Construct_tag) noexcept {}
 
-	__Not_quite_object(const __Not_quite_object&)			 = delete;
+	__Not_quite_object()						  = delete;
+	__Not_quite_object(const __Not_quite_object&) = delete;
+
+	void				operator&() const					 = delete;
 	__Not_quite_object& operator=(const __Not_quite_object&) = delete;
 
-	void operator&() const = delete;
-
 protected:
-
 	~__Not_quite_object() = default;
 };
 
