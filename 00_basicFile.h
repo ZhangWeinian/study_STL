@@ -489,7 +489,7 @@ _NODISCARD constexpr auto _pass_function(Predicate& pred) noexcept
 }
 
 class
-	__Not_quite_object	// 展示了一种在C++中创建非完全对象（not quite an object）的模式。此类对象的设计目的是作为一个基类或辅助类，用于那些不希望被视为常规对象的函数对象。
+	__Not_quite_object	//这是一种在C++中创建非完全对象（not quite an object）的模式。此类对象的设计目的是作为一个基类或辅助类，用于那些不希望被视为常规对象的函数对象。
 {
 public:
 
@@ -510,14 +510,13 @@ public:
 		explicit __Construct_tag() = default;
 	};
 
-	__Not_quite_object() = delete;
-
 	constexpr explicit __Not_quite_object(__Construct_tag) noexcept {}
 
-	__Not_quite_object(const __Not_quite_object&)			 = delete;
-	__Not_quite_object& operator=(const __Not_quite_object&) = delete;
+	__Not_quite_object()						  = delete;
+	__Not_quite_object(const __Not_quite_object&) = delete;
 
-	void operator&() const = delete;
+	void				operator&() const					 = delete;
+	__Not_quite_object& operator=(const __Not_quite_object&) = delete;
 
 protected:
 
