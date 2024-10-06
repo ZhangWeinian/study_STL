@@ -1,6 +1,7 @@
+#pragma once
+
 #include "./00_basicFile.h"
 
-#include <functional>
 
 _BEGIN_NAMESPACE_ZHANG
 

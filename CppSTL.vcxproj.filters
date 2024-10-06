@@ -15,46 +15,42 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="00_basicFile.h">
+    <ClInclude Include="src\include\00_basicFile.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="06_algorithms.h">
+    <ClInclude Include="src\include\06_algorithms.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="03_iterator.h">
+    <ClInclude Include="src\include\03_iterator.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="04_sequence_containers.h">
+    <ClInclude Include="src\include\04_sequence_containers.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="01_without_book.h">
+    <ClInclude Include="src\include\01_without_book.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="07_functor.h">
+    <ClInclude Include="src\include\07_functor.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="05_associative_containers.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="test.h">
+    <ClInclude Include="src\include\05_associative_containers.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mySTL.h">
+    <ClCompile Include="src\include\mySTL.h">
       <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="run.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
     <None Include=".clang-format" />
-    <None Include="cpp.hint" />
+    <None Include="src\include\cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />
-    <Text Include="data.txt" />
   </ItemGroup>
 </Project>

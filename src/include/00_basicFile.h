@@ -1,110 +1,74 @@
 #pragma once
 
-#include <string_view>
 #include <type_traits>
-
-#include <algorithm>
-#include <climits>
-#include <functional>
-#include <iostream>
 #include <iterator>
-#include <memory>
-#include <new>
-#include <string>
-#include <utility>
-#include <vector>
 #include <version>
-#include <xmemory>
-
-
-#ifndef _HAS_CXX20
-
-	#if !(__cplusplus < 202'002L)
-
-		#ifndef _HAS_CXX20
-			#define _HAS_CXX20 __cplusplus
-		#endif // !_HAS_CXX20
-
-	#elif !(_MSVC_LANG < 202'002L)
-
-		#ifndef _HAS_CXX20
-			#define _HAS_CXX20 _MSVC_LANG
-		#endif // !_HAS_CXX20
-
-	#endif
-
-#endif // !_HAS_CXX20
 
 
 
-#if _HAS_CXX20
-
-	#include <format>
-	#include <ranges>
-	#include <string_view>
-	#include <compare>
-	#include <concepts>
+#include <string_view>
+#include <concepts>
 
 
-	#ifndef _STD
-		#define _STD ::std::
-	#endif // !_STD
+#ifndef _STD
+	#define _STD ::std::
+#endif // !_STD
 
-	#ifndef _CSTD
-		#define _CSTD ::
-	#endif // !_CSTD
+#ifndef _CSTD
+	#define _CSTD ::
+#endif // !_CSTD
 
-	#ifndef _RANGES
-		#define _RANGES ::std::ranges::
-	#endif // !_RANGES
+#ifndef _RANGES
+	#define _RANGES ::std::ranges::
+#endif // !_RANGES
 
-	#ifndef _RG
-		#define _RG ::std::ranges::
-	#endif // !_RG
-
-
-	#ifndef _NODISCARD
-		#define _NODISCARD [[nodiscard]]
-	#endif // !_NODISCARD
-
-	#ifndef _NORETURN
-		#define _NORETURN [[noreturn]]
-	#endif // !_NORETURN
+#ifndef _RG
+	#define _RG ::std::ranges::
+#endif // !_RG
 
 
-	#ifndef __STL_TEMPLATE_NULL
-		#define __STL_TEMPLATE_MULL template <>
-	#endif // !__STL_TEMPLATE_NULL
+#ifndef _NODISCARD
+	#define _NODISCARD [[nodiscard]]
+#endif // !_NODISCARD
 
-	#ifndef _BEGIN_NAMESPACE_ZHANG
-		#define _BEGIN_NAMESPACE_ZHANG \
-			namespace zhang            \
-			{
-	#endif // !_BEGIN_NAMESPACE_ZHANG
+#ifndef _NORETURN
+	#define _NORETURN [[noreturn]]
+#endif // !_NORETURN
 
-	#ifndef _END_NAMESPACE_ZHANG
-		#define _END_NAMESPACE_ZHANG }
-	#endif // !_END_NAMESPACE_ZHANG
 
-	#ifndef _BEGIN_NEW_NAMESPACE
-		#define _BEGIN_NEW_NAMESPACE(name) \
-			namespace name                 \
-			{
-	#endif // !_BEGIN_NEW_NAMESPACE
+#ifndef __STL_TEMPLATE_NULL
+	#define __STL_TEMPLATE_MULL template <>
+#endif // !__STL_TEMPLATE_NULL
 
-	#ifndef _END_NEW_NAMESPACE
-		#define _END_NEW_NAMESPACE(name) }
-	#endif // !_END_NEW_NAMESPACE
+#ifndef _BEGIN_NAMESPACE_ZHANG
+	#define _BEGIN_NAMESPACE_ZHANG \
+		namespace zhang            \
+		{
+#endif // !_BEGIN_NAMESPACE_ZHANG
 
-	#ifndef _BEGIN_INLINE_NAMESPACE
-		#define _BEGIN_INLINE_NAMESPACE(name) \
-			inline namespace name             \
-			{
-	#endif // !_BEGIN_INLINE_NAMESPACE
+#ifndef _END_NAMESPACE_ZHANG
+	#define _END_NAMESPACE_ZHANG }
+#endif // !_END_NAMESPACE_ZHANG
 
-	#ifndef _END_INLINE_NAMESPACE
-		#define _END_INLINE_NAMESPACE(name) }
-	#endif // !_END_INLINE_NAMESPACE
+#ifndef _BEGIN_NEW_NAMESPACE
+	#define _BEGIN_NEW_NAMESPACE(name) \
+		namespace name                 \
+		{
+#endif // !_BEGIN_NEW_NAMESPACE
+
+#ifndef _END_NEW_NAMESPACE
+	#define _END_NEW_NAMESPACE(name) }
+#endif // !_END_NEW_NAMESPACE
+
+#ifndef _BEGIN_INLINE_NAMESPACE
+	#define _BEGIN_INLINE_NAMESPACE(name) \
+		inline namespace name             \
+		{
+#endif // !_BEGIN_INLINE_NAMESPACE
+
+#ifndef _END_INLINE_NAMESPACE
+	#define _END_INLINE_NAMESPACE(name) }
+#endif // !_END_INLINE_NAMESPACE
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -112,29 +76,29 @@
 
 _BEGIN_NAMESPACE_ZHANG // 此处开始，所有的代码都在命名空间 zhang 中
 
-	#ifndef _stl_threshold
+#ifndef _stl_threshold
 	template <typename Type>
 	constexpr Type _stl_threshold = Type(16);
-	#endif // !_stl_threshold
+#endif // !_stl_threshold
 
 
-	#ifndef _max_msg_args_constant
+#ifndef _max_msg_args_constant
 
 template <typename Type>
 constexpr inline Type _max_msg_args_constant = Type(128);
 
-		#ifndef _limit_msg_args_constant
+	#ifndef _limit_msg_args_constant
 
 template <typename Type>
 constexpr inline Type _limit_msg_args_constant = (_max_msg_args_constant<Type>) >> 1;
 
-		#endif // !_limit_msg_args_constant
-	#endif	   // !_max_msg_args_constant
+	#endif // !_limit_msg_args_constant
+#endif	   // !_max_msg_args_constant
 
-	#ifndef _max_get_median_of_three_constant
+#ifndef _max_get_median_of_three_constant
 template <typename Type>
 constexpr inline Type _max_get_median_of_three_constant = Type(40);
-	#endif // !_max_get_median_of_three_constant
+#endif // !_max_get_median_of_three_constant
 
 template <typename>
 constexpr inline bool _always_false = false;
@@ -518,5 +482,3 @@ protected:
 };
 
 _END_NAMESPACE_ZHANG
-
-#endif // _HAS_CXX20

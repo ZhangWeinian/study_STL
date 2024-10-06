@@ -24,6 +24,7 @@
     <ProjectGuid>{f660d4cd-1b20-4ee2-ad5f-25fa7d0f0451}</ProjectGuid>
     <RootNamespace>CppSTL</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>miniSTL</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -72,9 +73,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>.\build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>.\work\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>miniSTL</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>.\build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>.\work\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>miniSTL</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>.\work\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>miniSTL</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>.\work\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>miniSTL</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -82,6 +99,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -96,6 +115,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,26 +163,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="00_basicFile.h" />
-    <ClInclude Include="01_without_book.h" />
-    <ClInclude Include="03_iterator.h" />
-    <ClInclude Include="04_sequence_containers.h" />
-    <ClInclude Include="05_associative_containers.h" />
-    <ClInclude Include="06_algorithms.h" />
-    <ClInclude Include="07_functor.h" />
-    <ClInclude Include="test.h" />
+    <ClInclude Include="src\include\00_basicFile.h" />
+    <ClInclude Include="src\include\01_without_book.h" />
+    <ClInclude Include="src\include\03_iterator.h" />
+    <ClInclude Include="src\include\04_sequence_containers.h" />
+    <ClInclude Include="src\include\05_associative_containers.h" />
+    <ClInclude Include="src\include\06_algorithms.h" />
+    <ClInclude Include="src\include\07_functor.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mySTL.h" />
-    <ClCompile Include="test.cpp" />
+    <ClCompile Include="src\include\mySTL.h" />
+    <ClCompile Include="run.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
-    <None Include="cpp.hint" />
+    <None Include="src\include\cpp.hint" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="data.txt" />
     <Text Include="LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

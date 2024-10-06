@@ -2,6 +2,9 @@
 
 #include "./00_basicFile.h"
 
+#include <iterator>
+#include <version>
+
 #ifdef _HAS_CXX20
 
 _BEGIN_NAMESPACE_ZHANG
@@ -9,7 +12,6 @@ _BEGIN_NAMESPACE_ZHANG
 struct __Push_heap_aux_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	template <_STD random_access_iterator RandomAccessIterator,
@@ -43,7 +45,6 @@ constexpr inline __Push_heap_aux_function __zh_Push_heap_aux { __Not_quite_objec
 struct __Push_heap_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// push_heap() for 仿函数 标准版
@@ -133,7 +134,7 @@ private:
 	{
 		using difference_type = typename _STD iter_difference_t<RandomAccessIterator>;
 
-		*result = *first;
+		*result				  = *first;
 
 		__adjust_heap(first,
 					  static_cast<difference_type>(0),
@@ -144,7 +145,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// pop_heap() for 仿函数 标准版
@@ -175,7 +175,6 @@ constexpr inline __Pop_heap_function pop_heap { __Not_quite_object::__Construct_
 struct __Sort_heap_function: private __Not_quite_object
 {
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// sort_heap() for 仿函数 标准版
@@ -209,7 +208,6 @@ constexpr inline __Sort_heap_function sort_heap { __Not_quite_object::__Construc
 struct __Make_heap_function: private __Not_quite_object
 {
 private:
-
 	template <_STD random_access_iterator  RandomAccessIterator,
 			  typename Predicate  = _RANGES less,
 			  typename Projection = _STD   identity>
@@ -221,13 +219,13 @@ private:
 			return;
 		}
 
-		pred = _pass_function(pred);
+		pred									   = _pass_function(pred);
 
-		using value_type	= typename _STD	   iter_value_t<RandomAccessIterator>;
-		using distance_type = typename _STD iter_difference_t<RandomAccessIterator>;
+		using value_type						   = typename _STD	  iter_value_t<RandomAccessIterator>;
+		using distance_type						   = typename _STD iter_difference_t<RandomAccessIterator>;
 
-		distance_type len	 = last - first;
-		distance_type parent = (len - 2) / 2;
+		distance_type						len	   = last - first;
+		distance_type						parent = (len - 2) / 2;
 
 		while (true)
 		{
@@ -243,7 +241,6 @@ private:
 	}
 
 public:
-
 	using __Not_quite_object::__Not_quite_object;
 
 	// make_heap() for 仿函数 标准版
@@ -270,4 +267,4 @@ constexpr inline __Make_heap_function make_heap { __Not_quite_object::__Construc
 
 _END_NAMESPACE_ZHANG
 
-#endif	// _HAS_CXX20
+#endif // _HAS_CXX20

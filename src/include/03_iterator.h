@@ -1,4 +1,10 @@
+#pragma once
+
 #include "./00_basicFile.h"
+
+#include <type_traits>
+#include <iterator>
+#include <version>
 
 #if _HAS_CXX20
 
@@ -16,28 +22,23 @@ using bidirectional_iterator_tag = _STD bidirectional_iterator_tag;
 using random_access_iterator_tag = _STD random_access_iterator_tag;
 using contiguous_iterator_tag	 = _STD	   contiguous_iterator_tag;
 
-	#else
+	  #else
 struct input_iterator_tag
-{
-};
+{};
 
 struct output_iterator_tag
-{
-};
+{};
 
 struct forward_iterator_tag: input_iterator_tag, output_iterator_rag
-{
-};
+{};
 
 struct bidirectional_iterator_tag: forward_iterator_tag
-{
-};
+{};
 
 struct random_access_iterator_tag: bidirectional_iterator_tag
-{
-};
+{};
 
-	#endif	// !__use_myself_allocator__
+	  #endif // !__use_myself_allocator__
 
 // 为避免自定义时类型少写，自行开发的迭代器最好继承自如下所示的 _STD iterator
 template <typename Category,
@@ -141,7 +142,7 @@ inline typename iterator_traits<InputIterator>::difference_type distance(InputIt
 }
 
 template <typename InputIterator,
-		  typename Distance>  // 注意，这个函数书中未给出实现，但却有这样的用法，故在此处自定义实现
+		  typename Distance> // 注意，这个函数书中未给出实现，但却有这样的用法，故在此处自定义实现
 inline void distance(InputIterator first, InputIterator last, Distance& result)
 {
 	result = static_cast<Distance>(distance(first, last));
@@ -363,4 +364,4 @@ struct __type_traits<Type*>
 
 _END_NAMESPACE_ZHANG
 
-#endif	// _HAS_CXX20
+#endif // _HAS_CXX20
